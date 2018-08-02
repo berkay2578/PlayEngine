@@ -602,7 +602,7 @@ namespace PlayEngine.Forms {
 
             if (oldScanStatus == ScanStatus.FirstScan) {
                listViewResults.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = $"Scanning {searchSection.name}"));
-               List<UInt32> results = Memory.scan(
+               List<Tuple<UInt32, dynamic>> results = Memory.scan(
                      Memory.readByteArray(processInfo.pid, searchSection.start, searchSection.length),
                      scanValues[0],
                      scanValueType,
@@ -612,18 +612,18 @@ namespace PlayEngine.Forms {
                listViewResults.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = $"Scanned {searchSection.name}: {results.Count} results found"));
 
                List<ScanResult> scanResults = new List<ScanResult>();
-               foreach (UInt32 sectionAddressOffset in results) {
+               foreach (var tuple in results) {
                   if (curResultCount > maxResultCount)
                      break;
-                  UInt64 runtimeAddress = searchSection.start + sectionAddressOffset;
+                  UInt64 runtimeAddress = searchSection.start + tuple.Item1;
                   ScanResult scanResult = new ScanResult()
                   {
                      address = runtimeAddress,
                      memorySection = searchSection,
-                     memorySectionOffset = sectionAddressOffset,
-                     memoryValue = Memory.read(processInfo.pid, runtimeAddress, scanValueType),
+                     memorySectionOffset = tuple.Item1,
+                     memoryValue = tuple.Item2,
+                     oldMemoryValue = tuple.Item2
                   };
-                  scanResult.oldMemoryValue = scanResult.memoryValue;
 
                   curResultCount++;
                   scanResults.Add(scanResult);

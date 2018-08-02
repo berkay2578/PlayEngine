@@ -62,7 +62,7 @@ namespace PlayEngine.Helpers {
                case CompareType.UnchangedValue:
                   return memoryValueToCompare == oldSearchValue;
                case CompareType.BetweenValues:
-                  return (memoryValueToCompare >= extraParams[0]) && (memoryValueToCompare <= extraParams[1]);
+                  return (memoryValueToCompare > extraParams[0]) && (memoryValueToCompare < extraParams[1]);
                case CompareType.None:
                case CompareType.UnknownInitialValue:
                default:
@@ -154,8 +154,8 @@ namespace PlayEngine.Helpers {
             writeByteArray(procId, address, value.getBytes(valueType));
       }
 
-      public static List<UInt32> scan(Byte[] scanSearchBuffer, dynamic scanValue, Type scanValueType, CompareType scanCompareType, dynamic[] extraParams = null) {
-         List<UInt32> listResults = new List<UInt32>();
+      public static List<Tuple<UInt32, dynamic>> scan(Byte[] scanSearchBuffer, dynamic scanValue, Type scanValueType, CompareType scanCompareType, dynamic[] extraParams = null) {
+         List<Tuple<UInt32, dynamic>> listResults = new List<Tuple<UInt32, dynamic>>();
          Int32 objectTypeSize = 0;
          Func<Int32 /* scanSearchBufferIndex */, dynamic /* returnValue */> fnGetMemoryValue = null;
 
@@ -230,13 +230,14 @@ namespace PlayEngine.Helpers {
                      break;
                }
                if (isFound)
-                  listResults.Add((UInt32)index);
+                  listResults.Add(new Tuple<UInt32, dynamic>((UInt32)index, scanValueBuffer));
             }
          } else {
             Int32 endOffset = scanSearchBuffer.Length - objectTypeSize;
             for (Int32 index = 0; index < endOffset; index += objectTypeSize) {
-               if (Memory.CompareUtil.compare(scanValue, fnGetMemoryValue.Invoke(index), scanCompareType, extraParams))
-                  listResults.Add((UInt32)index);
+               dynamic memoryValue = fnGetMemoryValue.Invoke(index);
+               if (Memory.CompareUtil.compare(scanValue, memoryValue, scanCompareType, extraParams))
+                  listResults.Add(new Tuple<UInt32, dynamic>((UInt32)index, memoryValue));
 
             }
          }

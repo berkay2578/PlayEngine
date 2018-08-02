@@ -311,7 +311,7 @@ namespace PlayEngine.Forms {
       #endregion
       #region contextMenuChkListBox
       private void contextMenuChkListBox_btnSelectAll_OnClick() {
-         chkListViewSearchSections.CheckObjects(chkListViewSearchSections.Objects);
+         chkListViewSearchSections.CheckAll();
       }
       #endregion
       private void uiButtonHandler_Click(Object sender, EventArgs e) {

@@ -414,10 +414,8 @@ namespace PlayEngine.Forms {
             processInfo = Memory.getProcessInfoFromName(selectedProcessName);
 
             contextMenuChkListBox_btnSelectAll.Checked = false; listProcessMemorySections.Clear();
-            foreach (var memorySection in Memory.Sections.getMemorySections(processInfo)) {
-               listProcessMemorySections.Add(memorySection);
-               chkListViewSearchSections.AddObject(memorySection);
-            }
+            listProcessMemorySections.AddRange(Memory.Sections.getMemorySections(processInfo));
+            chkListViewSearchSections.AddObjects(listProcessMemorySections);
             uiToolStrip_lblActiveProcess.Text = $"Process: {selectedProcessName}";
             //uiToolStrip_btnOpenPointerScanner.Enabled = true;
          } catch (Exception exception) {

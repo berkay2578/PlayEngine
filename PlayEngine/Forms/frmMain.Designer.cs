@@ -24,7 +24,7 @@
       /// </summary>
       private void InitializeComponent() {
          this.components = new System.ComponentModel.Container();
-         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
          this.uiToolStrip = new System.Windows.Forms.ToolStrip();
          this.uiToolStrip_linkFile = new System.Windows.Forms.ToolStripDropDownButton();
          this.uiToolStrip_btnLoadCheatTable = new System.Windows.Forms.ToolStripMenuItem();
@@ -536,13 +536,17 @@
          this.chkListViewSearchSections.ContextMenuStrip = this.contextMenuChkListBox;
          this.chkListViewSearchSections.Cursor = System.Windows.Forms.Cursors.Default;
          this.chkListViewSearchSections.Dock = System.Windows.Forms.DockStyle.Fill;
+         this.chkListViewSearchSections.EmptyListMsg = "Select a process to see sections.";
          this.chkListViewSearchSections.FullRowSelect = true;
          this.chkListViewSearchSections.Location = new System.Drawing.Point(0, 0);
          this.chkListViewSearchSections.Name = "chkListViewSearchSections";
+         this.chkListViewSearchSections.PersistentCheckBoxes = false;
          this.chkListViewSearchSections.ShowGroups = false;
+         this.chkListViewSearchSections.ShowImagesOnSubItems = true;
          this.chkListViewSearchSections.ShowItemToolTips = true;
          this.chkListViewSearchSections.Size = new System.Drawing.Size(267, 151);
          this.chkListViewSearchSections.TabIndex = 0;
+         this.chkListViewSearchSections.TintSortColumn = true;
          this.chkListViewSearchSections.UseCompatibleStateImageBehavior = false;
          this.chkListViewSearchSections.View = System.Windows.Forms.View.Details;
          // 
@@ -616,6 +620,7 @@
          this.dataGridSavedResults.Size = new System.Drawing.Size(484, 86);
          this.dataGridSavedResults.TabIndex = 51;
          this.dataGridSavedResults.TabStop = false;
+         this.dataGridSavedResults.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridSavedResults_CellContentClick);
          this.dataGridSavedResults.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridSavedResults_CellDoubleClick);
          // 
          // dataGridSavedResults_chkBoxFreezeValue
@@ -637,9 +642,9 @@
          // 
          // dataGridSavedResults_txtBoxAddress
          // 
-         dataGridViewCellStyle2.Format = "X0";
-         dataGridViewCellStyle2.NullValue = null;
-         this.dataGridSavedResults_txtBoxAddress.DefaultCellStyle = dataGridViewCellStyle2;
+         dataGridViewCellStyle1.Format = "X0";
+         dataGridViewCellStyle1.NullValue = null;
+         this.dataGridSavedResults_txtBoxAddress.DefaultCellStyle = dataGridViewCellStyle1;
          this.dataGridSavedResults_txtBoxAddress.HeaderText = "Address";
          this.dataGridSavedResults_txtBoxAddress.Name = "dataGridSavedResults_txtBoxAddress";
          this.dataGridSavedResults_txtBoxAddress.ReadOnly = true;
@@ -685,6 +690,7 @@
          this.uiStatusStrip_linkSavedResults.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.uiStatusStrip_SavedResults_btnAddAddress,
             this.uiStatusStrip_SavedResults_btnAddPointer});
+         this.uiStatusStrip_linkSavedResults.Enabled = false;
          this.uiStatusStrip_linkSavedResults.ImageTransparentColor = System.Drawing.Color.Magenta;
          this.uiStatusStrip_linkSavedResults.Name = "uiStatusStrip_linkSavedResults";
          this.uiStatusStrip_linkSavedResults.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;

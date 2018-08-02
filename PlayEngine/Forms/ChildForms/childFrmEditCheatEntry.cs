@@ -13,12 +13,13 @@ namespace PlayEngine.Forms.ChildForms {
       }
       public ReturnInformation returnInformation;
 
+      private Boolean isCreatingNewEntry = false;
       public childFrmEditCheatEntry(List<librpc.MemorySection> listMemorySections, String description, librpc.MemorySection section, UInt32 sectionAddressOffset, Type valueType, Object value,
-            Int32 focusIndex) {
+            Int32 focusIndex = 0, Boolean isCreatingNewEntry = false) {
+         this.isCreatingNewEntry = isCreatingNewEntry;
+
          InitializeComponent();
          cmbBoxSection.Items.AddRange(listMemorySections.ToArray());
-         cmbBoxSection.SelectedItem = section;
-
          cmbBoxValueType.Items.AddRange(new Object[] {
             typeof(SByte), typeof(Byte),
             typeof(Int16), typeof(UInt16),
@@ -27,23 +28,45 @@ namespace PlayEngine.Forms.ChildForms {
             typeof(Single), typeof(Double),
             typeof(String), typeof(Byte[])
          });
-         cmbBoxValueType.SelectedItem = valueType;
 
-         txtBoxDescription.Text = description;
-         txtBoxSectionAddressOffset.Text = sectionAddressOffset.ToString("X");
-         txtBoxValue.Text = value.ToString();
+         if (isCreatingNewEntry) {
+            this.Text = "Create new cheat entry";
+            txtBoxValue.Enabled = false;
+            txtBoxDescription.Select();
+         } else {
+            cmbBoxSection.SelectedItem = section;
+            cmbBoxValueType.SelectedItem = valueType;
+            txtBoxDescription.Text = description;
+            txtBoxSectionAddressOffset.Text = $"0x{sectionAddressOffset.ToString("X")}";
+            txtBoxValue.Text = value.ToString();
 
-         foreach (Control cntrl in this.Controls)
-            if (cntrl.TabIndex == focusIndex)
-               cntrl.Select();
+            foreach (Control cntrl in this.Controls)
+               if (cntrl.TabIndex == focusIndex)
+                  cntrl.Select();
+         }
       }
 
       private void btnApply_Click(Object sender, EventArgs e) {
+         if (isCreatingNewEntry) {
+            if (cmbBoxSection.SelectedIndex < 0) {
+               MessageBox.Show("Section cannot be empty!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+               return;
+            }
+            if (String.IsNullOrEmpty(txtBoxSectionAddressOffset.Text)) {
+               MessageBox.Show("Section offset cannot be empty!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+               return;
+            }
+            if (cmbBoxValueType.SelectedIndex < 0) {
+               MessageBox.Show("Value type cannot be empty!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+               return;
+            }
+         }
+
          this.returnInformation = new ReturnInformation
          {
             description = txtBoxDescription.Text,
             section = (librpc.MemorySection)cmbBoxSection.SelectedItem,
-            sectionAddressOffset = UInt32.Parse(txtBoxSectionAddressOffset.Text, System.Globalization.NumberStyles.HexNumber),
+            sectionAddressOffset = UInt32.Parse(txtBoxSectionAddressOffset.Text.Replace("0x", ""), System.Globalization.NumberStyles.HexNumber),
             valueType = (Type)cmbBoxValueType.SelectedItem,
             value = txtBoxValue.Text
          };

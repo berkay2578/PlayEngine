@@ -101,8 +101,6 @@ namespace PlayEngine.Helpers {
          } finally {
             mutex.ReleaseMutex();
          }
-         if (returnBuf == null)
-            return readByteArray(procId, address, size);
          return returnBuf;
       }
       public static String readString(Int32 procId, UInt64 address) {

@@ -96,7 +96,7 @@
          this.txtBoxSectionAddressOffset.Location = new System.Drawing.Point(93, 59);
          this.txtBoxSectionAddressOffset.Name = "txtBoxSectionAddressOffset";
          this.txtBoxSectionAddressOffset.Size = new System.Drawing.Size(136, 20);
-         this.txtBoxSectionAddressOffset.TabIndex = 7;
+         this.txtBoxSectionAddressOffset.TabIndex = 3;
          this.txtBoxSectionAddressOffset.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
          // 
          // txtBoxValue
@@ -109,13 +109,14 @@
          // 
          // cmbBoxSection
          // 
-         this.cmbBoxSection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.cmbBoxSection.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+         this.cmbBoxSection.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
+         this.cmbBoxSection.DropDownWidth = 250;
          this.cmbBoxSection.FormattingEnabled = true;
          this.cmbBoxSection.Location = new System.Drawing.Point(84, 33);
          this.cmbBoxSection.Name = "cmbBoxSection";
          this.cmbBoxSection.Size = new System.Drawing.Size(145, 21);
-         this.cmbBoxSection.TabIndex = 3;
-         this.cmbBoxSection.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
+         this.cmbBoxSection.TabIndex = 2;
          // 
          // cmbBoxValueType
          // 
@@ -125,14 +126,13 @@
          this.cmbBoxValueType.Name = "cmbBoxValueType";
          this.cmbBoxValueType.Size = new System.Drawing.Size(145, 21);
          this.cmbBoxValueType.TabIndex = 4;
-         this.cmbBoxValueType.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
          // 
          // btnApply
          // 
          this.btnApply.Location = new System.Drawing.Point(73, 137);
          this.btnApply.Name = "btnApply";
          this.btnApply.Size = new System.Drawing.Size(75, 23);
-         this.btnApply.TabIndex = 8;
+         this.btnApply.TabIndex = 6;
          this.btnApply.Text = "OK";
          this.btnApply.UseVisualStyleBackColor = true;
          this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
@@ -143,7 +143,7 @@
          this.btnCancel.Location = new System.Drawing.Point(154, 137);
          this.btnCancel.Name = "btnCancel";
          this.btnCancel.Size = new System.Drawing.Size(75, 23);
-         this.btnCancel.TabIndex = 9;
+         this.btnCancel.TabIndex = 7;
          this.btnCancel.Text = "Cancel";
          this.btnCancel.UseVisualStyleBackColor = true;
          this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);

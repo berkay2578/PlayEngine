@@ -82,7 +82,7 @@ namespace librpc {
          }
       }
       public override string ToString() {
-         return $"{name}({offset}-{length/1024}KB)[{protection.ToString()}]";
+         return $"{name}(0x{offset:X}-{length/1024}KB)[{protection.ToString()}]";
       }
    }
 

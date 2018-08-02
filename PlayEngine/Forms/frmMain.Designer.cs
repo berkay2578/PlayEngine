@@ -24,7 +24,7 @@
       /// </summary>
       private void InitializeComponent() {
          this.components = new System.ComponentModel.Container();
-         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
          this.uiToolStrip = new System.Windows.Forms.ToolStrip();
          this.uiToolStrip_linkFile = new System.Windows.Forms.ToolStripDropDownButton();
          this.uiToolStrip_btnLoadCheatTable = new System.Windows.Forms.ToolStripMenuItem();
@@ -45,10 +45,10 @@
          this.uiToolStrip_lblActiveProcess = new System.Windows.Forms.ToolStripLabel();
          this.splitContainerMain = new System.Windows.Forms.SplitContainer();
          this.splitContainerScanner = new System.Windows.Forms.SplitContainer();
-         this.listViewResults = new System.Windows.Forms.ListView();
-         this.columnHeaderAddress = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-         this.columnHeaderSection = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-         this.columnHeaderValue = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+         this.listViewResults = new BrightIdeasSoftware.ObjectListView();
+         this.columnHeaderAddress = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+         this.columnHeaderSection = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+         this.columnHeaderValue = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
          this.splitContainerScanDetails = new System.Windows.Forms.SplitContainer();
          this.progressBarScanPercent = new System.Windows.Forms.ProgressBar();
          this.txtBoxSectionsFilter = new System.Windows.Forms.TextBox();
@@ -64,6 +64,9 @@
          this.btnScan = new System.Windows.Forms.Button();
          this.chkListViewSearchSections = new System.Windows.Forms.ListView();
          this.columnHeaderSectionName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+         this.columnHeaderSectionOffset = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+         this.columnHeaderSectionLength = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+         this.columnHeaderSectionProtection = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
          this.contextMenuChkListBox = new System.Windows.Forms.ContextMenuStrip(this.components);
          this.contextMenuChkListBox_btnSelectAll = new System.Windows.Forms.ToolStripMenuItem();
          this.dataGridSavedResults = new System.Windows.Forms.DataGridView();
@@ -80,9 +83,6 @@
          this.uiStatusStrip_lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
          this.bgWorkerScanner = new System.ComponentModel.BackgroundWorker();
          this.bgWorkerResultsUpdater = new System.ComponentModel.BackgroundWorker();
-         this.columnHeaderSectionOffset = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-         this.columnHeaderSectionLength = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-         this.columnHeaderSectionProtection = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
          this.uiToolStrip.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.splitContainerMain)).BeginInit();
          this.splitContainerMain.Panel1.SuspendLayout();
@@ -92,6 +92,7 @@
          this.splitContainerScanner.Panel1.SuspendLayout();
          this.splitContainerScanner.Panel2.SuspendLayout();
          this.splitContainerScanner.SuspendLayout();
+         ((System.ComponentModel.ISupportInitialize)(this.listViewResults)).BeginInit();
          ((System.ComponentModel.ISupportInitialize)(this.splitContainerScanDetails)).BeginInit();
          this.splitContainerScanDetails.Panel1.SuspendLayout();
          this.splitContainerScanDetails.Panel2.SuspendLayout();
@@ -305,37 +306,55 @@
          // 
          // listViewResults
          // 
+         this.listViewResults.AllColumns.Add(this.columnHeaderAddress);
+         this.listViewResults.AllColumns.Add(this.columnHeaderSection);
+         this.listViewResults.AllColumns.Add(this.columnHeaderValue);
          this.listViewResults.AutoArrange = false;
+         this.listViewResults.CellEditUseWholeCell = false;
          this.listViewResults.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeaderAddress,
             this.columnHeaderSection,
             this.columnHeaderValue});
+         this.listViewResults.Cursor = System.Windows.Forms.Cursors.Default;
          this.listViewResults.Dock = System.Windows.Forms.DockStyle.Fill;
          this.listViewResults.FullRowSelect = true;
-         this.listViewResults.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
          this.listViewResults.HideSelection = false;
          this.listViewResults.Location = new System.Drawing.Point(0, 0);
          this.listViewResults.Name = "listViewResults";
+         this.listViewResults.ShowGroups = false;
          this.listViewResults.ShowItemToolTips = true;
          this.listViewResults.Size = new System.Drawing.Size(211, 315);
          this.listViewResults.TabIndex = 0;
+         this.listViewResults.UseCellFormatEvents = true;
          this.listViewResults.UseCompatibleStateImageBehavior = false;
+         this.listViewResults.UseNotifyPropertyChanged = true;
          this.listViewResults.View = System.Windows.Forms.View.Details;
+         this.listViewResults.FormatCell += new System.EventHandler<BrightIdeasSoftware.FormatCellEventArgs>(this.listViewResults_FormatCell);
          this.listViewResults.DoubleClick += new System.EventHandler(this.listViewResults_DoubleClick);
          this.listViewResults.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
          // 
          // columnHeaderAddress
          // 
+         this.columnHeaderAddress.AspectName = "address";
+         this.columnHeaderAddress.AspectToStringFormat = "{0:X}";
+         this.columnHeaderAddress.IsEditable = false;
+         this.columnHeaderAddress.Searchable = false;
          this.columnHeaderAddress.Text = "Address";
          this.columnHeaderAddress.Width = 85;
          // 
          // columnHeaderSection
          // 
+         this.columnHeaderSection.AspectName = "memorySection";
+         this.columnHeaderSection.IsEditable = false;
+         this.columnHeaderSection.Searchable = false;
          this.columnHeaderSection.Text = "Section";
          this.columnHeaderSection.Width = 74;
          // 
          // columnHeaderValue
          // 
+         this.columnHeaderValue.AspectName = "memoryValue";
+         this.columnHeaderValue.IsEditable = false;
+         this.columnHeaderValue.Searchable = false;
          this.columnHeaderValue.Text = "Value";
          this.columnHeaderValue.Width = 50;
          // 
@@ -523,6 +542,21 @@
          this.columnHeaderSectionName.Text = "Name";
          this.columnHeaderSectionName.Width = 80;
          // 
+         // columnHeaderSectionOffset
+         // 
+         this.columnHeaderSectionOffset.Text = "Offset";
+         this.columnHeaderSectionOffset.Width = 50;
+         // 
+         // columnHeaderSectionLength
+         // 
+         this.columnHeaderSectionLength.Text = "Length";
+         this.columnHeaderSectionLength.Width = 50;
+         // 
+         // columnHeaderSectionProtection
+         // 
+         this.columnHeaderSectionProtection.Text = "Protection";
+         this.columnHeaderSectionProtection.Width = 80;
+         // 
          // contextMenuChkListBox
          // 
          this.contextMenuChkListBox.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -580,9 +614,9 @@
          // 
          // dataGridSavedResults_txtBoxAddress
          // 
-         dataGridViewCellStyle4.Format = "X0";
-         dataGridViewCellStyle4.NullValue = null;
-         this.dataGridSavedResults_txtBoxAddress.DefaultCellStyle = dataGridViewCellStyle4;
+         dataGridViewCellStyle1.Format = "X0";
+         dataGridViewCellStyle1.NullValue = null;
+         this.dataGridSavedResults_txtBoxAddress.DefaultCellStyle = dataGridViewCellStyle1;
          this.dataGridSavedResults_txtBoxAddress.HeaderText = "Address";
          this.dataGridSavedResults_txtBoxAddress.Name = "dataGridSavedResults_txtBoxAddress";
          this.dataGridSavedResults_txtBoxAddress.ReadOnly = true;
@@ -670,21 +704,6 @@
          // 
          this.bgWorkerResultsUpdater.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgWorkerResultsUpdater_DoWork);
          // 
-         // columnHeaderSectionOffset
-         // 
-         this.columnHeaderSectionOffset.Text = "Offset";
-         this.columnHeaderSectionOffset.Width = 50;
-         // 
-         // columnHeaderSectionLength
-         // 
-         this.columnHeaderSectionLength.Text = "Length";
-         this.columnHeaderSectionLength.Width = 50;
-         // 
-         // columnHeaderSectionProtection
-         // 
-         this.columnHeaderSectionProtection.Text = "Protection";
-         this.columnHeaderSectionProtection.Width = 80;
-         // 
          // MainForm
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -712,6 +731,7 @@
          this.splitContainerScanner.Panel2.ResumeLayout(false);
          ((System.ComponentModel.ISupportInitialize)(this.splitContainerScanner)).EndInit();
          this.splitContainerScanner.ResumeLayout(false);
+         ((System.ComponentModel.ISupportInitialize)(this.listViewResults)).EndInit();
          this.splitContainerScanDetails.Panel1.ResumeLayout(false);
          this.splitContainerScanDetails.Panel1.PerformLayout();
          this.splitContainerScanDetails.Panel2.ResumeLayout(false);
@@ -731,14 +751,14 @@
       private System.Windows.Forms.ToolStrip uiToolStrip;
       private System.Windows.Forms.SplitContainer splitContainerMain;
       private System.Windows.Forms.SplitContainer splitContainerScanner;
-      private System.Windows.Forms.ListView listViewResults;
-      private System.Windows.Forms.ColumnHeader columnHeaderAddress;
-      private System.Windows.Forms.ColumnHeader columnHeaderSection;
+      private BrightIdeasSoftware.ObjectListView listViewResults;
+      private BrightIdeasSoftware.OLVColumn columnHeaderAddress;
+      private BrightIdeasSoftware.OLVColumn columnHeaderSection;
+      private BrightIdeasSoftware.OLVColumn columnHeaderValue;
       private System.Windows.Forms.DataGridView dataGridSavedResults;
       private System.Windows.Forms.ToolStripDropDownButton uiToolStrip_linkFile;
       private System.Windows.Forms.ToolStripDropDownButton uiToolStrip_linkPayloadAndProcess;
       private System.Windows.Forms.ToolStripDropDownButton uiToolStrip_linkTools;
-      private System.Windows.Forms.ColumnHeader columnHeaderValue;
       private System.Windows.Forms.SplitContainer splitContainerScanDetails;
       private System.Windows.Forms.Label label3;
       private System.Windows.Forms.ComboBox cmbBoxValueType;

@@ -71,6 +71,9 @@
   </PropertyGroup>
   <PropertyGroup />
   <ItemGroup>
+    <Reference Include="ObjectListView, Version=2.9.1.1072, Culture=neutral, PublicKeyToken=b1c5bf581481bcd4, processorArchitecture=MSIL">
+      <HintPath>..\packages\ObjectListView.Official.2.9.1\lib\net20\ObjectListView.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.ServiceProcess" />
@@ -84,11 +87,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Forms\ChildForms\childFrmEditCheat.cs">
+    <Compile Include="Forms\ChildForms\childFrmEditCheatEntry.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ChildForms\childFrmEditCheat.Designer.cs">
-      <DependentUpon>childFrmEditCheat.cs</DependentUpon>
+    <Compile Include="Forms\ChildForms\childFrmEditCheatEntry.Designer.cs">
+      <DependentUpon>childFrmEditCheatEntry.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\ChildForms\childFrmSendPayload.cs">
       <SubType>Form</SubType>
@@ -112,8 +115,8 @@
     <Compile Include="Helpers\CheatManager\CheatTable\CheatTableFile.cs" />
     <Compile Include="Helpers\dotNetExtensions.cs" />
     <Compile Include="Helpers\Settings.cs" />
-    <EmbeddedResource Include="Forms\ChildForms\childFrmEditCheat.resx">
-      <DependentUpon>childFrmEditCheat.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\ChildForms\childFrmEditCheatEntry.resx">
+      <DependentUpon>childFrmEditCheatEntry.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ChildForms\childFrmSendPayload.resx">
       <DependentUpon>childFrmSendPayload.cs</DependentUpon>
@@ -131,6 +134,7 @@
     <EmbeddedResource Include="Forms\frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

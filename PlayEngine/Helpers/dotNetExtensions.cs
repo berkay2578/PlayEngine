@@ -63,7 +63,7 @@ namespace PlayEngine.Helpers {
                return Encoding.ASCII.GetBytes((String)obj);
          }
 
-         return new Byte[1];
+         return null;
       }
    }
 }

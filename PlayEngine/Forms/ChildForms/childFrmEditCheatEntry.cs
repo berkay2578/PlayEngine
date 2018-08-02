@@ -3,26 +3,39 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace PlayEngine.Forms.ChildForms {
-   public partial class childFrmEditCheat : Form {
+   public partial class childFrmEditCheatEntry : Form {
       public class ReturnInformation {
          public String description;
          public librpc.MemorySection section;
          public UInt32 sectionAddressOffset;
-         public String valueType;
+         public Type valueType;
          public String value;
       }
       public ReturnInformation returnInformation;
 
-      public childFrmEditCheat(List<librpc.MemorySection> listMemorySections, String description, librpc.MemorySection section, UInt32 sectionAddressOffset, String strValueType, Object value) {
+      public childFrmEditCheatEntry(List<librpc.MemorySection> listMemorySections, String description, librpc.MemorySection section, UInt32 sectionAddressOffset, Type valueType, Object value,
+            Int32 focusIndex) {
          InitializeComponent();
-         foreach (var memSection in listMemorySections)
-            cmbBoxSection.Items.Add(memSection);
+         cmbBoxSection.Items.AddRange(listMemorySections.ToArray());
          cmbBoxSection.SelectedItem = section;
-         cmbBoxValueType.SelectedItem = strValueType;
+
+         cmbBoxValueType.Items.AddRange(new Object[] {
+            typeof(SByte), typeof(Byte),
+            typeof(Int16), typeof(UInt16),
+            typeof(Int32), typeof(UInt32),
+            typeof(Int64), typeof(UInt64),
+            typeof(Single), typeof(Double),
+            typeof(String), typeof(Byte[])
+         });
+         cmbBoxValueType.SelectedItem = valueType;
 
          txtBoxDescription.Text = description;
          txtBoxSectionAddressOffset.Text = sectionAddressOffset.ToString("X");
          txtBoxValue.Text = value.ToString();
+
+         foreach (Control cntrl in this.Controls)
+            if (cntrl.TabIndex == focusIndex)
+               cntrl.Select();
       }
 
       private void btnApply_Click(Object sender, EventArgs e) {
@@ -31,7 +44,7 @@ namespace PlayEngine.Forms.ChildForms {
             description = txtBoxDescription.Text,
             section = (librpc.MemorySection)cmbBoxSection.SelectedItem,
             sectionAddressOffset = UInt32.Parse(txtBoxSectionAddressOffset.Text, System.Globalization.NumberStyles.HexNumber),
-            valueType = (String)cmbBoxValueType.SelectedItem,
+            valueType = (Type)cmbBoxValueType.SelectedItem,
             value = txtBoxValue.Text
          };
          this.DialogResult = DialogResult.OK;
@@ -41,6 +54,16 @@ namespace PlayEngine.Forms.ChildForms {
       private void btnCancel_Click(Object sender, EventArgs e) {
          this.DialogResult = DialogResult.Cancel;
          this.Close();
+      }
+
+      private void uiKeyDownHandler(Object sender, KeyEventArgs e) {
+         if (e.KeyCode == Keys.Enter) {
+            e.SuppressKeyPress = true;
+            btnApply.PerformClick();
+         } else if (e.KeyCode == Keys.Escape) {
+            e.SuppressKeyPress = true;
+            btnCancel.PerformClick();
+         }
       }
    }
 }

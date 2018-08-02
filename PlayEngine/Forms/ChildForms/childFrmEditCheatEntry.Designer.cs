@@ -1,5 +1,5 @@
 ﻿namespace PlayEngine.Forms.ChildForms {
-   partial class childFrmEditCheat {
+   partial class childFrmEditCheatEntry {
       /// <summary>
       /// Required designer variable.
       /// </summary>
@@ -43,7 +43,7 @@
          this.label1.Location = new System.Drawing.Point(12, 9);
          this.label1.Name = "label1";
          this.label1.Size = new System.Drawing.Size(66, 13);
-         this.label1.TabIndex = 0;
+         this.label1.TabIndex = 10;
          this.label1.Text = "Description: ";
          // 
          // label2
@@ -52,7 +52,7 @@
          this.label2.Location = new System.Drawing.Point(12, 35);
          this.label2.Name = "label2";
          this.label2.Size = new System.Drawing.Size(46, 13);
-         this.label2.TabIndex = 1;
+         this.label2.TabIndex = 11;
          this.label2.Text = "Section:";
          // 
          // label3
@@ -61,7 +61,7 @@
          this.label3.Location = new System.Drawing.Point(12, 61);
          this.label3.Name = "label3";
          this.label3.Size = new System.Drawing.Size(75, 13);
-         this.label3.TabIndex = 2;
+         this.label3.TabIndex = 12;
          this.label3.Text = "Section offset:";
          // 
          // label4
@@ -70,7 +70,7 @@
          this.label4.Location = new System.Drawing.Point(12, 113);
          this.label4.Name = "label4";
          this.label4.Size = new System.Drawing.Size(37, 13);
-         this.label4.TabIndex = 3;
+         this.label4.TabIndex = 13;
          this.label4.Text = "Value:";
          // 
          // label5
@@ -79,7 +79,7 @@
          this.label5.Location = new System.Drawing.Point(12, 87);
          this.label5.Name = "label5";
          this.label5.Size = new System.Drawing.Size(63, 13);
-         this.label5.TabIndex = 4;
+         this.label5.TabIndex = 14;
          this.label5.Text = "Value type: ";
          // 
          // txtBoxDescription
@@ -87,8 +87,9 @@
          this.txtBoxDescription.Location = new System.Drawing.Point(84, 7);
          this.txtBoxDescription.Name = "txtBoxDescription";
          this.txtBoxDescription.Size = new System.Drawing.Size(145, 20);
-         this.txtBoxDescription.TabIndex = 5;
+         this.txtBoxDescription.TabIndex = 1;
          this.txtBoxDescription.Text = "No description";
+         this.txtBoxDescription.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
          // 
          // txtBoxSectionAddressOffset
          // 
@@ -96,13 +97,15 @@
          this.txtBoxSectionAddressOffset.Name = "txtBoxSectionAddressOffset";
          this.txtBoxSectionAddressOffset.Size = new System.Drawing.Size(136, 20);
          this.txtBoxSectionAddressOffset.TabIndex = 7;
+         this.txtBoxSectionAddressOffset.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
          // 
          // txtBoxValue
          // 
          this.txtBoxValue.Location = new System.Drawing.Point(84, 111);
          this.txtBoxValue.Name = "txtBoxValue";
          this.txtBoxValue.Size = new System.Drawing.Size(145, 20);
-         this.txtBoxValue.TabIndex = 9;
+         this.txtBoxValue.TabIndex = 5;
+         this.txtBoxValue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
          // 
          // cmbBoxSection
          // 
@@ -111,32 +114,25 @@
          this.cmbBoxSection.Location = new System.Drawing.Point(84, 33);
          this.cmbBoxSection.Name = "cmbBoxSection";
          this.cmbBoxSection.Size = new System.Drawing.Size(145, 21);
-         this.cmbBoxSection.TabIndex = 10;
+         this.cmbBoxSection.TabIndex = 3;
+         this.cmbBoxSection.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
          // 
          // cmbBoxValueType
          // 
          this.cmbBoxValueType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
          this.cmbBoxValueType.FormattingEnabled = true;
-         this.cmbBoxValueType.Items.AddRange(new object[] {
-            "Byte",
-            "2 Bytes",
-            "4 Bytes",
-            "8 Bytes",
-            "Float",
-            "Double",
-            "String",
-            "Array of bytes"});
          this.cmbBoxValueType.Location = new System.Drawing.Point(84, 85);
          this.cmbBoxValueType.Name = "cmbBoxValueType";
          this.cmbBoxValueType.Size = new System.Drawing.Size(145, 21);
-         this.cmbBoxValueType.TabIndex = 11;
+         this.cmbBoxValueType.TabIndex = 4;
+         this.cmbBoxValueType.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
          // 
          // btnApply
          // 
          this.btnApply.Location = new System.Drawing.Point(73, 137);
          this.btnApply.Name = "btnApply";
          this.btnApply.Size = new System.Drawing.Size(75, 23);
-         this.btnApply.TabIndex = 12;
+         this.btnApply.TabIndex = 8;
          this.btnApply.Text = "OK";
          this.btnApply.UseVisualStyleBackColor = true;
          this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
@@ -147,12 +143,12 @@
          this.btnCancel.Location = new System.Drawing.Point(154, 137);
          this.btnCancel.Name = "btnCancel";
          this.btnCancel.Size = new System.Drawing.Size(75, 23);
-         this.btnCancel.TabIndex = 13;
+         this.btnCancel.TabIndex = 9;
          this.btnCancel.Text = "Cancel";
          this.btnCancel.UseVisualStyleBackColor = true;
          this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
          // 
-         // childFrmEditCheat
+         // childFrmEditCheatEntry
          // 
          this.AcceptButton = this.btnApply;
          this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -172,10 +168,10 @@
          this.Controls.Add(this.label2);
          this.Controls.Add(this.label1);
          this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-         this.Name = "childFrmEditCheat";
+         this.Name = "childFrmEditCheatEntry";
          this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
          this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-         this.Text = "Edit Cheat";
+         this.Text = "Edit cheat entry";
          this.TopMost = true;
          this.ResumeLayout(false);
          this.PerformLayout();

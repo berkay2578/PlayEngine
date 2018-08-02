@@ -24,7 +24,7 @@
       /// </summary>
       private void InitializeComponent() {
          this.components = new System.ComponentModel.Container();
-         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
          this.uiToolStrip = new System.Windows.Forms.ToolStrip();
          this.uiToolStrip_linkFile = new System.Windows.Forms.ToolStripDropDownButton();
          this.uiToolStrip_btnLoadCheatTable = new System.Windows.Forms.ToolStripMenuItem();
@@ -62,11 +62,11 @@
          this.chkBoxIsHexValue = new System.Windows.Forms.CheckBox();
          this.btnScanNext = new System.Windows.Forms.Button();
          this.btnScan = new System.Windows.Forms.Button();
-         this.chkListViewSearchSections = new System.Windows.Forms.ListView();
-         this.columnHeaderSectionName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-         this.columnHeaderSectionOffset = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-         this.columnHeaderSectionLength = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-         this.columnHeaderSectionProtection = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+         this.chkListViewSearchSections = new BrightIdeasSoftware.ObjectListView();
+         this.columnHeaderSectionName = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+         this.columnHeaderSectionOffset = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+         this.columnHeaderSectionLength = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
+         this.columnHeaderSectionProtection = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
          this.contextMenuChkListBox = new System.Windows.Forms.ContextMenuStrip(this.components);
          this.contextMenuChkListBox_btnSelectAll = new System.Windows.Forms.ToolStripMenuItem();
          this.dataGridSavedResults = new System.Windows.Forms.DataGridView();
@@ -97,6 +97,7 @@
          this.splitContainerScanDetails.Panel1.SuspendLayout();
          this.splitContainerScanDetails.Panel2.SuspendLayout();
          this.splitContainerScanDetails.SuspendLayout();
+         ((System.ComponentModel.ISupportInitialize)(this.chkListViewSearchSections)).BeginInit();
          this.contextMenuChkListBox.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.dataGridSavedResults)).BeginInit();
          this.uiStatusStrip.SuspendLayout();
@@ -519,8 +520,13 @@
          // 
          // chkListViewSearchSections
          // 
+         this.chkListViewSearchSections.AllColumns.Add(this.columnHeaderSectionName);
+         this.chkListViewSearchSections.AllColumns.Add(this.columnHeaderSectionOffset);
+         this.chkListViewSearchSections.AllColumns.Add(this.columnHeaderSectionLength);
+         this.chkListViewSearchSections.AllColumns.Add(this.columnHeaderSectionProtection);
          this.chkListViewSearchSections.AllowColumnReorder = true;
          this.chkListViewSearchSections.AutoArrange = false;
+         this.chkListViewSearchSections.CellEditUseWholeCell = false;
          this.chkListViewSearchSections.CheckBoxes = true;
          this.chkListViewSearchSections.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeaderSectionName,
@@ -528,10 +534,13 @@
             this.columnHeaderSectionLength,
             this.columnHeaderSectionProtection});
          this.chkListViewSearchSections.ContextMenuStrip = this.contextMenuChkListBox;
+         this.chkListViewSearchSections.Cursor = System.Windows.Forms.Cursors.Default;
          this.chkListViewSearchSections.Dock = System.Windows.Forms.DockStyle.Fill;
          this.chkListViewSearchSections.FullRowSelect = true;
          this.chkListViewSearchSections.Location = new System.Drawing.Point(0, 0);
          this.chkListViewSearchSections.Name = "chkListViewSearchSections";
+         this.chkListViewSearchSections.ShowGroups = false;
+         this.chkListViewSearchSections.ShowItemToolTips = true;
          this.chkListViewSearchSections.Size = new System.Drawing.Size(267, 151);
          this.chkListViewSearchSections.TabIndex = 0;
          this.chkListViewSearchSections.UseCompatibleStateImageBehavior = false;
@@ -539,23 +548,37 @@
          // 
          // columnHeaderSectionName
          // 
+         this.columnHeaderSectionName.AspectName = "name";
+         this.columnHeaderSectionName.IsEditable = false;
          this.columnHeaderSectionName.Text = "Name";
-         this.columnHeaderSectionName.Width = 80;
+         this.columnHeaderSectionName.UseFiltering = false;
+         this.columnHeaderSectionName.Width = 97;
          // 
          // columnHeaderSectionOffset
          // 
+         this.columnHeaderSectionOffset.AspectName = "offset";
+         this.columnHeaderSectionOffset.AspectToStringFormat = "0x{0:X}";
+         this.columnHeaderSectionOffset.IsEditable = false;
          this.columnHeaderSectionOffset.Text = "Offset";
-         this.columnHeaderSectionOffset.Width = 50;
+         this.columnHeaderSectionOffset.UseFiltering = false;
+         this.columnHeaderSectionOffset.Width = 44;
          // 
          // columnHeaderSectionLength
          // 
-         this.columnHeaderSectionLength.Text = "Length";
+         this.columnHeaderSectionLength.AspectName = "length";
+         this.columnHeaderSectionLength.AspectToStringFormat = "{0:#,}KB";
+         this.columnHeaderSectionLength.IsEditable = false;
+         this.columnHeaderSectionLength.Text = "Size";
+         this.columnHeaderSectionLength.UseFiltering = false;
          this.columnHeaderSectionLength.Width = 50;
          // 
          // columnHeaderSectionProtection
          // 
+         this.columnHeaderSectionProtection.AspectName = "protection";
+         this.columnHeaderSectionProtection.IsEditable = false;
          this.columnHeaderSectionProtection.Text = "Protection";
-         this.columnHeaderSectionProtection.Width = 80;
+         this.columnHeaderSectionProtection.UseFiltering = false;
+         this.columnHeaderSectionProtection.Width = 69;
          // 
          // contextMenuChkListBox
          // 
@@ -614,9 +637,9 @@
          // 
          // dataGridSavedResults_txtBoxAddress
          // 
-         dataGridViewCellStyle1.Format = "X0";
-         dataGridViewCellStyle1.NullValue = null;
-         this.dataGridSavedResults_txtBoxAddress.DefaultCellStyle = dataGridViewCellStyle1;
+         dataGridViewCellStyle2.Format = "X0";
+         dataGridViewCellStyle2.NullValue = null;
+         this.dataGridSavedResults_txtBoxAddress.DefaultCellStyle = dataGridViewCellStyle2;
          this.dataGridSavedResults_txtBoxAddress.HeaderText = "Address";
          this.dataGridSavedResults_txtBoxAddress.Name = "dataGridSavedResults_txtBoxAddress";
          this.dataGridSavedResults_txtBoxAddress.ReadOnly = true;
@@ -737,6 +760,7 @@
          this.splitContainerScanDetails.Panel2.ResumeLayout(false);
          ((System.ComponentModel.ISupportInitialize)(this.splitContainerScanDetails)).EndInit();
          this.splitContainerScanDetails.ResumeLayout(false);
+         ((System.ComponentModel.ISupportInitialize)(this.chkListViewSearchSections)).EndInit();
          this.contextMenuChkListBox.ResumeLayout(false);
          ((System.ComponentModel.ISupportInitialize)(this.dataGridSavedResults)).EndInit();
          this.uiStatusStrip.ResumeLayout(false);
@@ -767,7 +791,13 @@
       private System.Windows.Forms.CheckBox chkBoxIsHexValue;
       private System.Windows.Forms.Button btnScanNext;
       private System.Windows.Forms.Button btnScan;
-      private System.Windows.Forms.ListView chkListViewSearchSections;
+      private BrightIdeasSoftware.ObjectListView chkListViewSearchSections;
+      private BrightIdeasSoftware.OLVColumn columnHeaderSectionName;
+      private BrightIdeasSoftware.OLVColumn columnHeaderSectionOffset;
+      private BrightIdeasSoftware.OLVColumn columnHeaderSectionLength;
+      private BrightIdeasSoftware.OLVColumn columnHeaderSectionProtection;
+      private System.Windows.Forms.ContextMenuStrip contextMenuChkListBox;
+      private System.Windows.Forms.ToolStripMenuItem contextMenuChkListBox_btnSelectAll;
       private System.Windows.Forms.ToolStripMenuItem uiToolStrip_btnLoadCheatTable;
       private System.Windows.Forms.ToolStripMenuItem uiToolStrip_btnSaveCheatTable;
       private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
@@ -793,9 +823,6 @@
       private System.Windows.Forms.Label lblSecondValue;
       private System.Windows.Forms.TextBox txtBoxSectionsFilter;
       private System.Windows.Forms.Label label2;
-      private System.Windows.Forms.ContextMenuStrip contextMenuChkListBox;
-      private System.Windows.Forms.ToolStripMenuItem contextMenuChkListBox_btnSelectAll;
-      private System.Windows.Forms.ColumnHeader columnHeaderSectionName;
       private System.Windows.Forms.ProgressBar progressBarScanPercent;
       private System.Windows.Forms.DataGridViewCheckBoxColumn dataGridSavedResults_chkBoxFreezeValue;
       private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxDescription;
@@ -803,8 +830,5 @@
       private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxSection;
       private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxValueType;
       private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxValue;
-      private System.Windows.Forms.ColumnHeader columnHeaderSectionOffset;
-      private System.Windows.Forms.ColumnHeader columnHeaderSectionLength;
-      private System.Windows.Forms.ColumnHeader columnHeaderSectionProtection;
    }
 }

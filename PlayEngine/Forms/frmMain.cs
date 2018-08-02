@@ -311,8 +311,7 @@ namespace PlayEngine.Forms {
       #endregion
       #region contextMenuChkListBox
       private void contextMenuChkListBox_btnSelectAll_OnClick() {
-         foreach (ListViewItem item in chkListViewSearchSections.Items)
-            item.Checked = contextMenuChkListBox_btnSelectAll.Checked;
+         chkListViewSearchSections.CheckObjects(chkListViewSearchSections.Objects);
       }
       #endregion
       private void uiButtonHandler_Click(Object sender, EventArgs e) {
@@ -417,14 +416,7 @@ namespace PlayEngine.Forms {
             contextMenuChkListBox_btnSelectAll.Checked = false; listProcessMemorySections.Clear();
             foreach (var memorySection in Memory.Sections.getMemorySections(processInfo)) {
                listProcessMemorySections.Add(memorySection);
-
-               ListViewItem listViewItem = new ListViewItem();
-               listViewItem.Tag = memorySection;
-               listViewItem.Text = memorySection.name;
-               listViewItem.SubItems.Add(memorySection.offset.ToString("X"));
-               listViewItem.SubItems.Add((memorySection.length / 1024).ToString() + "KB");
-               listViewItem.SubItems.Add(memorySection.protection.ToString());
-               chkListViewSearchSections.Items.Add(listViewItem);
+               chkListViewSearchSections.AddObject(memorySection);
             }
             uiToolStrip_lblActiveProcess.Text = $"Process: {selectedProcessName}";
             //uiToolStrip_btnOpenPointerScanner.Enabled = true;
@@ -436,18 +428,8 @@ namespace PlayEngine.Forms {
       private void txtBoxSectionsFilter_TextChanged(Object sender, EventArgs e) {
          contextMenuChkListBox_btnSelectAll.Checked = false;
          chkListViewSearchSections.Items.Clear();
-         chkListViewSearchSections.Items.AddRange(listProcessMemorySections
-            .Where(section => String.IsNullOrEmpty(txtBoxSectionsFilter.Text) || section.name.Contains(txtBoxSectionsFilter.Text, StringComparison.InvariantCultureIgnoreCase))
-            .Select(section =>
-            {
-               ListViewItem listViewItem = new ListViewItem();
-               listViewItem.Tag = section;
-               listViewItem.Text = section.name;
-               listViewItem.SubItems.Add(section.offset.ToString("X"));
-               listViewItem.SubItems.Add((section.length / 1024).ToString() + "KB");
-               listViewItem.SubItems.Add(section.protection.ToString());
-               return listViewItem;
-            }).ToArray());
+         chkListViewSearchSections.AddObjects(listProcessMemorySections
+            .Where(section => String.IsNullOrEmpty(txtBoxSectionsFilter.Text) || section.name.Contains(txtBoxSectionsFilter.Text, StringComparison.InvariantCultureIgnoreCase)).ToArray());
       }
 
       private void listViewResults_FormatCell(Object sender, BrightIdeasSoftware.FormatCellEventArgs e) {
@@ -542,8 +524,8 @@ namespace PlayEngine.Forms {
          List<librpc.MemorySection> searchSections = new List<librpc.MemorySection>();
          chkListViewSearchSections.Invoke(new Action(() =>
          {
-            foreach (ListViewItem item in chkListViewSearchSections.CheckedItems)
-               searchSections.Add((librpc.MemorySection)item.Tag);
+            foreach (librpc.MemorySection section in chkListViewSearchSections.CheckedObjects)
+               searchSections.Add(section);
          }));
          if (searchSections.Count == 0) {
             e.Cancel = true;
@@ -636,18 +618,15 @@ namespace PlayEngine.Forms {
                   listViewResults.AddObjects(scanResults);
                }));
             } else if (oldScanStatus == ScanStatus.DidScan) {
-               listViewResults.Invoke(new Action(() =>
-               {
-                  List<ScanResult> results = new List<ScanResult>();
-                  foreach (ScanResult scanResult in listViewResults.Objects) {
-                     if (Memory.CompareUtil.compare(scanValues[0], Memory.read(processInfo.pid, scanResult.address, scanValueType), scanCompareType, new dynamic[2] { scanValues[0], scanValues[1] })) {
-                        scanResult.oldMemoryValue = scanResult.memoryValue = Memory.read(processInfo.pid, scanResult.address, scanValueType);
-                        results.Add(scanResult);
-                     }
+               List<ScanResult> results = new List<ScanResult>();
+               foreach (ScanResult scanResult in listViewResults.Objects) {
+                  dynamic memoryValue = Memory.read(processInfo.pid, scanResult.address, scanValueType);
+                  if (Memory.CompareUtil.compare(scanValues[0], memoryValue, scanCompareType, new dynamic[2] { scanValues[0], scanValues[1] })) {
+                     scanResult.oldMemoryValue = scanResult.memoryValue = memoryValue;
+                     results.Add(scanResult);
                   }
-                  listViewResults.Items.Clear();
-                  listViewResults.SetObjects(results);
-               }));
+               }
+               listViewResults.Invoke(new Action(() => listViewResults.SetObjects(results)));
                break;
             }
 

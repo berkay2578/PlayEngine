@@ -216,11 +216,14 @@ namespace PlayEngine.Helpers {
             }
             break;
             case TypeCode.String: {
-               return scan(scanSearchBuffer, scanValue, typeof(Byte[]), scanCompareType);
+               var scanResults = scan(scanSearchBuffer, ((Object)scanValue).getBytes(typeof(String)), typeof(Byte[]), scanCompareType);
+               foreach (Tuple<UInt32, dynamic> tuple in scanResults)
+                  listResults.Add(new Tuple<UInt32, dynamic>(tuple.Item1, Encoding.ASCII.GetString(tuple.Item2)));
+               return listResults;
             }
          }
          if (scanValueType == typeof(Byte[])) {
-            Byte[] scanValueBuffer = ((Object)scanValue).getBytes(scanValueType);
+            Byte[] scanValueBuffer = scanValue;
             Int32 indexEnd = scanSearchBuffer.Length - scanValueBuffer.Length;
             for (Int32 index = 0; index < indexEnd; index += scanValueBuffer.Length) {
                Boolean isFound = false;

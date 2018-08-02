@@ -170,8 +170,9 @@ namespace PlayEngine.Forms {
             _curScanStatus = value;
             switch (value) {
                case ScanStatus.FirstScan: {
-                  setControlEnabled(new Control[] { btnScan, chkBoxIsHexValue, txtBoxScanValue, cmbBoxScanType, cmbBoxValueType, chkListViewSearchSections, listViewResults, txtBoxSectionsFilter }, true);
+                  setControlEnabled(new Control[] { btnScan, txtBoxScanValue, cmbBoxScanType, cmbBoxValueType, chkListViewSearchSections, listViewResults, txtBoxSectionsFilter }, true);
                   setControlEnabled(new Control[] { btnScanNext }, false);
+                  chkBoxIsHexValue.Enabled = scanValueType != typeof(String) || scanValueType != typeof(Byte[]);
                   txtBoxScanValueSecond.Enabled = lblSecondValue.Enabled;
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
 
@@ -186,6 +187,7 @@ namespace PlayEngine.Forms {
                case ScanStatus.DidScan: {
                   setControlEnabled(new Control[] { btnScan, btnScanNext, chkBoxIsHexValue, txtBoxScanValue, cmbBoxScanType, listViewResults }, true);
                   setControlEnabled(new Control[] { cmbBoxValueType, chkListViewSearchSections, txtBoxSectionsFilter }, false);
+                  chkBoxIsHexValue.Enabled = scanValueType != typeof(String) || scanValueType != typeof(Byte[]);
                   txtBoxScanValueSecond.Enabled = lblSecondValue.Enabled;
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
 

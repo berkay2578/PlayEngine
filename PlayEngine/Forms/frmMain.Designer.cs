@@ -43,6 +43,7 @@
          this.uiToolStrip_btnOpenPointerScanner = new System.Windows.Forms.ToolStripMenuItem();
          this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
          this.uiToolStrip_lblActiveProcess = new System.Windows.Forms.ToolStripLabel();
+         this.lblProcessInfo = new System.Windows.Forms.ToolStripLabel();
          this.splitContainerMain = new System.Windows.Forms.SplitContainer();
          this.splitContainerScanner = new System.Windows.Forms.SplitContainer();
          this.listViewResults = new BrightIdeasSoftware.ObjectListView();
@@ -85,7 +86,6 @@
          this.uiStatusStrip_lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
          this.bgWorkerScanner = new System.ComponentModel.BackgroundWorker();
          this.bgWorkerResultsUpdater = new System.ComponentModel.BackgroundWorker();
-         this.lblProcessInfo = new System.Windows.Forms.ToolStripLabel();
          this.uiToolStrip.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.splitContainerMain)).BeginInit();
          this.splitContainerMain.Panel1.SuspendLayout();
@@ -265,6 +265,12 @@
          this.uiToolStrip_lblActiveProcess.Text = "Process: NONE";
          this.uiToolStrip_lblActiveProcess.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
          // 
+         // lblProcessInfo
+         // 
+         this.lblProcessInfo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+         this.lblProcessInfo.Name = "lblProcessInfo";
+         this.lblProcessInfo.Size = new System.Drawing.Size(0, 22);
+         // 
          // splitContainerMain
          // 
          this.splitContainerMain.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -396,7 +402,7 @@
          this.splitContainerScanDetails.Panel2.Controls.Add(this.chkListViewSearchSections);
          this.splitContainerScanDetails.Panel2.Padding = new System.Windows.Forms.Padding(0, 0, 4, 0);
          this.splitContainerScanDetails.Size = new System.Drawing.Size(271, 315);
-         this.splitContainerScanDetails.SplitterDistance = 190;
+         this.splitContainerScanDetails.SplitterDistance = 188;
          this.splitContainerScanDetails.SplitterWidth = 1;
          this.splitContainerScanDetails.TabIndex = 0;
          // 
@@ -560,7 +566,7 @@
          this.chkListViewSearchSections.ContextMenuStrip = this.contextMenuChkListBox;
          this.chkListViewSearchSections.Cursor = System.Windows.Forms.Cursors.Default;
          this.chkListViewSearchSections.Dock = System.Windows.Forms.DockStyle.Fill;
-         this.chkListViewSearchSections.EmptyListMsg = "Select a process to see sections.";
+         this.chkListViewSearchSections.EmptyListMsg = "No matches.";
          this.chkListViewSearchSections.FullRowSelect = true;
          this.chkListViewSearchSections.Location = new System.Drawing.Point(0, 0);
          this.chkListViewSearchSections.Name = "chkListViewSearchSections";
@@ -568,7 +574,7 @@
          this.chkListViewSearchSections.ShowGroups = false;
          this.chkListViewSearchSections.ShowImagesOnSubItems = true;
          this.chkListViewSearchSections.ShowItemToolTips = true;
-         this.chkListViewSearchSections.Size = new System.Drawing.Size(267, 124);
+         this.chkListViewSearchSections.Size = new System.Drawing.Size(267, 126);
          this.chkListViewSearchSections.TabIndex = 0;
          this.chkListViewSearchSections.TabStop = false;
          this.chkListViewSearchSections.TintSortColumn = true;
@@ -757,12 +763,6 @@
          // bgWorkerResultsUpdater
          // 
          this.bgWorkerResultsUpdater.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgWorkerResultsUpdater_DoWork);
-         // 
-         // lblProcessInfo
-         // 
-         this.lblProcessInfo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-         this.lblProcessInfo.Name = "lblProcessInfo";
-         this.lblProcessInfo.Size = new System.Drawing.Size(0, 22);
          // 
          // MainForm
          // 

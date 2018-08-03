@@ -188,7 +188,7 @@ namespace PlayEngine.Forms {
             _curScanStatus = value;
             switch (value) {
                case ScanStatus.FirstScan: {
-                  setControlEnabled(new Control[] { btnScan, txtBoxScanValue, cmbBoxScanType, cmbBoxValueType, chkListViewSearchSections, listViewResults, txtBoxSectionsInclusionFilter }, true);
+                  setControlEnabled(new Control[] { btnScan, txtBoxScanValue, cmbBoxScanType, cmbBoxValueType, chkListViewSearchSections, listViewResults, txtBoxSectionsInclusionFilter, txtBoxSectionsExclusionFilter }, true);
                   setControlEnabled(new Control[] { btnScanNext }, false);
                   chkBoxIsHexValue.Enabled = scanValueType != typeof(String) || scanValueType != typeof(Byte[]);
                   txtBoxScanValueSecond.Enabled = lblSecondValue.Enabled;
@@ -204,7 +204,7 @@ namespace PlayEngine.Forms {
                break;
                case ScanStatus.DidScan: {
                   setControlEnabled(new Control[] { btnScan, btnScanNext, chkBoxIsHexValue, txtBoxScanValue, cmbBoxScanType, listViewResults }, true);
-                  setControlEnabled(new Control[] { cmbBoxValueType, chkListViewSearchSections, txtBoxSectionsInclusionFilter }, false);
+                  setControlEnabled(new Control[] { cmbBoxValueType, chkListViewSearchSections, txtBoxSectionsInclusionFilter, txtBoxSectionsExclusionFilter }, false);
                   chkBoxIsHexValue.Enabled = scanValueType != typeof(String) || scanValueType != typeof(Byte[]);
                   txtBoxScanValueSecond.Enabled = lblSecondValue.Enabled;
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
@@ -218,7 +218,7 @@ namespace PlayEngine.Forms {
                break;
                case ScanStatus.Scanning: {
                   setControlEnabled(new Control[] { btnScan }, true);
-                  setControlEnabled(new Control[] { btnScanNext, chkBoxIsHexValue, txtBoxScanValue, txtBoxScanValueSecond, cmbBoxScanType, cmbBoxValueType, chkListViewSearchSections, listViewResults, txtBoxSectionsInclusionFilter }, false);
+                  setControlEnabled(new Control[] { btnScanNext, chkBoxIsHexValue, txtBoxScanValue, txtBoxScanValueSecond, cmbBoxScanType, cmbBoxValueType, chkListViewSearchSections, listViewResults, txtBoxSectionsInclusionFilter, txtBoxSectionsExclusionFilter }, false);
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = false));
 
                   btnScan.Invoke(new Action(() => btnScan.Text = "Stop"));
@@ -463,10 +463,10 @@ namespace PlayEngine.Forms {
 
       private dynamic[] filterSections(String include, String exclude) {
          return listProcessMemorySections
-            .Where(section => String.IsNullOrWhiteSpace(exclude)
-                   || !section.name.Contains(exclude, StringComparison.InvariantCultureIgnoreCase))
             .Where(section => String.IsNullOrWhiteSpace(include)
                    || section.name.Contains(include, StringComparison.InvariantCultureIgnoreCase))
+            .Where(section => String.IsNullOrWhiteSpace(exclude)
+                   || !section.name.Contains(exclude, StringComparison.InvariantCultureIgnoreCase))
             .ToArray();
 
       }
@@ -616,11 +616,10 @@ namespace PlayEngine.Forms {
          String[] strScanValues = new String[2] { (String)((Object[])e.Argument)[0], (String)((Object[])e.Argument)[1] };
          if (String.IsNullOrWhiteSpace(strScanValues[0]) || (scanCompareType == Memory.CompareType.BetweenValues && String.IsNullOrWhiteSpace(strScanValues[1]))) {
             fnUpdateProgress("Invalid values!", -1);
-            e.Cancel = true;
-            return;
+            throw new Exception("Invalid values!");
          }
 
-         fnUpdateProgress("Parsing values...", -1);
+         fnUpdateProgress("Parsing values...", 0);
          dynamic[] scanValues = new dynamic[2];
          if (scanValueType == typeof(Byte[])) {
             List<Byte> listBytes = new List<Byte>();
@@ -659,7 +658,7 @@ namespace PlayEngine.Forms {
          }
 
          if (oldScanStatus == ScanStatus.FirstScan) {
-            fnUpdateProgress("Parsing checked sections...", 5);
+            fnUpdateProgress("Parsing checked sections...", 2);
             List<librpc.MemorySection> searchSections = new List<librpc.MemorySection>();
             chkListViewSearchSections.Invoke(new Action(() =>
             {
@@ -668,21 +667,19 @@ namespace PlayEngine.Forms {
             }));
             if (searchSections.Count == 0) {
                fnUpdateProgress("No section is selected!", -1);
-               e.Cancel = true;
-               return;
+               throw new Exception("No section is selected!");
             }
 
-            Int32 processedMemoryRange = 0, totalMemoryRange = 1024 * 1024; // 1mb padding for the total range
+            Int64 processedMemoryRange = 0, totalMemoryRange = 1024 * 1024; // 1mb padding for the total range
             foreach (var section in searchSections)
                totalMemoryRange += section.length;
             fnUpdateProgress($"Total to scan: {totalMemoryRange / 1024}KB.", -1);
 
+            List<ScanResult> scanResults = new List<ScanResult>();
             foreach (var searchSection in searchSections) {
-               if (bgWorkerScanner.CancellationPending) {
-                  e.Cancel = true;
+               if (bgWorkerScanner.CancellationPending)
                   break;
-               }
-               UInt64 maxResultCount = 1000, curResultCount = 0;
+               UInt64 maxResultCount = 100, curResultCount = 0;
 
                fnUpdateProgress($"Scanning '{searchSection.name}'...", -1);
                var scanSearchBuffer = Memory.readByteArray(processInfo.id, searchSection.start, searchSection.length);
@@ -701,7 +698,6 @@ namespace PlayEngine.Forms {
                   );
                fnUpdateProgress($"Scanned '{searchSection.name}'.", -1);
 
-               List<ScanResult> scanResults = new List<ScanResult>();
                foreach (var tuple in results) {
                   if (curResultCount > maxResultCount)
                      break;
@@ -720,17 +716,21 @@ namespace PlayEngine.Forms {
                   if (bgWorkerScanner.CancellationPending)
                      break;
                }
-               fnUpdateProgress($"Adding results from '{searchSection.name}'...", -1);
-               listViewResults.Invoke(new Action(() => listViewResults.AddObjects(scanResults)));
 
                processedMemoryRange += searchSection.length;
                fnUpdateProgress($"Finished scanning '{searchSection.name}', {scanResults.Count} results.", Convert.ToInt32(((Double)processedMemoryRange / (Double)totalMemoryRange) * 100));
             }
+            fnUpdateProgress($"Adding {scanResults.Count} results to the list...", 95);
+            listViewResults.Invoke(new Action(() => listViewResults.SetObjects(scanResults)));
          } else if (oldScanStatus == ScanStatus.DidScan) {
             List<ScanResult> results = new List<ScanResult>();
             Int32 processedResults = 0, totalResults = listViewResults.GetItemCount();
             if (totalResults > 0) {
                foreach (ScanResult scanResult in listViewResults.Objects) {
+                  if (bgWorkerScanner.CancellationPending) {
+                     e.Cancel = true;
+                     break;
+                  }
                   fnUpdateProgress("Filtering values...", Convert.ToInt32(((Double)processedResults / (Double)totalResults) * 100));
                   dynamic memoryValue = Memory.read(processInfo.id, scanResult.address, scanValueType);
                   if (Memory.CompareUtil.compare(scanValues[0], memoryValue, scanResult.previousMemoryValue, scanCompareType, new dynamic[2] { scanValues[0], scanValues[1] })) {
@@ -750,10 +750,10 @@ namespace PlayEngine.Forms {
       private void bgWorkerScanner_RunWorkerCompleted(Object sender, RunWorkerCompletedEventArgs e) {
          listViewResults.EndUpdate();
          curScanStatus = ScanStatus.DidScan;
-         if (!e.Cancelled)
-            uiStatusStrip_lblStatus.Text = $"[100%] Finished scanning, {listViewResults.Items.Count} results.";
          if (e.Error != null)
             uiStatusStrip_lblStatus.Text = e.Error.Message;
+         else
+            uiStatusStrip_lblStatus.Text = $"[100%] Finished scanning, {listViewResults.Items.Count} results.";
       }
       #endregion
       #region bgWorkerResultsUpdater

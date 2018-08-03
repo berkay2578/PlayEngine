@@ -24,7 +24,7 @@
       /// </summary>
       private void InitializeComponent() {
          this.components = new System.ComponentModel.Container();
-         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
          this.uiToolStrip = new System.Windows.Forms.ToolStrip();
          this.uiToolStrip_linkFile = new System.Windows.Forms.ToolStripDropDownButton();
          this.uiToolStrip_btnLoadCheatTable = new System.Windows.Forms.ToolStripMenuItem();
@@ -50,6 +50,8 @@
          this.columnHeaderSection = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
          this.columnHeaderValue = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
          this.splitContainerScanDetails = new System.Windows.Forms.SplitContainer();
+         this.txtBoxSectionsExclusionFilter = new System.Windows.Forms.TextBox();
+         this.label1 = new System.Windows.Forms.Label();
          this.progressBarScanPercent = new System.Windows.Forms.ProgressBar();
          this.txtBoxSectionsInclusionFilter = new System.Windows.Forms.TextBox();
          this.label2 = new System.Windows.Forms.Label();
@@ -83,8 +85,7 @@
          this.uiStatusStrip_lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
          this.bgWorkerScanner = new System.ComponentModel.BackgroundWorker();
          this.bgWorkerResultsUpdater = new System.ComponentModel.BackgroundWorker();
-         this.txtBoxSectionsExclusionFilter = new System.Windows.Forms.TextBox();
-         this.label1 = new System.Windows.Forms.Label();
+         this.lblProcessInfo = new System.Windows.Forms.ToolStripLabel();
          this.uiToolStrip.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.splitContainerMain)).BeginInit();
          this.splitContainerMain.Panel1.SuspendLayout();
@@ -113,7 +114,8 @@
             this.uiToolStrip_linkPayloadAndProcess,
             this.uiToolStrip_linkTools,
             this.toolStripSeparator3,
-            this.uiToolStrip_lblActiveProcess});
+            this.uiToolStrip_lblActiveProcess,
+            this.lblProcessInfo});
          this.uiToolStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
          this.uiToolStrip.Location = new System.Drawing.Point(0, 0);
          this.uiToolStrip.Name = "uiToolStrip";
@@ -398,6 +400,23 @@
          this.splitContainerScanDetails.SplitterWidth = 1;
          this.splitContainerScanDetails.TabIndex = 0;
          // 
+         // txtBoxSectionsExclusionFilter
+         // 
+         this.txtBoxSectionsExclusionFilter.Location = new System.Drawing.Point(101, 162);
+         this.txtBoxSectionsExclusionFilter.Name = "txtBoxSectionsExclusionFilter";
+         this.txtBoxSectionsExclusionFilter.Size = new System.Drawing.Size(159, 23);
+         this.txtBoxSectionsExclusionFilter.TabIndex = 18;
+         this.txtBoxSectionsExclusionFilter.TextChanged += new System.EventHandler(this.txtBoxSectionsExclusionFilter_TextChanged);
+         // 
+         // label1
+         // 
+         this.label1.AutoSize = true;
+         this.label1.Location = new System.Drawing.Point(0, 166);
+         this.label1.Name = "label1";
+         this.label1.Size = new System.Drawing.Size(89, 15);
+         this.label1.TabIndex = 25;
+         this.label1.Text = "Exclusion filter: ";
+         // 
          // progressBarScanPercent
          // 
          this.progressBarScanPercent.Location = new System.Drawing.Point(160, 7);
@@ -648,9 +667,9 @@
          // 
          // dataGridSavedResults_txtBoxAddress
          // 
-         dataGridViewCellStyle2.Format = "X0";
-         dataGridViewCellStyle2.NullValue = null;
-         this.dataGridSavedResults_txtBoxAddress.DefaultCellStyle = dataGridViewCellStyle2;
+         dataGridViewCellStyle1.Format = "X0";
+         dataGridViewCellStyle1.NullValue = null;
+         this.dataGridSavedResults_txtBoxAddress.DefaultCellStyle = dataGridViewCellStyle1;
          this.dataGridSavedResults_txtBoxAddress.HeaderText = "Address";
          this.dataGridSavedResults_txtBoxAddress.Name = "dataGridSavedResults_txtBoxAddress";
          this.dataGridSavedResults_txtBoxAddress.ReadOnly = true;
@@ -739,22 +758,11 @@
          // 
          this.bgWorkerResultsUpdater.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgWorkerResultsUpdater_DoWork);
          // 
-         // txtBoxSectionsExclusionFilter
+         // lblProcessInfo
          // 
-         this.txtBoxSectionsExclusionFilter.Location = new System.Drawing.Point(101, 162);
-         this.txtBoxSectionsExclusionFilter.Name = "txtBoxSectionsExclusionFilter";
-         this.txtBoxSectionsExclusionFilter.Size = new System.Drawing.Size(159, 23);
-         this.txtBoxSectionsExclusionFilter.TabIndex = 18;
-         this.txtBoxSectionsExclusionFilter.TextChanged += new System.EventHandler(this.txtBoxSectionsExclusionFilter_TextChanged);
-         // 
-         // label1
-         // 
-         this.label1.AutoSize = true;
-         this.label1.Location = new System.Drawing.Point(0, 166);
-         this.label1.Name = "label1";
-         this.label1.Size = new System.Drawing.Size(89, 15);
-         this.label1.TabIndex = 25;
-         this.label1.Text = "Exclusion filter: ";
+         this.lblProcessInfo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+         this.lblProcessInfo.Name = "lblProcessInfo";
+         this.lblProcessInfo.Size = new System.Drawing.Size(0, 22);
          // 
          // MainForm
          // 
@@ -861,5 +869,6 @@
       private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxValue;
       private System.Windows.Forms.TextBox txtBoxSectionsExclusionFilter;
       private System.Windows.Forms.Label label1;
+      private System.Windows.Forms.ToolStripLabel lblProcessInfo;
    }
 }

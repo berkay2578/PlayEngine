@@ -111,7 +111,6 @@
     <Compile Include="Forms\frmMain.Designer.cs">
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
-    <Compile Include="Util.cs" />
     <Compile Include="Helpers\CheatManager\CheatTable\CheatTableFile.cs" />
     <Compile Include="Helpers\dotNetExtensions.cs" />
     <Compile Include="Helpers\Settings.cs" />
@@ -135,6 +134,7 @@
       <DependentUpon>frmMain.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
+    <None Include="PlayEngine.licenseheader" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

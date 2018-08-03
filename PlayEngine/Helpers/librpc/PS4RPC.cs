@@ -2,11 +2,11 @@
 /* berkay(2578): 3/8/2018 */
 
 using System;
-using System.Text;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Collections.Generic;
+using System.Text;
 
 namespace librpc {
    public class PS4RPC {
@@ -450,6 +450,44 @@ namespace librpc {
          }
 
          return new ProcessInfo(pid, entries);
+      }
+
+      /// <summary>
+      /// Get process information (memory map)
+      /// </summary>
+      /// <param name="processName">Process name</param>
+      /// <returns></returns>
+      public ProcessInfo GetProcessInfo(String processName) {
+         if (!IsConnected) {
+            throw new Exception(NotConnectedErrorMessage);
+         }
+
+         SendCMDPacket(RPC_CMDS.RPC_PROC_LIST, 0);
+         CheckRPCStatus();
+
+         // recv count
+         Byte[] bnumber = new Byte[4];
+         sock.Receive(bnumber, 4, SocketFlags.None);
+         Int32 number = BitConverter.ToInt32(bnumber, 0);
+
+         // recv data
+         Byte[] data = ReceiveData(number * RPC_PROC_LIST_SIZE);
+
+         // parse data
+         Process process = null;
+         String[] procnames = new String[number];
+         Int32[] pids = new Int32[number];
+         for (Int32 i = 0; i < number; i++) {
+            Int32 offset = i * RPC_PROC_LIST_SIZE;
+            String name = GetNullTermString(data, offset);
+            Int32 id = BitConverter.ToInt32(data, offset + 32);
+            if (name == processName) {
+               process = new Process(name, id);
+               break;
+            }
+         }
+
+         return process == null ? null : GetProcessInfo(process.id);
       }
 
       /// <summary>

@@ -420,13 +420,15 @@ namespace PlayEngine.Forms {
             }
             String selectedProcessName = (String)uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedItem;
             curScanStatus = ScanStatus.FirstScan;
-            chkListViewSearchSections.Items.Clear();
+            contextMenuChkListBox_btnSelectAll.Checked = false;
+            listProcessMemorySections.Clear();
 
             processInfo = Memory.getProcessInfoFromName(selectedProcessName);
-
-            contextMenuChkListBox_btnSelectAll.Checked = false; listProcessMemorySections.Clear();
             listProcessMemorySections.AddRange(Memory.Sections.getMemorySections(processInfo));
+            chkListViewSearchSections.Items.Clear();
             chkListViewSearchSections.AddObjects(listProcessMemorySections);
+
+            lblProcessInfo.Text = $"{Memory.ActiveProcess.getId()} ({Memory.ActiveProcess.getVersionStr()})";
             uiToolStrip_lblActiveProcess.Text = $"Process: {selectedProcessName}";
             //uiToolStrip_btnOpenPointerScanner.Enabled = true;
          } catch (Exception exception) {

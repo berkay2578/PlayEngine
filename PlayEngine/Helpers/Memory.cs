@@ -5,18 +5,46 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
-using librpc;
-
 namespace PlayEngine.Helpers {
    public class Memory {
       public class Sections {
-         public static List<librpc.MemorySection> getMemorySections(librpc.ProcessInfo processInfo, VM_PROT protection = VM_PROT.READ) {
+         public static List<librpc.MemorySection> getMemorySections(librpc.ProcessInfo processInfo, librpc.VM_PROT protection = librpc.VM_PROT.READ) {
             var listMemoryEntries = new List<librpc.MemorySection>();
-            foreach (var memoryEntry in processInfo.listProcessMemorySections)
-               if ((memoryEntry.protection & protection) == protection)
-                  listMemoryEntries.Add(memoryEntry);
+            foreach (var memorySection in processInfo.listProcessMemorySections)
+               if ((memorySection.protection & protection) == protection)
+                  listMemoryEntries.Add(memorySection);
 
             return listMemoryEntries;
+         }
+         public static librpc.MemorySection findMemorySectionByName(librpc.ProcessInfo processInfo, String sectionName, librpc.VM_PROT protection = librpc.VM_PROT.READ) {
+            librpc.MemorySection result = null;
+            foreach (var memorySection in processInfo.listProcessMemorySections) {
+               if (memorySection.name == sectionName &&
+                   (memorySection.protection & protection) == protection) {
+                  result = memorySection;
+                  break;
+               }
+            }
+
+            return result;
+         }
+      }
+      public class ActiveProcess {
+         public static String getId() {
+            librpc.ProcessInfo processInfo = Memory.ps4RPC.GetProcessInfo("SceCdlgApp");
+            librpc.MemorySection memorySection = Sections.findMemorySectionByName(processInfo, "libSceCdlgUtilServer.sprx");
+            if (memorySection == null)
+               return String.Empty;
+
+            return Memory.readString(processInfo.id, memorySection.start + 0xA0);
+         }
+         public static String getVersionStr() {
+            librpc.ProcessInfo processInfo = Memory.ps4RPC.GetProcessInfo("SceCdlgApp");
+            librpc.MemorySection memorySection = Sections.findMemorySectionByName(processInfo, "libSceCdlgUtilServer.sprx");
+            if (memorySection == null)
+               return String.Empty;
+
+            return Memory.readString(processInfo.id, memorySection.start + 0xC8);
          }
       }
 
@@ -82,13 +110,13 @@ namespace PlayEngine.Helpers {
       }
 
       private static Mutex mutex = new Mutex();
-      public static PS4RPC ps4RPC = null;
+      public static librpc.PS4RPC ps4RPC = null;
       public static Boolean initPS4RPC(String ipAddress) {
          try {
             mutex.WaitOne();
             if (ps4RPC != null)
                ps4RPC.Disconnect();
-            ps4RPC = new PS4RPC(ipAddress);
+            ps4RPC = new librpc.PS4RPC(ipAddress);
             ps4RPC.Connect();
          } catch {
          } finally {

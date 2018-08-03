@@ -24,7 +24,7 @@
       /// </summary>
       private void InitializeComponent() {
          this.components = new System.ComponentModel.Container();
-         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
          this.uiToolStrip = new System.Windows.Forms.ToolStrip();
          this.uiToolStrip_linkFile = new System.Windows.Forms.ToolStripDropDownButton();
          this.uiToolStrip_btnLoadCheatTable = new System.Windows.Forms.ToolStripMenuItem();
@@ -311,7 +311,7 @@
          this.splitContainerScanner.Panel2.Padding = new System.Windows.Forms.Padding(0, 0, 1, 0);
          this.splitContainerScanner.Panel2MinSize = 160;
          this.splitContainerScanner.Size = new System.Drawing.Size(484, 315);
-         this.splitContainerScanner.SplitterDistance = 211;
+         this.splitContainerScanner.SplitterDistance = 212;
          this.splitContainerScanner.SplitterWidth = 1;
          this.splitContainerScanner.TabIndex = 0;
          // 
@@ -334,7 +334,7 @@
          this.listViewResults.Name = "listViewResults";
          this.listViewResults.ShowGroups = false;
          this.listViewResults.ShowItemToolTips = true;
-         this.listViewResults.Size = new System.Drawing.Size(211, 315);
+         this.listViewResults.Size = new System.Drawing.Size(212, 315);
          this.listViewResults.TabIndex = 0;
          this.listViewResults.TabStop = false;
          this.listViewResults.UseCellFormatEvents = true;
@@ -401,8 +401,8 @@
          // 
          this.splitContainerScanDetails.Panel2.Controls.Add(this.chkListViewSearchSections);
          this.splitContainerScanDetails.Panel2.Padding = new System.Windows.Forms.Padding(0, 0, 4, 0);
-         this.splitContainerScanDetails.Size = new System.Drawing.Size(271, 315);
-         this.splitContainerScanDetails.SplitterDistance = 188;
+         this.splitContainerScanDetails.Size = new System.Drawing.Size(270, 315);
+         this.splitContainerScanDetails.SplitterDistance = 185;
          this.splitContainerScanDetails.SplitterWidth = 1;
          this.splitContainerScanDetails.TabIndex = 0;
          // 
@@ -494,17 +494,18 @@
             "Array of bytes"});
          this.cmbBoxValueType.Location = new System.Drawing.Point(3, 93);
          this.cmbBoxValueType.Name = "cmbBoxValueType";
-         this.cmbBoxValueType.Size = new System.Drawing.Size(118, 23);
+         this.cmbBoxValueType.Size = new System.Drawing.Size(108, 23);
          this.cmbBoxValueType.TabIndex = 15;
          this.cmbBoxValueType.SelectedIndexChanged += new System.EventHandler(this.cmbBoxValueType_SelectedIndexChanged);
          // 
          // cmbBoxScanType
          // 
          this.cmbBoxScanType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.cmbBoxScanType.DropDownWidth = 200;
          this.cmbBoxScanType.FormattingEnabled = true;
-         this.cmbBoxScanType.Location = new System.Drawing.Point(127, 93);
+         this.cmbBoxScanType.Location = new System.Drawing.Point(117, 93);
          this.cmbBoxScanType.Name = "cmbBoxScanType";
-         this.cmbBoxScanType.Size = new System.Drawing.Size(133, 23);
+         this.cmbBoxScanType.Size = new System.Drawing.Size(143, 23);
          this.cmbBoxScanType.TabIndex = 16;
          this.cmbBoxScanType.SelectedIndexChanged += new System.EventHandler(this.cmbBoxScanType_SelectedIndexChanged);
          // 
@@ -574,7 +575,7 @@
          this.chkListViewSearchSections.ShowGroups = false;
          this.chkListViewSearchSections.ShowImagesOnSubItems = true;
          this.chkListViewSearchSections.ShowItemToolTips = true;
-         this.chkListViewSearchSections.Size = new System.Drawing.Size(267, 126);
+         this.chkListViewSearchSections.Size = new System.Drawing.Size(266, 129);
          this.chkListViewSearchSections.TabIndex = 0;
          this.chkListViewSearchSections.TabStop = false;
          this.chkListViewSearchSections.TintSortColumn = true;
@@ -673,9 +674,9 @@
          // 
          // dataGridSavedResults_txtBoxAddress
          // 
-         dataGridViewCellStyle1.Format = "X0";
-         dataGridViewCellStyle1.NullValue = null;
-         this.dataGridSavedResults_txtBoxAddress.DefaultCellStyle = dataGridViewCellStyle1;
+         dataGridViewCellStyle4.Format = "X0";
+         dataGridViewCellStyle4.NullValue = null;
+         this.dataGridSavedResults_txtBoxAddress.DefaultCellStyle = dataGridViewCellStyle4;
          this.dataGridSavedResults_txtBoxAddress.HeaderText = "Address";
          this.dataGridSavedResults_txtBoxAddress.Name = "dataGridSavedResults_txtBoxAddress";
          this.dataGridSavedResults_txtBoxAddress.ReadOnly = true;

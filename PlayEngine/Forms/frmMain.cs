@@ -188,9 +188,14 @@ namespace PlayEngine.Forms {
             _curScanStatus = value;
             switch (value) {
                case ScanStatus.FirstScan: {
-                  setControlEnabled(new Control[] { btnScan, txtBoxScanValue, cmbBoxScanType, cmbBoxValueType, chkListViewSearchSections, listViewResults, txtBoxSectionsInclusionFilter, txtBoxSectionsExclusionFilter }, true);
+                  setControlEnabled(new Control[] { btnScan, cmbBoxScanType, cmbBoxValueType, chkListViewSearchSections, listViewResults, txtBoxSectionsInclusionFilter, txtBoxSectionsExclusionFilter }, true);
                   setControlEnabled(new Control[] { btnScanNext }, false);
                   chkBoxIsHexValue.Enabled = scanValueType != typeof(String) || scanValueType != typeof(Byte[]);
+                  txtBoxScanValue.Enabled = scanCompareType != Memory.CompareType.ChangedValue
+                                            || scanCompareType != Memory.CompareType.UnchangedValue
+                                            || scanCompareType != Memory.CompareType.DecreasedValue
+                                            || scanCompareType != Memory.CompareType.IncreasedValue
+                                            || scanCompareType != Memory.CompareType.UnknownInitialValue;
                   txtBoxScanValueSecond.Enabled = lblSecondValue.Enabled;
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
 
@@ -203,9 +208,14 @@ namespace PlayEngine.Forms {
                }
                break;
                case ScanStatus.DidScan: {
-                  setControlEnabled(new Control[] { btnScan, btnScanNext, chkBoxIsHexValue, txtBoxScanValue, cmbBoxScanType, listViewResults }, true);
+                  setControlEnabled(new Control[] { btnScan, btnScanNext, chkBoxIsHexValue, cmbBoxScanType, listViewResults }, true);
                   setControlEnabled(new Control[] { cmbBoxValueType, chkListViewSearchSections, txtBoxSectionsInclusionFilter, txtBoxSectionsExclusionFilter }, false);
                   chkBoxIsHexValue.Enabled = scanValueType != typeof(String) || scanValueType != typeof(Byte[]);
+                  txtBoxScanValue.Enabled = scanCompareType != Memory.CompareType.ChangedValue
+                                            || scanCompareType != Memory.CompareType.UnchangedValue
+                                            || scanCompareType != Memory.CompareType.DecreasedValue
+                                            || scanCompareType != Memory.CompareType.IncreasedValue
+                                            || scanCompareType != Memory.CompareType.UnknownInitialValue;
                   txtBoxScanValueSecond.Enabled = lblSecondValue.Enabled;
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
 
@@ -679,9 +689,10 @@ namespace PlayEngine.Forms {
             foreach (var searchSection in searchSections) {
                if (bgWorkerScanner.CancellationPending)
                   break;
-               UInt64 maxResultCount = 100, curResultCount = 0;
+               Int32 maxResultsCount = searchSections.Count * 20000 / searchSections.Count;
+               Int32 curResultCount = 0;
 
-               fnUpdateProgress($"Scanning '{searchSection.name}'...", -1);
+               fnUpdateProgress($"Scanning '{searchSection.name}'... ({searchSection.length / 1024}KB)", -1);
                var scanSearchBuffer = Memory.readByteArray(processInfo.id, searchSection.start, searchSection.length);
                if (scanSearchBuffer == null) {
                   fnUpdateProgress($"'{searchSection.name}' could not be read, skipping!", -1);
@@ -694,12 +705,13 @@ namespace PlayEngine.Forms {
                      scanValues[0],
                      scanValueType,
                      scanCompareType,
-                     new dynamic[2] { scanValues[0], scanValues[1] }
+                     new dynamic[2] { scanValues[0], scanValues[1] },
+                     maxResultsCount
                   );
                fnUpdateProgress($"Scanned '{searchSection.name}'.", -1);
 
                foreach (var tuple in results) {
-                  if (curResultCount > maxResultCount)
+                  if (curResultCount > maxResultsCount)
                      break;
                   UInt64 runtimeAddress = searchSection.start + tuple.Item1;
                   ScanResult scanResult = new ScanResult()
@@ -720,7 +732,7 @@ namespace PlayEngine.Forms {
                processedMemoryRange += searchSection.length;
                fnUpdateProgress($"Finished scanning '{searchSection.name}', {scanResults.Count} results.", Convert.ToInt32(((Double)processedMemoryRange / (Double)totalMemoryRange) * 100));
             }
-            fnUpdateProgress($"Adding {scanResults.Count} results to the list...", 95);
+            fnUpdateProgress($"Adding {scanResults.Count} results to the list... (window may freeze)", 95);
             listViewResults.Invoke(new Action(() => listViewResults.SetObjects(scanResults)));
          } else if (oldScanStatus == ScanStatus.DidScan) {
             List<ScanResult> results = new List<ScanResult>();

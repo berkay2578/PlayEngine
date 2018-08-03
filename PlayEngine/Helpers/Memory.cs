@@ -214,7 +214,7 @@ namespace PlayEngine.Helpers {
             writeByteArray(procId, address, value.getBytes(valueType));
       }
 
-      public static List<Tuple<UInt32, dynamic>> scan(Byte[] scanSearchBuffer, dynamic scanValue, Type scanValueType, CompareType scanCompareType, dynamic[] extraParams = null) {
+      public static List<Tuple<UInt32, dynamic>> scan(Byte[] scanSearchBuffer, dynamic scanValue, Type scanValueType, CompareType scanCompareType, dynamic[] extraParams, Int32 maxResultsCount) {
          List<Tuple<UInt32, dynamic>> listResults = new List<Tuple<UInt32, dynamic>>();
          Int32 objectTypeSize = 0;
          Func<Int32 /* scanSearchBufferIndex */, dynamic /* returnValue */> fnGetMemoryValue = null;
@@ -276,7 +276,7 @@ namespace PlayEngine.Helpers {
             }
             break;
             case TypeCode.String: {
-               var scanResults = scan(scanSearchBuffer, ((Object)scanValue).getBytes(typeof(String)), typeof(Byte[]), scanCompareType);
+               var scanResults = scan(scanSearchBuffer, ((Object)scanValue).getBytes(typeof(String)), typeof(Byte[]), scanCompareType, extraParams, maxResultsCount);
                foreach (Tuple<UInt32, dynamic> tuple in scanResults)
                   listResults.Add(new Tuple<UInt32, dynamic>(tuple.Item1, Encoding.ASCII.GetString(tuple.Item2)));
                return listResults;
@@ -294,6 +294,8 @@ namespace PlayEngine.Helpers {
                }
                if (isFound)
                   listResults.Add(new Tuple<UInt32, dynamic>((UInt32)index, scanValueBuffer));
+               if (listResults.Count > maxResultsCount)
+                  break;
             }
          } else {
             Int32 endOffset = scanSearchBuffer.Length - objectTypeSize;
@@ -301,7 +303,8 @@ namespace PlayEngine.Helpers {
                dynamic memoryValue = fnGetMemoryValue.Invoke(index);
                if (Memory.CompareUtil.compare(scanValue, memoryValue, null, scanCompareType, extraParams))
                   listResults.Add(new Tuple<UInt32, dynamic>((UInt32)index, memoryValue));
-
+               if (listResults.Count > maxResultsCount)
+                  break;
             }
          }
          return listResults;

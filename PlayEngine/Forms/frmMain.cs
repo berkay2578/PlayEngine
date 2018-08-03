@@ -30,8 +30,8 @@ namespace PlayEngine.Forms {
          private UInt64 _address;
          private librpc.MemorySection _memorySection;
          private UInt32 _memorySectionOffset;
-         private dynamic _oldMemoryValue;
          private dynamic _memoryValue;
+         private dynamic _previousMemoryValue;
 
          public UInt64 address
          {
@@ -48,15 +48,15 @@ namespace PlayEngine.Forms {
             get { return _memorySectionOffset; }
             set { setField(ref _memorySectionOffset, value, "memorySectionOffset"); }
          }
-         public dynamic oldMemoryValue
-         {
-            get { return _oldMemoryValue; }
-            set { setField(ref _oldMemoryValue, value, "oldMemoryValue"); }
-         }
          public dynamic memoryValue
          {
             get { return _memoryValue; }
             set { setField(ref _memoryValue, value, "memoryValue"); }
+         }
+         public dynamic previousMemoryValue
+         {
+            get { return _previousMemoryValue; }
+            set { setField(ref _previousMemoryValue, value, "previousMemoryValue"); }
          }
       }
       public static class SavedResultsColumnIndex {
@@ -454,7 +454,7 @@ namespace PlayEngine.Forms {
 
       private void listViewResults_FormatCell(Object sender, BrightIdeasSoftware.FormatCellEventArgs e) {
          ScanResult scanResult = (ScanResult)e.Model;
-         if (scanResult.oldMemoryValue != scanResult.memoryValue) {
+         if (scanResult.previousMemoryValue != scanResult.memoryValue) {
             e.SubItem.ForeColor = Color.Red;
             e.Item.SelectedForeColor = Color.Black;
          }
@@ -660,7 +660,7 @@ namespace PlayEngine.Forms {
                fnUpdateProgress($"Scanning '{searchSection.name}'...", -1);
                var scanSearchBuffer = Memory.readByteArray(processInfo.id, searchSection.start, searchSection.length);
                if (scanSearchBuffer == null) {
-                  fnUpdateProgress($"{searchSection.name} could not be read, skipping!", -1);
+                  fnUpdateProgress($"'{searchSection.name}' could not be read, skipping!", -1);
                   continue;
                }
 
@@ -685,7 +685,7 @@ namespace PlayEngine.Forms {
                      memorySection = searchSection,
                      memorySectionOffset = tuple.Item1,
                      memoryValue = tuple.Item2,
-                     oldMemoryValue = tuple.Item2
+                     previousMemoryValue = tuple.Item2
                   };
 
                   curResultCount++;
@@ -705,8 +705,8 @@ namespace PlayEngine.Forms {
             foreach (ScanResult scanResult in listViewResults.Objects) {
                fnUpdateProgress("Filtering values...", Convert.ToInt32(((Double)processedResults / (Double)listViewResults.Items.Count) * 100));
                dynamic memoryValue = Memory.read(processInfo.id, scanResult.address, scanValueType);
-               if (Memory.CompareUtil.compare(scanValues[0], memoryValue, scanCompareType, new dynamic[2] { scanValues[0], scanValues[1] })) {
-                  scanResult.oldMemoryValue = scanResult.memoryValue = memoryValue;
+               if (Memory.CompareUtil.compare(scanValues[0], memoryValue, scanResult.previousMemoryValue, scanCompareType, new dynamic[2] { scanValues[0], scanValues[1] })) {
+                  scanResult.previousMemoryValue = scanResult.memoryValue = memoryValue;
                   results.Add(scanResult);
                }
                processedResults++;

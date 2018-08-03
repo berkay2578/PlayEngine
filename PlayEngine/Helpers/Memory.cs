@@ -36,38 +36,48 @@ namespace PlayEngine.Helpers {
          UnknownInitialValue
       }
       public static class CompareUtil {
-         private static Single oldSearchValue = 0.0f;
-
-         public static Boolean compare(dynamic searchValue, dynamic memoryValueToCompare, CompareType compareType, dynamic[] extraParams = null) {
-            CompareUtil.oldSearchValue = searchValue;
+         public static Boolean compare(dynamic searchValue, dynamic memoryValueToCompare, dynamic previousMemoryValue, CompareType compareType, dynamic[] extraParams = null) {
+            Boolean isMatched = false;
             switch (compareType) {
                case CompareType.ExactValue:
-                  return searchValue == memoryValueToCompare;
+                  isMatched = searchValue == memoryValueToCompare;
+                  break;
                case CompareType.FuzzyValue:
-                  return Math.Abs(searchValue - memoryValueToCompare) < 1.0f;
+                  isMatched = Math.Abs(searchValue - memoryValueToCompare) < 1.0f;
+                  break;
                case CompareType.IncreasedValue:
-                  return memoryValueToCompare > oldSearchValue;
+                  isMatched = memoryValueToCompare > previousMemoryValue;
+                  break;
                case CompareType.IncreasedValueBy:
-                  return memoryValueToCompare == oldSearchValue + searchValue;
+                  isMatched = memoryValueToCompare == previousMemoryValue + searchValue;
+                  break;
                case CompareType.DecreasedValue:
-                  return memoryValueToCompare < oldSearchValue;
+                  isMatched = memoryValueToCompare < previousMemoryValue;
+                  break;
                case CompareType.DecreasedValueBy:
-                  return memoryValueToCompare == oldSearchValue - searchValue;
+                  isMatched = memoryValueToCompare == previousMemoryValue - searchValue;
+                  break;
                case CompareType.BiggerThan:
-                  return searchValue > memoryValueToCompare;
+                  isMatched = searchValue > memoryValueToCompare;
+                  break;
                case CompareType.SmallerThan:
-                  return searchValue < memoryValueToCompare;
+                  isMatched = searchValue < memoryValueToCompare;
+                  break;
                case CompareType.ChangedValue:
-                  return memoryValueToCompare != oldSearchValue;
+                  isMatched = memoryValueToCompare != previousMemoryValue;
+                  break;
                case CompareType.UnchangedValue:
-                  return memoryValueToCompare == oldSearchValue;
+                  isMatched = memoryValueToCompare == previousMemoryValue;
+                  break;
                case CompareType.BetweenValues:
-                  return (memoryValueToCompare > extraParams[0]) && (memoryValueToCompare < extraParams[1]);
+                  isMatched = (memoryValueToCompare > extraParams[0]) && (memoryValueToCompare < extraParams[1]);
+                  break;
                case CompareType.None:
                case CompareType.UnknownInitialValue:
-               default:
-                  return true;
+                  isMatched = true;
+                  break;
             }
+            return isMatched;
          }
       }
 

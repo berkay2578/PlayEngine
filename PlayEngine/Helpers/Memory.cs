@@ -247,7 +247,7 @@ namespace PlayEngine.Helpers {
             Int32 endOffset = scanSearchBuffer.Length - objectTypeSize;
             for (Int32 index = 0; index < endOffset; index += objectTypeSize) {
                dynamic memoryValue = fnGetMemoryValue.Invoke(index);
-               if (Memory.CompareUtil.compare(scanValue, memoryValue, scanCompareType, extraParams))
+               if (Memory.CompareUtil.compare(scanValue, memoryValue, null, scanCompareType, extraParams))
                   listResults.Add(new Tuple<UInt32, dynamic>((UInt32)index, memoryValue));
 
             }

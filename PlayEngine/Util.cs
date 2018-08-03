@@ -28,8 +28,8 @@ namespace PlayEngine {
                return;
             var section = listSections.Find(elm => elm.name == GAME_INFO_5_05_SECTION_NAME);
 
-            GameID = Memory.readString(processInfo.pid, section.start + GAME_INFO_5_05_ID_OFFSET);
-            Version = Memory.readString(processInfo.pid, section.start + GAME_INFO_5_05_VERSION_OFFSET);
+            GameID = Memory.readString(processInfo.id, section.start + GAME_INFO_5_05_ID_OFFSET);
+            Version = Memory.readString(processInfo.id, section.start + GAME_INFO_5_05_VERSION_OFFSET);
          } catch { }
       }
    }

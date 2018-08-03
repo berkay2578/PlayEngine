@@ -701,15 +701,17 @@ namespace PlayEngine.Forms {
             }
          } else if (oldScanStatus == ScanStatus.DidScan) {
             List<ScanResult> results = new List<ScanResult>();
-            Int32 processedResults = 0;
-            foreach (ScanResult scanResult in listViewResults.Objects) {
-               fnUpdateProgress("Filtering values...", Convert.ToInt32(((Double)processedResults / (Double)listViewResults.Items.Count) * 100));
-               dynamic memoryValue = Memory.read(processInfo.id, scanResult.address, scanValueType);
-               if (Memory.CompareUtil.compare(scanValues[0], memoryValue, scanResult.previousMemoryValue, scanCompareType, new dynamic[2] { scanValues[0], scanValues[1] })) {
-                  scanResult.previousMemoryValue = scanResult.memoryValue = memoryValue;
-                  results.Add(scanResult);
+            Int32 processedResults = 0, totalResults = listViewResults.GetItemCount();
+            if (totalResults > 0) {
+               foreach (ScanResult scanResult in listViewResults.Objects) {
+                  fnUpdateProgress("Filtering values...", Convert.ToInt32(((Double)processedResults / (Double)totalResults) * 100));
+                  dynamic memoryValue = Memory.read(processInfo.id, scanResult.address, scanValueType);
+                  if (Memory.CompareUtil.compare(scanValues[0], memoryValue, scanResult.previousMemoryValue, scanCompareType, new dynamic[2] { scanValues[0], scanValues[1] })) {
+                     scanResult.previousMemoryValue = scanResult.memoryValue = memoryValue;
+                     results.Add(scanResult);
+                  }
+                  processedResults++;
                }
-               processedResults++;
             }
             listViewResults.Invoke(new Action(() => listViewResults.SetObjects(results)));
          }

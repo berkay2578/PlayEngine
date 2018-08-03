@@ -7,7 +7,7 @@ namespace PlayEngine.Helpers {
          return source != null && toCheck != null && source.IndexOf(toCheck, comparison) >= 0;
       }
 
-      public static dynamic getObject(this byte[] byteArray, Type objectType) {
+      public static dynamic getObject(this Byte[] byteArray, Type objectType) {
          switch (Type.GetTypeCode(objectType)) {
             case TypeCode.Boolean:
                return BitConverter.ToBoolean(byteArray, 0);

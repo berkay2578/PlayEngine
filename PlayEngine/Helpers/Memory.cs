@@ -129,8 +129,8 @@ namespace PlayEngine.Helpers {
       public static dynamic read(Int32 procId, UInt64 address, Type valueType) {
          if (valueType == typeof(String))
             return readString(procId, address);
-         return readByteArray(procId, address, valueType == typeof(Boolean) ? 1 : Marshal.SizeOf(valueType))
-             .getObject(valueType);
+         Byte[] readBuffer = readByteArray(procId, address, valueType == typeof(Boolean) ? 1 : Marshal.SizeOf(valueType));
+         return readBuffer == null ? -1 : readBuffer.getObject(valueType);
       }
 
       public static void writeByteArray(Int32 procId, UInt64 address, Byte[] bytes) {

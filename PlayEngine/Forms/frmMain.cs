@@ -29,7 +29,6 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Net.Sockets;
-using System.Threading;
 using System.Windows.Forms;
 
 using PlayEngine.Helpers;
@@ -54,6 +53,7 @@ namespace PlayEngine.Forms {
          private UInt64 _address;
          private librpc.MemorySection _memorySection;
          private UInt32 _memorySectionOffset;
+         private Int32 _memorySectionIndex;
          private dynamic _memoryValue;
          private dynamic _previousMemoryValue;
 
@@ -71,6 +71,11 @@ namespace PlayEngine.Forms {
          {
             get { return _memorySectionOffset; }
             set { setField(ref _memorySectionOffset, value, "memorySectionOffset"); }
+         }
+         public Int32 memorySectionIndex
+         {
+            get { return _memorySectionIndex; }
+            set { setField(ref _memorySectionIndex, value, "memorySectionIndex"); }
          }
          public dynamic memoryValue
          {
@@ -241,6 +246,7 @@ namespace PlayEngine.Forms {
 
       private librpc.ProcessInfo processInfo = null;
       private List<librpc.MemorySection> listProcessMemorySections = new List<librpc.MemorySection>();
+      private List<ScanResult> listLastScanResults = new List<ScanResult>();
 
       private Memory.CompareType scanCompareType = Memory.CompareType.ExactValue;
       private Type scanValueType = typeof(UInt32);
@@ -455,9 +461,9 @@ namespace PlayEngine.Forms {
             String selectedProcessName = (String)uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedItem;
             curScanStatus = ScanStatus.FirstScan;
             contextMenuChkListBox_btnSelectAll.Checked = false;
-            listProcessMemorySections.Clear();
 
             processInfo = Memory.getProcessInfoFromName(selectedProcessName);
+            listProcessMemorySections.Clear();
             listProcessMemorySections.AddRange(Memory.Sections.getMemorySections(processInfo));
             chkListViewSearchSections.Items.Clear();
             chkListViewSearchSections.AddObjects(listProcessMemorySections);
@@ -471,22 +477,30 @@ namespace PlayEngine.Forms {
          }
       }
 
-      private dynamic[] filterSections(String include, String exclude) {
-         return listProcessMemorySections
+      Timer timerDelayFitering;
+      private void timerDelayFiltering_Tick(Object sender, EventArgs e) {
+         contextMenuChkListBox_btnSelectAll.Checked = false;
+
+         String include = txtBoxSectionsInclusionFilter.Text;
+         String exclude = txtBoxSectionsExclusionFilter.Text;
+         chkListViewSearchSections.SetObjects(listProcessMemorySections
             .Where(section => String.IsNullOrWhiteSpace(include)
                    || section.name.Contains(include, StringComparison.InvariantCultureIgnoreCase))
             .Where(section => String.IsNullOrWhiteSpace(exclude)
-                   || !section.name.Contains(exclude, StringComparison.InvariantCultureIgnoreCase))
-            .ToArray();
-
+                   || !section.name.Contains(exclude, StringComparison.InvariantCultureIgnoreCase)));
       }
-      private void txtBoxSectionsInclusionFilter_TextChanged(Object sender, EventArgs e) {
-         contextMenuChkListBox_btnSelectAll.Checked = false;
-         chkListViewSearchSections.SetObjects(filterSections(txtBoxSectionsInclusionFilter.Text, txtBoxSectionsExclusionFilter.Text));
+      private void doDelayedFiltering() {
+         if (timerDelayFitering != null) {
+            timerDelayFitering.Stop();
+         } else {
+            timerDelayFitering = new Timer();
+            timerDelayFitering.Tick += timerDelayFiltering_Tick;
+            timerDelayFitering.Interval = 1000;
+         }
+         timerDelayFitering.Start();
       }
-      private void txtBoxSectionsExclusionFilter_TextChanged(Object sender, EventArgs e) {
-         contextMenuChkListBox_btnSelectAll.Checked = false;
-         chkListViewSearchSections.SetObjects(filterSections(txtBoxSectionsInclusionFilter.Text, txtBoxSectionsExclusionFilter.Text));
+      private void txtBoxSectionsFilters_TextChanged(Object sender, EventArgs e) {
+         doDelayedFiltering();
       }
 
       private void listViewResults_FormatCell(Object sender, BrightIdeasSoftware.FormatCellEventArgs e) {
@@ -668,6 +682,7 @@ namespace PlayEngine.Forms {
          }
 
          if (oldScanStatus == ScanStatus.FirstScan) {
+            listLastScanResults.Clear();
             fnUpdateProgress("Parsing checked sections...", 2);
             List<librpc.MemorySection> searchSections = new List<librpc.MemorySection>();
             chkListViewSearchSections.Invoke(new Action(() =>
@@ -680,19 +695,16 @@ namespace PlayEngine.Forms {
                throw new Exception("No section is selected!");
             }
 
-            Int64 processedMemoryRange = 0, totalMemoryRange = 1024 * 1024; // 1mb padding for the total range
+            Double processedMemoryRange = 0, totalMemoryRange = 1024 * 1024 * 10; // 10mb padding for the total range
             foreach (var section in searchSections)
                totalMemoryRange += section.length;
             fnUpdateProgress($"Total to scan: {totalMemoryRange / 1024}KB.", -1);
 
-            List<ScanResult> scanResults = new List<ScanResult>();
             foreach (var searchSection in searchSections) {
                if (bgWorkerScanner.CancellationPending)
                   break;
-               Int32 maxResultsCount = searchSections.Count * 20000 / searchSections.Count;
-               Int32 curResultCount = 0;
 
-               fnUpdateProgress($"Scanning '{searchSection.name}'... ({searchSection.length / 1024}KB)", -1);
+               fnUpdateProgress($"Scanning '{searchSection.ToString()}'...", Convert.ToInt32(((processedMemoryRange / totalMemoryRange) * 100)));
                var scanSearchBuffer = Memory.readByteArray(processInfo.id, searchSection.start, searchSection.length);
                if (scanSearchBuffer == null) {
                   fnUpdateProgress($"'{searchSection.name}' could not be read, skipping!", -1);
@@ -706,13 +718,10 @@ namespace PlayEngine.Forms {
                      scanValueType,
                      scanCompareType,
                      new dynamic[2] { scanValues[0], scanValues[1] },
-                     maxResultsCount
+                     1000 / searchSections.Count
                   );
-               fnUpdateProgress($"Scanned '{searchSection.name}'.", -1);
 
                foreach (var tuple in results) {
-                  if (curResultCount > maxResultsCount)
-                     break;
                   UInt64 runtimeAddress = searchSection.start + tuple.Item1;
                   ScanResult scanResult = new ScanResult()
                   {
@@ -723,36 +732,42 @@ namespace PlayEngine.Forms {
                      previousMemoryValue = tuple.Item2
                   };
 
-                  curResultCount++;
-                  scanResults.Add(scanResult);
+                  listLastScanResults.Add(scanResult);
                   if (bgWorkerScanner.CancellationPending)
                      break;
                }
 
                processedMemoryRange += searchSection.length;
-               fnUpdateProgress($"Finished scanning '{searchSection.name}', {scanResults.Count} results.", Convert.ToInt32(((Double)processedMemoryRange / (Double)totalMemoryRange) * 100));
+               System.Threading.Thread.Sleep(10);
             }
-            fnUpdateProgress($"Adding {scanResults.Count} results to the list... (window may freeze)", 95);
-            listViewResults.Invoke(new Action(() => listViewResults.SetObjects(scanResults)));
          } else if (oldScanStatus == ScanStatus.DidScan) {
-            List<ScanResult> results = new List<ScanResult>();
-            Int32 processedResults = 0, totalResults = listViewResults.GetItemCount();
+            Int32 processedResults = 0, totalResults = listLastScanResults.Count;
+            List<ScanResult> filteredScanResults = new List<ScanResult>();
             if (totalResults > 0) {
-               foreach (ScanResult scanResult in listViewResults.Objects) {
+               foreach (ScanResult scanResult in listLastScanResults) {
                   if (bgWorkerScanner.CancellationPending) {
                      e.Cancel = true;
                      break;
                   }
-                  fnUpdateProgress("Filtering values...", Convert.ToInt32(((Double)processedResults / (Double)totalResults) * 100));
+                  fnUpdateProgress("Filtering values...", Convert.ToInt32(((Double)processedResults / totalResults) * 100));
                   dynamic memoryValue = Memory.read(processInfo.id, scanResult.address, scanValueType);
                   if (Memory.CompareUtil.compare(scanValues[0], memoryValue, scanResult.previousMemoryValue, scanCompareType, new dynamic[2] { scanValues[0], scanValues[1] })) {
                      scanResult.previousMemoryValue = scanResult.memoryValue = memoryValue;
-                     results.Add(scanResult);
+                     filteredScanResults.Add(scanResult);
                   }
                   processedResults++;
+                  System.Threading.Thread.Sleep(10);
                }
+               listLastScanResults.Clear();
+               listLastScanResults.AddRange(filteredScanResults);
             }
-            listViewResults.Invoke(new Action(() => listViewResults.SetObjects(results)));
+         }
+         if (listLastScanResults.Count < 1000) {
+            fnUpdateProgress($"Adding {listLastScanResults.Count} results to the list... (window may freeze)", 95);
+            listViewResults.Invoke(new Action(() => listViewResults.SetObjects(listLastScanResults)));
+         } else {
+            fnUpdateProgress($"Adding 1000 of {listLastScanResults.Count} results to the list... (window may freeze)", 95);
+            listViewResults.Invoke(new Action(() => listViewResults.SetObjects(listLastScanResults.Take(1000))));
          }
          bgWorkerScanner.ReportProgress(100);
       }
@@ -765,13 +780,13 @@ namespace PlayEngine.Forms {
          if (e.Error != null)
             uiStatusStrip_lblStatus.Text = e.Error.Message;
          else
-            uiStatusStrip_lblStatus.Text = $"[100%] Finished scanning, {listViewResults.Items.Count} results.";
+            uiStatusStrip_lblStatus.Text = $"[100%] Finished scanning, {listLastScanResults.Count} results.";
       }
       #endregion
       #region bgWorkerResultsUpdater
       private void bgWorkerResultsUpdater_DoWork(Object sender, DoWorkEventArgs e) {
          while (true) {
-            Thread.Sleep(1000);
+            System.Threading.Thread.Sleep(1000);
             // Scan results
             listViewResults.Invoke(new Action(() =>
             {

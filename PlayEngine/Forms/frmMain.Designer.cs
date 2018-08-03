@@ -412,7 +412,7 @@
          this.txtBoxSectionsExclusionFilter.Name = "txtBoxSectionsExclusionFilter";
          this.txtBoxSectionsExclusionFilter.Size = new System.Drawing.Size(159, 23);
          this.txtBoxSectionsExclusionFilter.TabIndex = 18;
-         this.txtBoxSectionsExclusionFilter.TextChanged += new System.EventHandler(this.txtBoxSectionsExclusionFilter_TextChanged);
+         this.txtBoxSectionsExclusionFilter.TextChanged += new System.EventHandler(this.txtBoxSectionsFilters_TextChanged);
          // 
          // label1
          // 
@@ -438,7 +438,7 @@
          this.txtBoxSectionsInclusionFilter.Name = "txtBoxSectionsInclusionFilter";
          this.txtBoxSectionsInclusionFilter.Size = new System.Drawing.Size(159, 23);
          this.txtBoxSectionsInclusionFilter.TabIndex = 17;
-         this.txtBoxSectionsInclusionFilter.TextChanged += new System.EventHandler(this.txtBoxSectionsInclusionFilter_TextChanged);
+         this.txtBoxSectionsInclusionFilter.TextChanged += new System.EventHandler(this.txtBoxSectionsFilters_TextChanged);
          // 
          // label2
          // 

@@ -438,9 +438,10 @@ namespace librpc {
          MemorySection[] entries = new MemorySection[number];
          for (int i = 0; i < number; i++) {
             int offset = i * RPC_PROC_INFO2_SIZE;
+            string name = GetNullTermString(data, offset);
             entries[i] = new MemorySection
             {
-               name = GetNullTermString(data, offset),
+               name = string.IsNullOrWhiteSpace(name) ? "-noname-" : name,
                start = BitConverter.ToUInt64(data, offset + 32),
                end = BitConverter.ToUInt64(data, offset + 40),
                offset = BitConverter.ToUInt64(data, offset + 48),

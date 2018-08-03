@@ -452,7 +452,8 @@ namespace PlayEngine.Forms {
             chkListViewSearchSections.Items.Clear();
             chkListViewSearchSections.AddObjects(listProcessMemorySections);
 
-            //lblProcessInfo.Text = $"{Memory.ActiveProcess.getId()} ({Memory.ActiveProcess.getVersionStr()})";
+            if (selectedProcessName == "eboot.bin")
+               lblProcessInfo.Text = $"{Memory.ActiveProcess.getId()} ({Memory.ActiveProcess.getVersionStr()})";
             uiToolStrip_lblActiveProcess.Text = $"Process: {selectedProcessName}";
             //uiToolStrip_btnOpenPointerScanner.Enabled = true;
          } catch (Exception exception) {

@@ -164,7 +164,7 @@ namespace PlayEngine.Forms {
             _curScanStatus = value;
             switch (value) {
                case ScanStatus.FirstScan: {
-                  setControlEnabled(new Control[] { btnScan, txtBoxScanValue, cmbBoxScanType, cmbBoxValueType, chkListViewSearchSections, listViewResults, txtBoxSectionsFilter }, true);
+                  setControlEnabled(new Control[] { btnScan, txtBoxScanValue, cmbBoxScanType, cmbBoxValueType, chkListViewSearchSections, listViewResults, txtBoxSectionsInclusionFilter }, true);
                   setControlEnabled(new Control[] { btnScanNext }, false);
                   chkBoxIsHexValue.Enabled = scanValueType != typeof(String) || scanValueType != typeof(Byte[]);
                   txtBoxScanValueSecond.Enabled = lblSecondValue.Enabled;
@@ -180,7 +180,7 @@ namespace PlayEngine.Forms {
                break;
                case ScanStatus.DidScan: {
                   setControlEnabled(new Control[] { btnScan, btnScanNext, chkBoxIsHexValue, txtBoxScanValue, cmbBoxScanType, listViewResults }, true);
-                  setControlEnabled(new Control[] { cmbBoxValueType, chkListViewSearchSections, txtBoxSectionsFilter }, false);
+                  setControlEnabled(new Control[] { cmbBoxValueType, chkListViewSearchSections, txtBoxSectionsInclusionFilter }, false);
                   chkBoxIsHexValue.Enabled = scanValueType != typeof(String) || scanValueType != typeof(Byte[]);
                   txtBoxScanValueSecond.Enabled = lblSecondValue.Enabled;
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
@@ -194,7 +194,7 @@ namespace PlayEngine.Forms {
                break;
                case ScanStatus.Scanning: {
                   setControlEnabled(new Control[] { btnScan }, true);
-                  setControlEnabled(new Control[] { btnScanNext, chkBoxIsHexValue, txtBoxScanValue, txtBoxScanValueSecond, cmbBoxScanType, cmbBoxValueType, chkListViewSearchSections, listViewResults, txtBoxSectionsFilter }, false);
+                  setControlEnabled(new Control[] { btnScanNext, chkBoxIsHexValue, txtBoxScanValue, txtBoxScanValueSecond, cmbBoxScanType, cmbBoxValueType, chkListViewSearchSections, listViewResults, txtBoxSectionsInclusionFilter }, false);
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = false));
 
                   btnScan.Invoke(new Action(() => btnScan.Text = "Stop"));
@@ -237,7 +237,7 @@ namespace PlayEngine.Forms {
 
       #region Functions
       public void saveResult(String description, UInt64 runtimeAddress, librpc.MemorySection section, UInt32 sectionAddressOffset) {
-         var runtimeValue = Memory.read(processInfo.pid, runtimeAddress, scanValueType);
+         var runtimeValue = Memory.read(processInfo.id, runtimeAddress, scanValueType);
 
          DataGridViewRow row = dataGridSavedResults.Rows[dataGridSavedResults.Rows.Add()];
          row.Cells[SavedResultsColumnIndex.iDescription].Value = description;
@@ -290,7 +290,7 @@ namespace PlayEngine.Forms {
       private void btnRefreshProcessList_OnClick() {
          try {
             uiToolStrip_ProcessManager_cmbBoxActiveProcess.Items.Clear();
-            foreach (librpc.Process process in Memory.ps4RPC.GetProcessList().processes)
+            foreach (librpc.Process process in Memory.ps4RPC.GetProcessList())
                uiToolStrip_ProcessManager_cmbBoxActiveProcess.Items.Add(process.name);
             uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedIndex = 0;
          } catch (Exception ex) {
@@ -304,7 +304,7 @@ namespace PlayEngine.Forms {
          if (frmEditInstance.ShowDialog() == DialogResult.OK) {
             var returnInformation = frmEditInstance.returnInformation;
             var runtimeAddress = returnInformation.section.start + returnInformation.sectionAddressOffset;
-            var runtimeValue = Memory.read(processInfo.pid, runtimeAddress, returnInformation.valueType);
+            var runtimeValue = Memory.read(processInfo.id, runtimeAddress, returnInformation.valueType);
 
             DataGridViewRow row = dataGridSavedResults.Rows[dataGridSavedResults.Rows.Add()];
             row.Cells[SavedResultsColumnIndex.iDescription].Value = returnInformation.description;
@@ -434,11 +434,22 @@ namespace PlayEngine.Forms {
          }
       }
 
-      private void txtBoxSectionsFilter_TextChanged(Object sender, EventArgs e) {
+      private dynamic[] filterSections(String include, String exclude) {
+         return listProcessMemorySections
+            .Where(section => String.IsNullOrWhiteSpace(exclude)
+                   || !section.name.Contains(exclude, StringComparison.InvariantCultureIgnoreCase))
+            .Where(section => String.IsNullOrWhiteSpace(include)
+                   || section.name.Contains(include, StringComparison.InvariantCultureIgnoreCase))
+            .ToArray();
+
+      }
+      private void txtBoxSectionsInclusionFilter_TextChanged(Object sender, EventArgs e) {
          contextMenuChkListBox_btnSelectAll.Checked = false;
-         chkListViewSearchSections.Items.Clear();
-         chkListViewSearchSections.AddObjects(listProcessMemorySections
-            .Where(section => String.IsNullOrEmpty(txtBoxSectionsFilter.Text) || section.name.Contains(txtBoxSectionsFilter.Text, StringComparison.InvariantCultureIgnoreCase)).ToArray());
+         chkListViewSearchSections.SetObjects(filterSections(txtBoxSectionsInclusionFilter.Text, txtBoxSectionsExclusionFilter.Text));
+      }
+      private void txtBoxSectionsExclusionFilter_TextChanged(Object sender, EventArgs e) {
+         contextMenuChkListBox_btnSelectAll.Checked = false;
+         chkListViewSearchSections.SetObjects(filterSections(txtBoxSectionsInclusionFilter.Text, txtBoxSectionsExclusionFilter.Text));
       }
 
       private void listViewResults_FormatCell(Object sender, BrightIdeasSoftware.FormatCellEventArgs e) {
@@ -486,7 +497,7 @@ namespace PlayEngine.Forms {
             if (runtimeAddress == (UInt64)cells[SavedResultsColumnIndex.iAddress].Value)
                try {
                   Memory.write(
-                     processInfo.pid,
+                     processInfo.id,
                      runtimeAddress,
                      Convert.ChangeType(returnInformation.value, returnInformation.valueType),
                      returnInformation.valueType
@@ -519,7 +530,7 @@ namespace PlayEngine.Forms {
                         break;
                   }
                   Memory.write(
-                     processInfo.pid,
+                     processInfo.id,
                      runtimeAddress,
                      Convert.ChangeType(returnInformation.value, returnInformation.valueType),
                      returnInformation.valueType
@@ -647,7 +658,7 @@ namespace PlayEngine.Forms {
                UInt64 maxResultCount = 1000, curResultCount = 0;
 
                fnUpdateProgress($"Scanning '{searchSection.name}'...", -1);
-               var scanSearchBuffer = Memory.readByteArray(processInfo.pid, searchSection.start, searchSection.length);
+               var scanSearchBuffer = Memory.readByteArray(processInfo.id, searchSection.start, searchSection.length);
                if (scanSearchBuffer == null) {
                   fnUpdateProgress($"{searchSection.name} could not be read, skipping!", -1);
                   continue;
@@ -693,7 +704,7 @@ namespace PlayEngine.Forms {
             Int32 processedResults = 0;
             foreach (ScanResult scanResult in listViewResults.Objects) {
                fnUpdateProgress("Filtering values...", Convert.ToInt32(((Double)processedResults / (Double)listViewResults.Items.Count) * 100));
-               dynamic memoryValue = Memory.read(processInfo.pid, scanResult.address, scanValueType);
+               dynamic memoryValue = Memory.read(processInfo.id, scanResult.address, scanValueType);
                if (Memory.CompareUtil.compare(scanValues[0], memoryValue, scanCompareType, new dynamic[2] { scanValues[0], scanValues[1] })) {
                   scanResult.oldMemoryValue = scanResult.memoryValue = memoryValue;
                   results.Add(scanResult);
@@ -727,7 +738,7 @@ namespace PlayEngine.Forms {
                   ScanResult scanResult = (ScanResult)listViewResults.GetModelObject(i);
                   if (scanResult != null) {
                      dynamic runtimeValue = Memory.read(
-                        processInfo.pid,
+                        processInfo.id,
                         scanResult.address,
                         scanValueType
                      );
@@ -742,14 +753,14 @@ namespace PlayEngine.Forms {
                foreach (DataGridViewRow row in dataGridSavedResults.Rows) {
                   if (((CheatInformation)row.Tag).isFrozen) {
                      Memory.write(
-                        processInfo.pid,
+                        processInfo.id,
                         (UInt64)row.Cells[SavedResultsColumnIndex.iAddress].Value,
                         row.Cells[SavedResultsColumnIndex.iValue].Value,
                         (Type)row.Cells[SavedResultsColumnIndex.iValueType].Value
                      );
                   } else {
                      var runtimeValue = Memory.read(
-                        processInfo.pid,
+                        processInfo.id,
                         (UInt64)row.Cells[SavedResultsColumnIndex.iAddress].Value,
                         (Type)row.Cells[SavedResultsColumnIndex.iValueType].Value
                      );
@@ -760,6 +771,7 @@ namespace PlayEngine.Forms {
          }
       }
       #endregion
+
       #endregion
    }
 }

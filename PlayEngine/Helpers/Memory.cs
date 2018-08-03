@@ -12,7 +12,7 @@ namespace PlayEngine.Helpers {
       public class Sections {
          public static List<librpc.MemorySection> getMemorySections(librpc.ProcessInfo processInfo, VM_PROT protection = VM_PROT.READ) {
             var listMemoryEntries = new List<librpc.MemorySection>();
-            foreach (var memoryEntry in processInfo.memorySections)
+            foreach (var memoryEntry in processInfo.listProcessMemorySections)
                if ((memoryEntry.protection & protection) == protection)
                   listMemoryEntries.Add(memoryEntry);
 
@@ -87,7 +87,7 @@ namespace PlayEngine.Helpers {
          return ps4RPC != null;
       }
       public static librpc.ProcessInfo getProcessInfoFromName(String processName) {
-         return Memory.ps4RPC.GetProcessInfo(Memory.ps4RPC.GetProcessList().processes.Where(proc => proc.name == processName).First().pid);
+         return Memory.ps4RPC.GetProcessInfo(Memory.ps4RPC.GetProcessList().Where(proc => proc.name == processName).First().id);
       }
 
       public static Byte[] readByteArray(Int32 procId, UInt64 address, Int32 size) {

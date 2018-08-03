@@ -452,7 +452,7 @@ namespace PlayEngine.Forms {
             chkListViewSearchSections.Items.Clear();
             chkListViewSearchSections.AddObjects(listProcessMemorySections);
 
-            lblProcessInfo.Text = $"{Memory.ActiveProcess.getId()} ({Memory.ActiveProcess.getVersionStr()})";
+            //lblProcessInfo.Text = $"{Memory.ActiveProcess.getId()} ({Memory.ActiveProcess.getVersionStr()})";
             uiToolStrip_lblActiveProcess.Text = $"Process: {selectedProcessName}";
             //uiToolStrip_btnOpenPointerScanner.Enabled = true;
          } catch (Exception exception) {

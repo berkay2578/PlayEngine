@@ -169,7 +169,7 @@ namespace PlayEngine.Forms {
             ValueTypeArrayOfBytes.mSelf
          });
          // ComboBox selection
-         cmbBoxSectionsFilterProtection.SelectedItem = librpc.VM_PROT.RW.ToString();
+         cmbBoxSectionsFilterProtection.SelectedItem = librpc.VM_PROT.NONE.ToString();
          cmbBoxScanValueType.SelectedItem = ValueType4Bytes.mSelf;
          // Check for existing jkpatch
          using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)) {

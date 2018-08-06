@@ -28,11 +28,20 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using PlayEngine.Helpers.MemoryClasses.ScanCompareTypes;
 
 namespace PlayEngine.Helpers {
    public class Memory {
+      public enum ScanStatus {
+         CantScan,
+         CanScan,
+         DidScan,
+         Scanning
+      }
+      public static ScanStatus currentScanStatus;
+
       public class Sections {
-         public static List<librpc.MemorySection> getMemorySections(librpc.ProcessInfo processInfo, librpc.VM_PROT protection = librpc.VM_PROT.READ) {
+         public static List<librpc.MemorySection> getMemorySections(librpc.ProcessInfo processInfo, librpc.VM_PROT protection = librpc.VM_PROT.R) {
             var listMemoryEntries = new List<librpc.MemorySection>();
             foreach (var memorySection in processInfo.listProcessMemorySections)
                if ((memorySection.protection & protection) == protection)
@@ -40,7 +49,7 @@ namespace PlayEngine.Helpers {
 
             return listMemoryEntries;
          }
-         public static librpc.MemorySection findMemorySectionByName(librpc.ProcessInfo processInfo, String sectionName, librpc.VM_PROT protection = librpc.VM_PROT.READ) {
+         public static librpc.MemorySection findMemorySectionByName(librpc.ProcessInfo processInfo, String sectionName, librpc.VM_PROT protection = librpc.VM_PROT.R) {
             librpc.MemorySection result = null;
             foreach (var memorySection in processInfo.listProcessMemorySections) {
                if (memorySection.name == sectionName &&
@@ -69,67 +78,6 @@ namespace PlayEngine.Helpers {
                return String.Empty;
 
             return Memory.readString(processInfo.id, memorySection.start + 0xC8);
-         }
-      }
-
-      public enum CompareType {
-         None,
-         ExactValue,
-         FuzzyValue,
-         IncreasedValue,
-         IncreasedValueBy,
-         DecreasedValue,
-         DecreasedValueBy,
-         BiggerThan,
-         SmallerThan,
-         ChangedValue,
-         UnchangedValue,
-         BetweenValues,
-         UnknownInitialValue
-      }
-      public static class CompareUtil {
-         public static Boolean compare(dynamic searchValue, dynamic memoryValueToCompare, dynamic previousMemoryValue, CompareType compareType, dynamic[] extraParams = null) {
-            Boolean isMatched = false;
-            switch (compareType) {
-               case CompareType.ExactValue:
-                  isMatched = searchValue == memoryValueToCompare;
-                  break;
-               case CompareType.FuzzyValue:
-                  isMatched = Math.Abs(searchValue - memoryValueToCompare) < 1.0f;
-                  break;
-               case CompareType.IncreasedValue:
-                  isMatched = memoryValueToCompare > previousMemoryValue;
-                  break;
-               case CompareType.IncreasedValueBy:
-                  isMatched = memoryValueToCompare == previousMemoryValue + searchValue;
-                  break;
-               case CompareType.DecreasedValue:
-                  isMatched = memoryValueToCompare < previousMemoryValue;
-                  break;
-               case CompareType.DecreasedValueBy:
-                  isMatched = memoryValueToCompare == previousMemoryValue - searchValue;
-                  break;
-               case CompareType.BiggerThan:
-                  isMatched = searchValue > memoryValueToCompare;
-                  break;
-               case CompareType.SmallerThan:
-                  isMatched = searchValue < memoryValueToCompare;
-                  break;
-               case CompareType.ChangedValue:
-                  isMatched = memoryValueToCompare != previousMemoryValue;
-                  break;
-               case CompareType.UnchangedValue:
-                  isMatched = memoryValueToCompare == previousMemoryValue;
-                  break;
-               case CompareType.BetweenValues:
-                  isMatched = (memoryValueToCompare > extraParams[0]) && (memoryValueToCompare < extraParams[1]);
-                  break;
-               case CompareType.None:
-               case CompareType.UnknownInitialValue:
-                  isMatched = true;
-                  break;
-            }
-            return isMatched;
          }
       }
 
@@ -214,97 +162,97 @@ namespace PlayEngine.Helpers {
             writeByteArray(procId, address, value.getBytes(valueType));
       }
 
-      public static List<Tuple<UInt32, dynamic>> scan(Byte[] scanSearchBuffer, dynamic scanValue, Type scanValueType, CompareType scanCompareType, dynamic[] extraParams, Int32 maxResultsCount) {
-         List<Tuple<UInt32, dynamic>> listResults = new List<Tuple<UInt32, dynamic>>();
+      public static List<Tuple<UInt64, dynamic>> scan(UInt64 searchStartAddress, Byte[] searchBuffer, dynamic value, Type valueType, IScanCompareType compareType, dynamic[] extraParams = null) {
+         List<Tuple<UInt64, dynamic>> listResults = new List<Tuple<UInt64, dynamic>>();
          Int32 objectTypeSize = 0;
-         Func<Int32 /* scanSearchBufferIndex */, dynamic /* returnValue */> fnGetMemoryValue = null;
+         Func<Int32 /* searchBufferIndex */, dynamic /* returnValue */> fnGetMemoryValueAt = null;
 
-         switch (Type.GetTypeCode(scanValueType)) {
+         switch (Type.GetTypeCode(valueType)) {
             case TypeCode.SByte: {
-               fnGetMemoryValue = (iBuffer) => scanSearchBuffer[iBuffer];
+               fnGetMemoryValueAt = (iBuffer) => searchBuffer[iBuffer];
                objectTypeSize = sizeof(SByte);
             }
             break;
             case TypeCode.Byte: {
-               fnGetMemoryValue = (iBuffer) => scanSearchBuffer[iBuffer];
+               fnGetMemoryValueAt = (iBuffer) => searchBuffer[iBuffer];
                objectTypeSize = sizeof(Byte);
             }
             break;
             case TypeCode.Boolean: {
-               fnGetMemoryValue = (iBuffer) => BitConverter.ToBoolean(scanSearchBuffer, iBuffer);
+               fnGetMemoryValueAt = (iBuffer) => BitConverter.ToBoolean(searchBuffer, iBuffer);
                objectTypeSize = 1;
             }
             break;
             case TypeCode.Int16: {
-               fnGetMemoryValue = (iBuffer) => BitConverter.ToInt16(scanSearchBuffer, iBuffer);
+               fnGetMemoryValueAt = (iBuffer) => BitConverter.ToInt16(searchBuffer, iBuffer);
                objectTypeSize = sizeof(Int16);
             }
             break;
             case TypeCode.UInt16: {
-               fnGetMemoryValue = (iBuffer) => BitConverter.ToUInt16(scanSearchBuffer, iBuffer);
+               fnGetMemoryValueAt = (iBuffer) => BitConverter.ToUInt16(searchBuffer, iBuffer);
                objectTypeSize = sizeof(UInt16);
             }
             break;
             case TypeCode.Int32: {
-               fnGetMemoryValue = (iBuffer) => BitConverter.ToUInt32(scanSearchBuffer, iBuffer);
+               fnGetMemoryValueAt = (iBuffer) => BitConverter.ToUInt32(searchBuffer, iBuffer);
                objectTypeSize = sizeof(Int32);
             }
             break;
             case TypeCode.UInt32: {
-               fnGetMemoryValue = (iBuffer) => BitConverter.ToUInt32(scanSearchBuffer, iBuffer);
+               fnGetMemoryValueAt = (iBuffer) => BitConverter.ToUInt32(searchBuffer, iBuffer);
                objectTypeSize = sizeof(UInt32);
             }
             break;
             case TypeCode.Int64: {
-               fnGetMemoryValue = (iBuffer) => BitConverter.ToUInt64(scanSearchBuffer, iBuffer);
+               fnGetMemoryValueAt = (iBuffer) => BitConverter.ToUInt64(searchBuffer, iBuffer);
                objectTypeSize = sizeof(Int64);
             }
             break;
             case TypeCode.UInt64: {
-               fnGetMemoryValue = (iBuffer) => BitConverter.ToUInt64(scanSearchBuffer, iBuffer);
+               fnGetMemoryValueAt = (iBuffer) => BitConverter.ToUInt64(searchBuffer, iBuffer);
                objectTypeSize = sizeof(UInt64);
             }
             break;
             case TypeCode.Double: {
-               fnGetMemoryValue = (iBuffer) => BitConverter.ToDouble(scanSearchBuffer, iBuffer);
+               fnGetMemoryValueAt = (iBuffer) => BitConverter.ToDouble(searchBuffer, iBuffer);
                objectTypeSize = sizeof(Double);
             }
             break;
             case TypeCode.Single: {
-               fnGetMemoryValue = (iBuffer) => BitConverter.ToSingle(scanSearchBuffer, iBuffer);
+               fnGetMemoryValueAt = (iBuffer) => BitConverter.ToSingle(searchBuffer, iBuffer);
                objectTypeSize = sizeof(Single);
             }
             break;
             case TypeCode.String: {
-               var scanResults = scan(scanSearchBuffer, ((Object)scanValue).getBytes(typeof(String)), typeof(Byte[]), scanCompareType, extraParams, maxResultsCount);
-               foreach (Tuple<UInt32, dynamic> tuple in scanResults)
-                  listResults.Add(new Tuple<UInt32, dynamic>(tuple.Item1, Encoding.ASCII.GetString(tuple.Item2)));
+               var scanResults = scan(searchStartAddress, searchBuffer, ((Object)value).getBytes(typeof(String)), typeof(Byte[]), compareType, extraParams);
+               foreach (Tuple<UInt64, dynamic> tuple in scanResults)
+                  listResults.Add(new Tuple<UInt64, dynamic>(tuple.Item1, Encoding.ASCII.GetString(tuple.Item2)));
                return listResults;
             }
          }
-         if (scanValueType == typeof(Byte[])) {
-            Byte[] scanValueBuffer = scanValue;
-            Int32 indexEnd = scanSearchBuffer.Length - scanValueBuffer.Length;
-            for (Int32 index = 0; index < indexEnd; index += scanValueBuffer.Length) {
-               Boolean isFound = false;
-               for (Int32 j = 0; j < scanValueBuffer.Length - 1; j++) {
-                  isFound = scanSearchBuffer[index + j] == scanValueBuffer[j];
-                  if (!isFound)
-                     break;
+         if (valueType == typeof(Byte[])) {
+            Byte[] valueBuffer = value;
+            Int32 indexEnd = searchBuffer.Length - valueBuffer.Length;
+            if (indexEnd > 0) {
+               for (Int32 index = 0; index < indexEnd; index += valueBuffer.Length) {
+                  Boolean isFound = false;
+                  for (Int32 j = 0; j < valueBuffer.Length - 1; j++) {
+                     isFound = searchBuffer[index + j] == valueBuffer[j];
+                     if (!isFound)
+                        break;
+                  }
+                  if (isFound)
+                     listResults.Add(new Tuple<UInt64, dynamic>(searchStartAddress + (UInt64)index, valueBuffer));
                }
-               if (isFound)
-                  listResults.Add(new Tuple<UInt32, dynamic>((UInt32)index, scanValueBuffer));
-               if (listResults.Count > maxResultsCount)
-                  break;
             }
          } else {
-            Int32 endOffset = scanSearchBuffer.Length - objectTypeSize;
-            for (Int32 index = 0; index < endOffset; index += objectTypeSize) {
-               dynamic memoryValue = fnGetMemoryValue.Invoke(index);
-               if (Memory.CompareUtil.compare(scanValue, memoryValue, null, scanCompareType, extraParams))
-                  listResults.Add(new Tuple<UInt32, dynamic>((UInt32)index, memoryValue));
-               if (listResults.Count > maxResultsCount)
-                  break;
+            Int32 indexEnd = searchBuffer.Length - objectTypeSize;
+            if (indexEnd > 0) {
+               for (Int32 index = 0; index < indexEnd; index += objectTypeSize) {
+                  dynamic memoryValue = fnGetMemoryValueAt(index);
+                  if (compareType.compare(value, memoryValue, null, extraParams))
+                     listResults.Add(new Tuple<UInt64, dynamic>(searchStartAddress + (UInt64)index, memoryValue));
+               }
             }
          }
          return listResults;

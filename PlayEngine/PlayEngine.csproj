@@ -103,9 +103,33 @@
       <DependentUpon>childFrmSendPayload.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\CheatManager\CheatInformation.cs" />
-    <Compile Include="Helpers\librpc\Process.cs" />
-    <Compile Include="Helpers\librpc\PS4RPC.cs" />
-    <Compile Include="Helpers\Memory.cs" />
+    <Compile Include="Helpers\librpc\Process.librpc.cs" />
+    <Compile Include="Helpers\librpc\PS4RPC.librpc.cs" />
+    <Compile Include="Helpers\Memory\Memory.cs" />
+    <Compile Include="Helpers\Memory\ScanCompareTypes\CompareTypeArray.cs" />
+    <Compile Include="Helpers\Memory\ScanCompareTypes\CompareTypeString.cs" />
+    <Compile Include="Helpers\Memory\ScanCompareTypes\CompareTypeBiggerThan.cs" />
+    <Compile Include="Helpers\Memory\ScanCompareTypes\CompareTypeChangedValue.cs" />
+    <Compile Include="Helpers\Memory\ScanCompareTypes\CompareTypeDecreasedValue.cs" />
+    <Compile Include="Helpers\Memory\ScanCompareTypes\CompareTypeDecreasedValueBy.cs" />
+    <Compile Include="Helpers\Memory\ScanCompareTypes\CompareTypeFuzzyValue.cs" />
+    <Compile Include="Helpers\Memory\ScanCompareTypes\CompareTypeExactValue.cs" />
+    <Compile Include="Helpers\Memory\ScanCompareTypes\CompareTypeIncreasedValue.cs" />
+    <Compile Include="Helpers\Memory\ScanCompareTypes\CompareTypeIncreasedValueBy.cs" />
+    <Compile Include="Helpers\Memory\ScanCompareTypes\IScanCompareType.cs" />
+    <Compile Include="Helpers\Memory\ScanCompareTypes\CompareTypeSmallerThan.cs" />
+    <Compile Include="Helpers\Memory\ScanCompareTypes\CompareTypeUnchangedValue.cs" />
+    <Compile Include="Helpers\Memory\ScanCompareTypes\CompareTypeUnknownInitialValue.cs" />
+    <Compile Include="Helpers\Memory\ScanCompareTypes\CompareTypeValueBetween.cs" />
+    <Compile Include="Helpers\Memory\ScanValueTypes\ValueTypeDouble.cs" />
+    <Compile Include="Helpers\Memory\ScanValueTypes\ValueTypeArrayOfBytes.cs" />
+    <Compile Include="Helpers\Memory\ScanValueTypes\ValueTypeString.cs" />
+    <Compile Include="Helpers\Memory\ScanValueTypes\ValueTypeFloat.cs" />
+    <Compile Include="Helpers\Memory\ScanValueTypes\ValueType8Bytes.cs" />
+    <Compile Include="Helpers\Memory\ScanValueTypes\ValueType4Bytes.cs" />
+    <Compile Include="Helpers\Memory\ScanValueTypes\ValueType2Bytes.cs" />
+    <Compile Include="Helpers\Memory\ScanValueTypes\IScanValueType.cs" />
+    <Compile Include="Helpers\Memory\ScanValueTypes\ValueType1Byte.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Forms\frmMain.cs">
@@ -136,7 +160,6 @@
     <EmbeddedResource Include="Forms\frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="PlayEngine.licenseheader" />
     <None Include="Properties\Settings.settings">
@@ -156,6 +179,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>

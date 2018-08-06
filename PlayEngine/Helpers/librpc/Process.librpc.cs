@@ -19,14 +19,14 @@ namespace librpc {
          this.name = name;
          this.id = pid;
       }
-   }   
+   }
 
    public enum VM_PROT {
       NONE = 0x00,
-      READ = 0x01,
-      WRITE = 0x02,
+      R = 0x01,
+      W = 0x02,
       RW = 0x03,
-      EXEC = 0x04,
+      X = 0x04,
       RX = 0x05,
       WX = 0x06,
       RWX = 0x07
@@ -45,7 +45,7 @@ namespace librpc {
          }
       }
       public override String ToString() {
-         return $"{name}(0x{offset:X}-{length/1024}KB)[{protection.ToString()}]";
+         return $"{name}(0x{offset:X}-{length / 1024}KB)[{protection.ToString()}]";
       }
    }
 

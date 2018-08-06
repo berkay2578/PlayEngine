@@ -23,27 +23,31 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
 
-namespace PlayEngine.Helpers.CheatManager {
-   [Serializable]
-   [XmlRoot("CheatInformation")]
-   public class CheatInformation {
-      [XmlIgnore]
-      public Boolean isValueFrozen = false;
-      [XmlIgnore]
-      public dynamic frozenValue = null;
+namespace PlayEngine.Helpers.MemoryClasses.ScanCompareTypes {
+   public class CompareTypeDecreasedValue : IScanCompareType {
+      private static CompareTypeDecreasedValue _mSelf = null;
+      public static CompareTypeDecreasedValue mSelf
+      {
+         get {
+            if (_mSelf == null)
+               _mSelf = new CompareTypeDecreasedValue();
+            return _mSelf;
+         }
+      }
 
-      [XmlArray("PointerOffsets")]
-      [XmlArrayItem("Offset")]
-      public List<UInt32> pointerOffsets = new List<UInt32>();
+      public override Boolean supportsScanValue
+      {
+         get {
+            return false;
+         }
+      }
+      public override Boolean compare(dynamic value, dynamic memoryValue, dynamic previousMemoryValue, dynamic[] extraParams = null) {
+         return memoryValue < previousMemoryValue;
+      }
 
-      [XmlElement]
-      public librpc.VM_PROT protectionType;
-      [XmlElement]
-      public Int32 sectionIndex;
-      [XmlElement]
-      public UInt32 sectionAddressOffset;
+      public override String ToString() {
+         return "Decreased value";
+      }
    }
 }

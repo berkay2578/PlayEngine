@@ -23,8 +23,7 @@
       /// the contents of this method with the code editor.
       /// </summary>
       private void InitializeComponent() {
-         this.components = new System.ComponentModel.Container();
-         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
          this.uiToolStrip = new System.Windows.Forms.ToolStrip();
          this.uiToolStrip_linkFile = new System.Windows.Forms.ToolStripDropDownButton();
          this.uiToolStrip_btnLoadCheatTable = new System.Windows.Forms.ToolStripMenuItem();
@@ -48,35 +47,15 @@
          this.splitContainerScanner = new System.Windows.Forms.SplitContainer();
          this.listViewResults = new BrightIdeasSoftware.ObjectListView();
          this.columnHeaderAddress = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
-         this.columnHeaderSection = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
          this.columnHeaderValue = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
-         this.splitContainerScanDetails = new System.Windows.Forms.SplitContainer();
-         this.txtBoxSectionsExclusionFilter = new System.Windows.Forms.TextBox();
-         this.label1 = new System.Windows.Forms.Label();
+         this.columnHeaderPreviousValue = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
          this.progressBarScanPercent = new System.Windows.Forms.ProgressBar();
-         this.txtBoxSectionsInclusionFilter = new System.Windows.Forms.TextBox();
-         this.label2 = new System.Windows.Forms.Label();
-         this.txtBoxScanValueSecond = new System.Windows.Forms.TextBox();
-         this.lblSecondValue = new System.Windows.Forms.Label();
-         this.label3 = new System.Windows.Forms.Label();
-         this.cmbBoxValueType = new System.Windows.Forms.ComboBox();
-         this.cmbBoxScanType = new System.Windows.Forms.ComboBox();
-         this.txtBoxScanValue = new System.Windows.Forms.TextBox();
-         this.chkBoxIsHexValue = new System.Windows.Forms.CheckBox();
          this.btnScanNext = new System.Windows.Forms.Button();
          this.btnScan = new System.Windows.Forms.Button();
-         this.chkListViewSearchSections = new BrightIdeasSoftware.ObjectListView();
-         this.columnHeaderSectionName = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
-         this.columnHeaderSectionOffset = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
-         this.columnHeaderSectionLength = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
-         this.columnHeaderSectionProtection = ((BrightIdeasSoftware.OLVColumn)(new BrightIdeasSoftware.OLVColumn()));
-         this.contextMenuChkListBox = new System.Windows.Forms.ContextMenuStrip(this.components);
-         this.contextMenuChkListBox_btnSelectAll = new System.Windows.Forms.ToolStripMenuItem();
          this.dataGridSavedResults = new System.Windows.Forms.DataGridView();
          this.dataGridSavedResults_chkBoxFreezeValue = new System.Windows.Forms.DataGridViewCheckBoxColumn();
          this.dataGridSavedResults_txtBoxDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
          this.dataGridSavedResults_txtBoxAddress = new System.Windows.Forms.DataGridViewTextBoxColumn();
-         this.dataGridSavedResults_txtBoxSection = new System.Windows.Forms.DataGridViewTextBoxColumn();
          this.dataGridSavedResults_txtBoxValueType = new System.Windows.Forms.DataGridViewTextBoxColumn();
          this.dataGridSavedResults_txtBoxValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
          this.uiStatusStrip = new System.Windows.Forms.StatusStrip();
@@ -86,6 +65,21 @@
          this.uiStatusStrip_lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
          this.bgWorkerScanner = new System.ComponentModel.BackgroundWorker();
          this.bgWorkerResultsUpdater = new System.ComponentModel.BackgroundWorker();
+         this.panelScanControls = new System.Windows.Forms.Panel();
+         this.label5 = new System.Windows.Forms.Label();
+         this.label4 = new System.Windows.Forms.Label();
+         this.cmbBoxSectionsFilterProtection = new System.Windows.Forms.ComboBox();
+         this.label3 = new System.Windows.Forms.Label();
+         this.txtBoxSectionsFilterExclude = new System.Windows.Forms.TextBox();
+         this.label1 = new System.Windows.Forms.Label();
+         this.txtBoxSectionsFilterInclude = new System.Windows.Forms.TextBox();
+         this.label2 = new System.Windows.Forms.Label();
+         this.txtBoxScanValueSecond = new System.Windows.Forms.TextBox();
+         this.lblSecondValue = new System.Windows.Forms.Label();
+         this.cmbBoxScanCompareType = new System.Windows.Forms.ComboBox();
+         this.cmbBoxScanValueType = new System.Windows.Forms.ComboBox();
+         this.txtBoxScanValue = new System.Windows.Forms.TextBox();
+         this.chkBoxIsHexValue = new System.Windows.Forms.CheckBox();
          this.uiToolStrip.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.splitContainerMain)).BeginInit();
          this.splitContainerMain.Panel1.SuspendLayout();
@@ -96,14 +90,9 @@
          this.splitContainerScanner.Panel2.SuspendLayout();
          this.splitContainerScanner.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.listViewResults)).BeginInit();
-         ((System.ComponentModel.ISupportInitialize)(this.splitContainerScanDetails)).BeginInit();
-         this.splitContainerScanDetails.Panel1.SuspendLayout();
-         this.splitContainerScanDetails.Panel2.SuspendLayout();
-         this.splitContainerScanDetails.SuspendLayout();
-         ((System.ComponentModel.ISupportInitialize)(this.chkListViewSearchSections)).BeginInit();
-         this.contextMenuChkListBox.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.dataGridSavedResults)).BeginInit();
          this.uiStatusStrip.SuspendLayout();
+         this.panelScanControls.SuspendLayout();
          this.SuspendLayout();
          // 
          // uiToolStrip
@@ -296,6 +285,7 @@
          // splitContainerScanner
          // 
          this.splitContainerScanner.Dock = System.Windows.Forms.DockStyle.Fill;
+         this.splitContainerScanner.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
          this.splitContainerScanner.IsSplitterFixed = true;
          this.splitContainerScanner.Location = new System.Drawing.Point(0, 0);
          this.splitContainerScanner.Name = "splitContainerScanner";
@@ -307,25 +297,28 @@
          // 
          // splitContainerScanner.Panel2
          // 
-         this.splitContainerScanner.Panel2.Controls.Add(this.splitContainerScanDetails);
+         this.splitContainerScanner.Panel2.Controls.Add(this.panelScanControls);
+         this.splitContainerScanner.Panel2.Controls.Add(this.progressBarScanPercent);
+         this.splitContainerScanner.Panel2.Controls.Add(this.btnScanNext);
+         this.splitContainerScanner.Panel2.Controls.Add(this.btnScan);
          this.splitContainerScanner.Panel2.Padding = new System.Windows.Forms.Padding(0, 0, 1, 0);
          this.splitContainerScanner.Panel2MinSize = 160;
          this.splitContainerScanner.Size = new System.Drawing.Size(484, 315);
-         this.splitContainerScanner.SplitterDistance = 212;
+         this.splitContainerScanner.SplitterDistance = 227;
          this.splitContainerScanner.SplitterWidth = 1;
-         this.splitContainerScanner.TabIndex = 0;
+         this.splitContainerScanner.TabIndex = 15;
          // 
          // listViewResults
          // 
          this.listViewResults.AllColumns.Add(this.columnHeaderAddress);
-         this.listViewResults.AllColumns.Add(this.columnHeaderSection);
          this.listViewResults.AllColumns.Add(this.columnHeaderValue);
+         this.listViewResults.AllColumns.Add(this.columnHeaderPreviousValue);
          this.listViewResults.AutoArrange = false;
          this.listViewResults.CellEditUseWholeCell = false;
          this.listViewResults.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeaderAddress,
-            this.columnHeaderSection,
-            this.columnHeaderValue});
+            this.columnHeaderValue,
+            this.columnHeaderPreviousValue});
          this.listViewResults.Cursor = System.Windows.Forms.Cursors.Default;
          this.listViewResults.Dock = System.Windows.Forms.DockStyle.Fill;
          this.listViewResults.FullRowSelect = true;
@@ -334,7 +327,7 @@
          this.listViewResults.Name = "listViewResults";
          this.listViewResults.ShowGroups = false;
          this.listViewResults.ShowItemToolTips = true;
-         this.listViewResults.Size = new System.Drawing.Size(212, 315);
+         this.listViewResults.Size = new System.Drawing.Size(227, 315);
          this.listViewResults.TabIndex = 0;
          this.listViewResults.TabStop = false;
          this.listViewResults.UseCellFormatEvents = true;
@@ -352,15 +345,8 @@
          this.columnHeaderAddress.IsEditable = false;
          this.columnHeaderAddress.Searchable = false;
          this.columnHeaderAddress.Text = "Address";
-         this.columnHeaderAddress.Width = 85;
-         // 
-         // columnHeaderSection
-         // 
-         this.columnHeaderSection.AspectName = "memorySection";
-         this.columnHeaderSection.IsEditable = false;
-         this.columnHeaderSection.Searchable = false;
-         this.columnHeaderSection.Text = "Section";
-         this.columnHeaderSection.Width = 74;
+         this.columnHeaderAddress.UseFiltering = false;
+         this.columnHeaderAddress.Width = 86;
          // 
          // columnHeaderValue
          // 
@@ -368,268 +354,46 @@
          this.columnHeaderValue.IsEditable = false;
          this.columnHeaderValue.Searchable = false;
          this.columnHeaderValue.Text = "Value";
-         this.columnHeaderValue.Width = 50;
+         this.columnHeaderValue.UseFiltering = false;
+         this.columnHeaderValue.Width = 59;
          // 
-         // splitContainerScanDetails
+         // columnHeaderPreviousValue
          // 
-         this.splitContainerScanDetails.Dock = System.Windows.Forms.DockStyle.Fill;
-         this.splitContainerScanDetails.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
-         this.splitContainerScanDetails.IsSplitterFixed = true;
-         this.splitContainerScanDetails.Location = new System.Drawing.Point(0, 0);
-         this.splitContainerScanDetails.Name = "splitContainerScanDetails";
-         this.splitContainerScanDetails.Orientation = System.Windows.Forms.Orientation.Horizontal;
-         // 
-         // splitContainerScanDetails.Panel1
-         // 
-         this.splitContainerScanDetails.Panel1.Controls.Add(this.txtBoxSectionsExclusionFilter);
-         this.splitContainerScanDetails.Panel1.Controls.Add(this.label1);
-         this.splitContainerScanDetails.Panel1.Controls.Add(this.progressBarScanPercent);
-         this.splitContainerScanDetails.Panel1.Controls.Add(this.txtBoxSectionsInclusionFilter);
-         this.splitContainerScanDetails.Panel1.Controls.Add(this.label2);
-         this.splitContainerScanDetails.Panel1.Controls.Add(this.txtBoxScanValueSecond);
-         this.splitContainerScanDetails.Panel1.Controls.Add(this.lblSecondValue);
-         this.splitContainerScanDetails.Panel1.Controls.Add(this.label3);
-         this.splitContainerScanDetails.Panel1.Controls.Add(this.cmbBoxValueType);
-         this.splitContainerScanDetails.Panel1.Controls.Add(this.cmbBoxScanType);
-         this.splitContainerScanDetails.Panel1.Controls.Add(this.txtBoxScanValue);
-         this.splitContainerScanDetails.Panel1.Controls.Add(this.chkBoxIsHexValue);
-         this.splitContainerScanDetails.Panel1.Controls.Add(this.btnScanNext);
-         this.splitContainerScanDetails.Panel1.Controls.Add(this.btnScan);
-         this.splitContainerScanDetails.Panel1MinSize = 163;
-         // 
-         // splitContainerScanDetails.Panel2
-         // 
-         this.splitContainerScanDetails.Panel2.Controls.Add(this.chkListViewSearchSections);
-         this.splitContainerScanDetails.Panel2.Padding = new System.Windows.Forms.Padding(0, 0, 4, 0);
-         this.splitContainerScanDetails.Size = new System.Drawing.Size(270, 315);
-         this.splitContainerScanDetails.SplitterDistance = 185;
-         this.splitContainerScanDetails.SplitterWidth = 1;
-         this.splitContainerScanDetails.TabIndex = 0;
-         // 
-         // txtBoxSectionsExclusionFilter
-         // 
-         this.txtBoxSectionsExclusionFilter.Location = new System.Drawing.Point(101, 162);
-         this.txtBoxSectionsExclusionFilter.Name = "txtBoxSectionsExclusionFilter";
-         this.txtBoxSectionsExclusionFilter.Size = new System.Drawing.Size(159, 23);
-         this.txtBoxSectionsExclusionFilter.TabIndex = 18;
-         this.txtBoxSectionsExclusionFilter.TextChanged += new System.EventHandler(this.txtBoxSectionsFilters_TextChanged);
-         // 
-         // label1
-         // 
-         this.label1.AutoSize = true;
-         this.label1.Location = new System.Drawing.Point(0, 166);
-         this.label1.Name = "label1";
-         this.label1.Size = new System.Drawing.Size(89, 15);
-         this.label1.TabIndex = 25;
-         this.label1.Text = "Exclusion filter: ";
+         this.columnHeaderPreviousValue.AspectName = "previousMemoryValue";
+         this.columnHeaderPreviousValue.IsEditable = false;
+         this.columnHeaderPreviousValue.Searchable = false;
+         this.columnHeaderPreviousValue.Text = "Previous";
+         this.columnHeaderPreviousValue.UseFiltering = false;
+         this.columnHeaderPreviousValue.Width = 61;
          // 
          // progressBarScanPercent
          // 
-         this.progressBarScanPercent.Location = new System.Drawing.Point(160, 7);
+         this.progressBarScanPercent.Location = new System.Drawing.Point(165, 3);
          this.progressBarScanPercent.Name = "progressBarScanPercent";
-         this.progressBarScanPercent.Size = new System.Drawing.Size(100, 23);
+         this.progressBarScanPercent.Size = new System.Drawing.Size(87, 23);
          this.progressBarScanPercent.Step = 1;
          this.progressBarScanPercent.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-         this.progressBarScanPercent.TabIndex = 24;
-         // 
-         // txtBoxSectionsInclusionFilter
-         // 
-         this.txtBoxSectionsInclusionFilter.Location = new System.Drawing.Point(101, 138);
-         this.txtBoxSectionsInclusionFilter.Name = "txtBoxSectionsInclusionFilter";
-         this.txtBoxSectionsInclusionFilter.Size = new System.Drawing.Size(159, 23);
-         this.txtBoxSectionsInclusionFilter.TabIndex = 17;
-         this.txtBoxSectionsInclusionFilter.TextChanged += new System.EventHandler(this.txtBoxSectionsFilters_TextChanged);
-         // 
-         // label2
-         // 
-         this.label2.AutoSize = true;
-         this.label2.Location = new System.Drawing.Point(0, 142);
-         this.label2.Name = "label2";
-         this.label2.Size = new System.Drawing.Size(88, 15);
-         this.label2.TabIndex = 22;
-         this.label2.Text = "Inclusion filter: ";
-         // 
-         // txtBoxScanValueSecond
-         // 
-         this.txtBoxScanValueSecond.Enabled = false;
-         this.txtBoxScanValueSecond.Location = new System.Drawing.Point(67, 64);
-         this.txtBoxScanValueSecond.Name = "txtBoxScanValueSecond";
-         this.txtBoxScanValueSecond.Size = new System.Drawing.Size(193, 23);
-         this.txtBoxScanValueSecond.TabIndex = 14;
-         this.txtBoxScanValueSecond.Text = "0";
-         this.txtBoxScanValueSecond.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
-         // 
-         // lblSecondValue
-         // 
-         this.lblSecondValue.AutoSize = true;
-         this.lblSecondValue.Enabled = false;
-         this.lblSecondValue.Location = new System.Drawing.Point(0, 67);
-         this.lblSecondValue.Name = "lblSecondValue";
-         this.lblSecondValue.Size = new System.Drawing.Size(61, 15);
-         this.lblSecondValue.TabIndex = 20;
-         this.lblSecondValue.Text = "2nd value:";
-         // 
-         // label3
-         // 
-         this.label3.AutoSize = true;
-         this.label3.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-         this.label3.Location = new System.Drawing.Point(0, 120);
-         this.label3.Name = "label3";
-         this.label3.Size = new System.Drawing.Size(124, 15);
-         this.label3.TabIndex = 18;
-         this.label3.Text = "Sections to search in:";
-         // 
-         // cmbBoxValueType
-         // 
-         this.cmbBoxValueType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-         this.cmbBoxValueType.FormattingEnabled = true;
-         this.cmbBoxValueType.Items.AddRange(new object[] {
-            "Byte",
-            "2 Bytes",
-            "4 Bytes",
-            "8 Bytes",
-            "Float",
-            "Double",
-            "String",
-            "Array of bytes"});
-         this.cmbBoxValueType.Location = new System.Drawing.Point(3, 93);
-         this.cmbBoxValueType.Name = "cmbBoxValueType";
-         this.cmbBoxValueType.Size = new System.Drawing.Size(108, 23);
-         this.cmbBoxValueType.TabIndex = 15;
-         this.cmbBoxValueType.SelectedIndexChanged += new System.EventHandler(this.cmbBoxValueType_SelectedIndexChanged);
-         // 
-         // cmbBoxScanType
-         // 
-         this.cmbBoxScanType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-         this.cmbBoxScanType.DropDownWidth = 200;
-         this.cmbBoxScanType.FormattingEnabled = true;
-         this.cmbBoxScanType.Location = new System.Drawing.Point(117, 93);
-         this.cmbBoxScanType.Name = "cmbBoxScanType";
-         this.cmbBoxScanType.Size = new System.Drawing.Size(143, 23);
-         this.cmbBoxScanType.TabIndex = 16;
-         this.cmbBoxScanType.SelectedIndexChanged += new System.EventHandler(this.cmbBoxScanType_SelectedIndexChanged);
-         // 
-         // txtBoxScanValue
-         // 
-         this.txtBoxScanValue.Location = new System.Drawing.Point(67, 35);
-         this.txtBoxScanValue.Name = "txtBoxScanValue";
-         this.txtBoxScanValue.Size = new System.Drawing.Size(193, 23);
-         this.txtBoxScanValue.TabIndex = 13;
-         this.txtBoxScanValue.Text = "0";
-         this.txtBoxScanValue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
-         // 
-         // chkBoxIsHexValue
-         // 
-         this.chkBoxIsHexValue.AutoSize = true;
-         this.chkBoxIsHexValue.Enabled = false;
-         this.chkBoxIsHexValue.Location = new System.Drawing.Point(3, 37);
-         this.chkBoxIsHexValue.Name = "chkBoxIsHexValue";
-         this.chkBoxIsHexValue.Size = new System.Drawing.Size(46, 19);
-         this.chkBoxIsHexValue.TabIndex = 12;
-         this.chkBoxIsHexValue.Text = "Hex";
-         this.chkBoxIsHexValue.UseVisualStyleBackColor = true;
+         this.progressBarScanPercent.TabIndex = 38;
          // 
          // btnScanNext
          // 
-         this.btnScanNext.Location = new System.Drawing.Point(82, 7);
+         this.btnScanNext.Location = new System.Drawing.Point(84, 3);
          this.btnScanNext.Name = "btnScanNext";
          this.btnScanNext.Size = new System.Drawing.Size(75, 23);
-         this.btnScanNext.TabIndex = 11;
+         this.btnScanNext.TabIndex = 27;
          this.btnScanNext.Text = "Next Scan";
          this.btnScanNext.UseVisualStyleBackColor = true;
          this.btnScanNext.Click += new System.EventHandler(this.uiButtonHandler_Click);
          // 
          // btnScan
          // 
-         this.btnScan.Location = new System.Drawing.Point(3, 7);
+         this.btnScan.Location = new System.Drawing.Point(5, 3);
          this.btnScan.Name = "btnScan";
          this.btnScan.Size = new System.Drawing.Size(75, 23);
-         this.btnScan.TabIndex = 10;
+         this.btnScan.TabIndex = 26;
          this.btnScan.Text = "First Scan";
          this.btnScan.UseVisualStyleBackColor = true;
          this.btnScan.Click += new System.EventHandler(this.uiButtonHandler_Click);
-         // 
-         // chkListViewSearchSections
-         // 
-         this.chkListViewSearchSections.AllColumns.Add(this.columnHeaderSectionName);
-         this.chkListViewSearchSections.AllColumns.Add(this.columnHeaderSectionOffset);
-         this.chkListViewSearchSections.AllColumns.Add(this.columnHeaderSectionLength);
-         this.chkListViewSearchSections.AllColumns.Add(this.columnHeaderSectionProtection);
-         this.chkListViewSearchSections.AllowColumnReorder = true;
-         this.chkListViewSearchSections.AutoArrange = false;
-         this.chkListViewSearchSections.CellEditUseWholeCell = false;
-         this.chkListViewSearchSections.CheckBoxes = true;
-         this.chkListViewSearchSections.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeaderSectionName,
-            this.columnHeaderSectionOffset,
-            this.columnHeaderSectionLength,
-            this.columnHeaderSectionProtection});
-         this.chkListViewSearchSections.ContextMenuStrip = this.contextMenuChkListBox;
-         this.chkListViewSearchSections.Cursor = System.Windows.Forms.Cursors.Default;
-         this.chkListViewSearchSections.Dock = System.Windows.Forms.DockStyle.Fill;
-         this.chkListViewSearchSections.EmptyListMsg = "No matches.";
-         this.chkListViewSearchSections.FullRowSelect = true;
-         this.chkListViewSearchSections.Location = new System.Drawing.Point(0, 0);
-         this.chkListViewSearchSections.Name = "chkListViewSearchSections";
-         this.chkListViewSearchSections.PersistentCheckBoxes = false;
-         this.chkListViewSearchSections.ShowGroups = false;
-         this.chkListViewSearchSections.ShowImagesOnSubItems = true;
-         this.chkListViewSearchSections.ShowItemToolTips = true;
-         this.chkListViewSearchSections.Size = new System.Drawing.Size(266, 129);
-         this.chkListViewSearchSections.TabIndex = 0;
-         this.chkListViewSearchSections.TabStop = false;
-         this.chkListViewSearchSections.TintSortColumn = true;
-         this.chkListViewSearchSections.UseCompatibleStateImageBehavior = false;
-         this.chkListViewSearchSections.View = System.Windows.Forms.View.Details;
-         // 
-         // columnHeaderSectionName
-         // 
-         this.columnHeaderSectionName.AspectName = "name";
-         this.columnHeaderSectionName.IsEditable = false;
-         this.columnHeaderSectionName.Text = "Name";
-         this.columnHeaderSectionName.UseFiltering = false;
-         this.columnHeaderSectionName.Width = 97;
-         // 
-         // columnHeaderSectionOffset
-         // 
-         this.columnHeaderSectionOffset.AspectName = "offset";
-         this.columnHeaderSectionOffset.AspectToStringFormat = "0x{0:X}";
-         this.columnHeaderSectionOffset.IsEditable = false;
-         this.columnHeaderSectionOffset.Text = "Offset";
-         this.columnHeaderSectionOffset.UseFiltering = false;
-         this.columnHeaderSectionOffset.Width = 44;
-         // 
-         // columnHeaderSectionLength
-         // 
-         this.columnHeaderSectionLength.AspectName = "length";
-         this.columnHeaderSectionLength.AspectToStringFormat = "{0:#,}KB";
-         this.columnHeaderSectionLength.IsEditable = false;
-         this.columnHeaderSectionLength.Text = "Size";
-         this.columnHeaderSectionLength.UseFiltering = false;
-         this.columnHeaderSectionLength.Width = 50;
-         // 
-         // columnHeaderSectionProtection
-         // 
-         this.columnHeaderSectionProtection.AspectName = "protection";
-         this.columnHeaderSectionProtection.IsEditable = false;
-         this.columnHeaderSectionProtection.Text = "Protection";
-         this.columnHeaderSectionProtection.UseFiltering = false;
-         this.columnHeaderSectionProtection.Width = 69;
-         // 
-         // contextMenuChkListBox
-         // 
-         this.contextMenuChkListBox.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.contextMenuChkListBox_btnSelectAll});
-         this.contextMenuChkListBox.Name = "contextMenuChkListBox";
-         this.contextMenuChkListBox.Size = new System.Drawing.Size(121, 26);
-         // 
-         // contextMenuChkListBox_btnSelectAll
-         // 
-         this.contextMenuChkListBox_btnSelectAll.CheckOnClick = true;
-         this.contextMenuChkListBox_btnSelectAll.Name = "contextMenuChkListBox_btnSelectAll";
-         this.contextMenuChkListBox_btnSelectAll.Size = new System.Drawing.Size(120, 22);
-         this.contextMenuChkListBox_btnSelectAll.Text = "Select all";
-         this.contextMenuChkListBox_btnSelectAll.Click += new System.EventHandler(this.uiButtonHandler_Click);
          // 
          // dataGridSavedResults
          // 
@@ -640,7 +404,6 @@
             this.dataGridSavedResults_chkBoxFreezeValue,
             this.dataGridSavedResults_txtBoxDescription,
             this.dataGridSavedResults_txtBoxAddress,
-            this.dataGridSavedResults_txtBoxSection,
             this.dataGridSavedResults_txtBoxValueType,
             this.dataGridSavedResults_txtBoxValue});
          this.dataGridSavedResults.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -674,20 +437,13 @@
          // 
          // dataGridSavedResults_txtBoxAddress
          // 
-         dataGridViewCellStyle4.Format = "X0";
-         dataGridViewCellStyle4.NullValue = null;
-         this.dataGridSavedResults_txtBoxAddress.DefaultCellStyle = dataGridViewCellStyle4;
+         dataGridViewCellStyle2.Format = "X0";
+         dataGridViewCellStyle2.NullValue = null;
+         this.dataGridSavedResults_txtBoxAddress.DefaultCellStyle = dataGridViewCellStyle2;
          this.dataGridSavedResults_txtBoxAddress.HeaderText = "Address";
          this.dataGridSavedResults_txtBoxAddress.Name = "dataGridSavedResults_txtBoxAddress";
          this.dataGridSavedResults_txtBoxAddress.ReadOnly = true;
          this.dataGridSavedResults_txtBoxAddress.Width = 91;
-         // 
-         // dataGridSavedResults_txtBoxSection
-         // 
-         this.dataGridSavedResults_txtBoxSection.HeaderText = "Section";
-         this.dataGridSavedResults_txtBoxSection.Name = "dataGridSavedResults_txtBoxSection";
-         this.dataGridSavedResults_txtBoxSection.ReadOnly = true;
-         this.dataGridSavedResults_txtBoxSection.Width = 90;
          // 
          // dataGridSavedResults_txtBoxValueType
          // 
@@ -765,6 +521,157 @@
          // 
          this.bgWorkerResultsUpdater.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgWorkerResultsUpdater_DoWork);
          // 
+         // panelScanControls
+         // 
+         this.panelScanControls.Controls.Add(this.label5);
+         this.panelScanControls.Controls.Add(this.label4);
+         this.panelScanControls.Controls.Add(this.cmbBoxSectionsFilterProtection);
+         this.panelScanControls.Controls.Add(this.label3);
+         this.panelScanControls.Controls.Add(this.txtBoxSectionsFilterExclude);
+         this.panelScanControls.Controls.Add(this.label1);
+         this.panelScanControls.Controls.Add(this.txtBoxSectionsFilterInclude);
+         this.panelScanControls.Controls.Add(this.label2);
+         this.panelScanControls.Controls.Add(this.txtBoxScanValueSecond);
+         this.panelScanControls.Controls.Add(this.lblSecondValue);
+         this.panelScanControls.Controls.Add(this.cmbBoxScanCompareType);
+         this.panelScanControls.Controls.Add(this.cmbBoxScanValueType);
+         this.panelScanControls.Controls.Add(this.txtBoxScanValue);
+         this.panelScanControls.Controls.Add(this.chkBoxIsHexValue);
+         this.panelScanControls.Location = new System.Drawing.Point(0, 32);
+         this.panelScanControls.Margin = new System.Windows.Forms.Padding(0);
+         this.panelScanControls.Name = "panelScanControls";
+         this.panelScanControls.Size = new System.Drawing.Size(256, 236);
+         this.panelScanControls.TabIndex = 39;
+         // 
+         // label5
+         // 
+         this.label5.AutoSize = true;
+         this.label5.Location = new System.Drawing.Point(-1, 78);
+         this.label5.Name = "label5";
+         this.label5.Size = new System.Drawing.Size(67, 15);
+         this.label5.TabIndex = 57;
+         this.label5.Text = "Value type: ";
+         // 
+         // label4
+         // 
+         this.label4.AutoSize = true;
+         this.label4.Location = new System.Drawing.Point(2, 53);
+         this.label4.Name = "label4";
+         this.label4.Size = new System.Drawing.Size(64, 15);
+         this.label4.TabIndex = 56;
+         this.label4.Text = "Scan type: ";
+         // 
+         // cmbBoxSectionsFilterProtection
+         // 
+         this.cmbBoxSectionsFilterProtection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.cmbBoxSectionsFilterProtection.DropDownWidth = 100;
+         this.cmbBoxSectionsFilterProtection.FormattingEnabled = true;
+         this.cmbBoxSectionsFilterProtection.Location = new System.Drawing.Point(99, 181);
+         this.cmbBoxSectionsFilterProtection.Name = "cmbBoxSectionsFilterProtection";
+         this.cmbBoxSectionsFilterProtection.Size = new System.Drawing.Size(141, 23);
+         this.cmbBoxSectionsFilterProtection.TabIndex = 55;
+         // 
+         // label3
+         // 
+         this.label3.AutoSize = true;
+         this.label3.Location = new System.Drawing.Point(6, 185);
+         this.label3.Name = "label3";
+         this.label3.Size = new System.Drawing.Size(95, 15);
+         this.label3.TabIndex = 54;
+         this.label3.Text = "Protection filter: ";
+         // 
+         // txtBoxSectionsFilterExclude
+         // 
+         this.txtBoxSectionsFilterExclude.Location = new System.Drawing.Point(99, 156);
+         this.txtBoxSectionsFilterExclude.Name = "txtBoxSectionsFilterExclude";
+         this.txtBoxSectionsFilterExclude.Size = new System.Drawing.Size(141, 23);
+         this.txtBoxSectionsFilterExclude.TabIndex = 50;
+         // 
+         // label1
+         // 
+         this.label1.AutoSize = true;
+         this.label1.Location = new System.Drawing.Point(5, 159);
+         this.label1.Name = "label1";
+         this.label1.Size = new System.Drawing.Size(89, 15);
+         this.label1.TabIndex = 53;
+         this.label1.Text = "Exclusion filter: ";
+         // 
+         // txtBoxSectionsFilterInclude
+         // 
+         this.txtBoxSectionsFilterInclude.Location = new System.Drawing.Point(99, 132);
+         this.txtBoxSectionsFilterInclude.Name = "txtBoxSectionsFilterInclude";
+         this.txtBoxSectionsFilterInclude.Size = new System.Drawing.Size(141, 23);
+         this.txtBoxSectionsFilterInclude.TabIndex = 49;
+         // 
+         // label2
+         // 
+         this.label2.AutoSize = true;
+         this.label2.Location = new System.Drawing.Point(5, 135);
+         this.label2.Name = "label2";
+         this.label2.Size = new System.Drawing.Size(88, 15);
+         this.label2.TabIndex = 52;
+         this.label2.Text = "Inclusion filter: ";
+         // 
+         // txtBoxScanValueSecond
+         // 
+         this.txtBoxScanValueSecond.Enabled = false;
+         this.txtBoxScanValueSecond.Location = new System.Drawing.Point(72, 25);
+         this.txtBoxScanValueSecond.Name = "txtBoxScanValueSecond";
+         this.txtBoxScanValueSecond.Size = new System.Drawing.Size(180, 23);
+         this.txtBoxScanValueSecond.TabIndex = 46;
+         this.txtBoxScanValueSecond.Text = "0";
+         this.txtBoxScanValueSecond.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
+         // 
+         // lblSecondValue
+         // 
+         this.lblSecondValue.AutoSize = true;
+         this.lblSecondValue.Enabled = false;
+         this.lblSecondValue.Location = new System.Drawing.Point(5, 28);
+         this.lblSecondValue.Name = "lblSecondValue";
+         this.lblSecondValue.Size = new System.Drawing.Size(61, 15);
+         this.lblSecondValue.TabIndex = 51;
+         this.lblSecondValue.Text = "2nd value:";
+         // 
+         // cmbBoxScanCompareType
+         // 
+         this.cmbBoxScanCompareType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.cmbBoxScanCompareType.FormattingEnabled = true;
+         this.cmbBoxScanCompareType.Location = new System.Drawing.Point(72, 50);
+         this.cmbBoxScanCompareType.Name = "cmbBoxScanCompareType";
+         this.cmbBoxScanCompareType.Size = new System.Drawing.Size(180, 23);
+         this.cmbBoxScanCompareType.TabIndex = 47;
+         this.cmbBoxScanCompareType.SelectedIndexChanged += new System.EventHandler(this.cmbBoxScanCompareType_SelectedIndexChanged);
+         // 
+         // cmbBoxScanValueType
+         // 
+         this.cmbBoxScanValueType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.cmbBoxScanValueType.DropDownWidth = 200;
+         this.cmbBoxScanValueType.FormattingEnabled = true;
+         this.cmbBoxScanValueType.Location = new System.Drawing.Point(72, 75);
+         this.cmbBoxScanValueType.Name = "cmbBoxScanValueType";
+         this.cmbBoxScanValueType.Size = new System.Drawing.Size(180, 23);
+         this.cmbBoxScanValueType.TabIndex = 48;
+         this.cmbBoxScanValueType.SelectedIndexChanged += new System.EventHandler(this.cmbBoxScanValueType_SelectedIndexChanged);
+         // 
+         // txtBoxScanValue
+         // 
+         this.txtBoxScanValue.Location = new System.Drawing.Point(72, 0);
+         this.txtBoxScanValue.Name = "txtBoxScanValue";
+         this.txtBoxScanValue.Size = new System.Drawing.Size(180, 23);
+         this.txtBoxScanValue.TabIndex = 45;
+         this.txtBoxScanValue.Text = "0";
+         this.txtBoxScanValue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
+         // 
+         // chkBoxIsHexValue
+         // 
+         this.chkBoxIsHexValue.AutoSize = true;
+         this.chkBoxIsHexValue.Location = new System.Drawing.Point(20, 2);
+         this.chkBoxIsHexValue.Name = "chkBoxIsHexValue";
+         this.chkBoxIsHexValue.Size = new System.Drawing.Size(46, 19);
+         this.chkBoxIsHexValue.TabIndex = 44;
+         this.chkBoxIsHexValue.Text = "Hex";
+         this.chkBoxIsHexValue.UseVisualStyleBackColor = true;
+         // 
          // MainForm
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -793,16 +700,11 @@
          ((System.ComponentModel.ISupportInitialize)(this.splitContainerScanner)).EndInit();
          this.splitContainerScanner.ResumeLayout(false);
          ((System.ComponentModel.ISupportInitialize)(this.listViewResults)).EndInit();
-         this.splitContainerScanDetails.Panel1.ResumeLayout(false);
-         this.splitContainerScanDetails.Panel1.PerformLayout();
-         this.splitContainerScanDetails.Panel2.ResumeLayout(false);
-         ((System.ComponentModel.ISupportInitialize)(this.splitContainerScanDetails)).EndInit();
-         this.splitContainerScanDetails.ResumeLayout(false);
-         ((System.ComponentModel.ISupportInitialize)(this.chkListViewSearchSections)).EndInit();
-         this.contextMenuChkListBox.ResumeLayout(false);
          ((System.ComponentModel.ISupportInitialize)(this.dataGridSavedResults)).EndInit();
          this.uiStatusStrip.ResumeLayout(false);
          this.uiStatusStrip.PerformLayout();
+         this.panelScanControls.ResumeLayout(false);
+         this.panelScanControls.PerformLayout();
          this.ResumeLayout(false);
          this.PerformLayout();
 
@@ -815,27 +717,11 @@
       private System.Windows.Forms.SplitContainer splitContainerScanner;
       private BrightIdeasSoftware.ObjectListView listViewResults;
       private BrightIdeasSoftware.OLVColumn columnHeaderAddress;
-      private BrightIdeasSoftware.OLVColumn columnHeaderSection;
       private BrightIdeasSoftware.OLVColumn columnHeaderValue;
       private System.Windows.Forms.DataGridView dataGridSavedResults;
       private System.Windows.Forms.ToolStripDropDownButton uiToolStrip_linkFile;
       private System.Windows.Forms.ToolStripDropDownButton uiToolStrip_linkPayloadAndProcess;
       private System.Windows.Forms.ToolStripDropDownButton uiToolStrip_linkTools;
-      private System.Windows.Forms.SplitContainer splitContainerScanDetails;
-      private System.Windows.Forms.Label label3;
-      private System.Windows.Forms.ComboBox cmbBoxValueType;
-      private System.Windows.Forms.ComboBox cmbBoxScanType;
-      private System.Windows.Forms.TextBox txtBoxScanValue;
-      private System.Windows.Forms.CheckBox chkBoxIsHexValue;
-      private System.Windows.Forms.Button btnScanNext;
-      private System.Windows.Forms.Button btnScan;
-      private BrightIdeasSoftware.ObjectListView chkListViewSearchSections;
-      private BrightIdeasSoftware.OLVColumn columnHeaderSectionName;
-      private BrightIdeasSoftware.OLVColumn columnHeaderSectionOffset;
-      private BrightIdeasSoftware.OLVColumn columnHeaderSectionLength;
-      private BrightIdeasSoftware.OLVColumn columnHeaderSectionProtection;
-      private System.Windows.Forms.ContextMenuStrip contextMenuChkListBox;
-      private System.Windows.Forms.ToolStripMenuItem contextMenuChkListBox_btnSelectAll;
       private System.Windows.Forms.ToolStripMenuItem uiToolStrip_btnLoadCheatTable;
       private System.Windows.Forms.ToolStripMenuItem uiToolStrip_btnSaveCheatTable;
       private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
@@ -857,19 +743,30 @@
       private System.Windows.Forms.ToolStripStatusLabel uiStatusStrip_lblStatus;
       private System.ComponentModel.BackgroundWorker bgWorkerScanner;
       private System.ComponentModel.BackgroundWorker bgWorkerResultsUpdater;
-      private System.Windows.Forms.TextBox txtBoxScanValueSecond;
-      private System.Windows.Forms.Label lblSecondValue;
-      private System.Windows.Forms.TextBox txtBoxSectionsInclusionFilter;
-      private System.Windows.Forms.Label label2;
+      private System.Windows.Forms.ToolStripLabel lblProcessInfo;
       private System.Windows.Forms.ProgressBar progressBarScanPercent;
+      private System.Windows.Forms.Button btnScanNext;
+      private System.Windows.Forms.Button btnScan;
+      private BrightIdeasSoftware.OLVColumn columnHeaderPreviousValue;
       private System.Windows.Forms.DataGridViewCheckBoxColumn dataGridSavedResults_chkBoxFreezeValue;
       private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxDescription;
       private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxAddress;
-      private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxSection;
       private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxValueType;
       private System.Windows.Forms.DataGridViewTextBoxColumn dataGridSavedResults_txtBoxValue;
-      private System.Windows.Forms.TextBox txtBoxSectionsExclusionFilter;
+      private System.Windows.Forms.Panel panelScanControls;
+      private System.Windows.Forms.Label label5;
+      private System.Windows.Forms.Label label4;
+      private System.Windows.Forms.ComboBox cmbBoxSectionsFilterProtection;
+      private System.Windows.Forms.Label label3;
+      private System.Windows.Forms.TextBox txtBoxSectionsFilterExclude;
       private System.Windows.Forms.Label label1;
-      private System.Windows.Forms.ToolStripLabel lblProcessInfo;
+      private System.Windows.Forms.TextBox txtBoxSectionsFilterInclude;
+      private System.Windows.Forms.Label label2;
+      private System.Windows.Forms.TextBox txtBoxScanValueSecond;
+      private System.Windows.Forms.Label lblSecondValue;
+      private System.Windows.Forms.ComboBox cmbBoxScanCompareType;
+      private System.Windows.Forms.ComboBox cmbBoxScanValueType;
+      private System.Windows.Forms.TextBox txtBoxScanValue;
+      private System.Windows.Forms.CheckBox chkBoxIsHexValue;
    }
 }

@@ -1,4 +1,4 @@
-﻿extensions: designer.cs generated.cs
+﻿extensions: designer.cs generated.cs librpc.cs
 extensions: .cs
 /*
    MIT License

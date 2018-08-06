@@ -23,27 +23,27 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
 
-namespace PlayEngine.Helpers.CheatManager {
-   [Serializable]
-   [XmlRoot("CheatInformation")]
-   public class CheatInformation {
-      [XmlIgnore]
-      public Boolean isValueFrozen = false;
-      [XmlIgnore]
-      public dynamic frozenValue = null;
+namespace PlayEngine.Helpers.MemoryClasses.ScanValueTypes {
+   public class ValueType1Byte : IScanValueType {
+      private static ValueType1Byte _mSelf = null;
+      public static ValueType1Byte mSelf
+      {
+         get {
+            if (_mSelf == null)
+               _mSelf = new ValueType1Byte();
+            return _mSelf;
+         }
+      }
 
-      [XmlArray("PointerOffsets")]
-      [XmlArrayItem("Offset")]
-      public List<UInt32> pointerOffsets = new List<UInt32>();
-
-      [XmlElement]
-      public librpc.VM_PROT protectionType;
-      [XmlElement]
-      public Int32 sectionIndex;
-      [XmlElement]
-      public UInt32 sectionAddressOffset;
+      public override Type getType() {
+         return typeof(Byte);
+      }
+      public override Type getSignedType() {
+         return typeof(SByte);
+      }
+      public override String ToString() {
+         return "Byte";
+      }
    }
 }

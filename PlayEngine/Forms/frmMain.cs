@@ -105,7 +105,7 @@ namespace PlayEngine.Forms {
          }
       }
       private String getSizeStr(UInt64 sizeInBytes) {
-         UInt64 B = 0, KB = 1024, MB = KB * 1024, GB = MB * 1024, TB = GB * 1024;
+         UInt64 KB = 1024, MB = KB * 1024, GB = MB * 1024, TB = GB * 1024;
          Double size = sizeInBytes;
          String suffix = "B";
 

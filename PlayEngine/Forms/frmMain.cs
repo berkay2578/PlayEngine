@@ -84,6 +84,14 @@ namespace PlayEngine.Forms {
             return address.GetHashCode();
          }
       }
+      public class ScanOptions {
+         public String strScanValue;
+         public String strScanSecondValue;
+         public Boolean isHexValue;
+         public String strSectionNameInclusionFilter;
+         public String strSectionNameExclusionFilter;
+         public librpc.VM_PROT sectionPageProtectionFilter;
+      }
       public static class SavedResultsColumnIndex {
          public static readonly Int32 iFreeze = 0;
          public static readonly Int32 iDescription = 1;
@@ -116,7 +124,7 @@ namespace PlayEngine.Forms {
                }
                break;
                case Memory.ScanStatus.CanScan: {
-                  setControlEnabled(new Control[] { panelScanControls, btnScan, cmbBoxScanValueType }, true);
+                  setControlEnabled(new Control[] { btnScan, panelScanControls, cmbBoxScanValueType, panelSectionSearchOptions, listViewResults }, true);
                   setControlEnabled(new Control[] { btnScanNext }, false);
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
 
@@ -127,8 +135,8 @@ namespace PlayEngine.Forms {
                }
                break;
                case Memory.ScanStatus.DidScan: {
-                  setControlEnabled(new Control[] { btnScan, btnScanNext, panelScanControls, cmbBoxScanCompareType, listViewResults }, true);
-                  setControlEnabled(new Control[] { cmbBoxScanValueType }, false);
+                  setControlEnabled(new Control[] { btnScan, btnScanNext, panelScanControls, listViewResults }, true);
+                  setControlEnabled(new Control[] { cmbBoxScanValueType, panelSectionSearchOptions }, false);
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
 
                   cmbBoxScanValueType.Invoke(new Action(() => cmbBoxScanCompareType.DataSource = currentScanValueType.supportedNextScanCompareTypes));
@@ -137,7 +145,7 @@ namespace PlayEngine.Forms {
                break;
                case Memory.ScanStatus.Scanning: {
                   setControlEnabled(new Control[] { btnScan }, true);
-                  setControlEnabled(new Control[] { btnScanNext, panelScanControls }, false);
+                  setControlEnabled(new Control[] { btnScanNext, panelScanControls, listViewResults }, false);
                   this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = false));
 
                   btnScan.Invoke(new Action(() => btnScan.Text = "Stop"));
@@ -209,7 +217,16 @@ namespace PlayEngine.Forms {
          try {
             switch (currentScanStatus) {
                case Memory.ScanStatus.CanScan:
-                  bgWorkerScanner.RunWorkerAsync(new Object[3] { txtBoxScanValue.Text, txtBoxScanValueSecond.Text, chkBoxIsHexValue.Checked });
+                  ScanOptions scanOptions = new ScanOptions()
+                  {
+                     strScanValue = txtBoxScanValue.Text,
+                     strScanSecondValue = txtBoxScanSecondValue.Text,
+                     isHexValue = chkBoxIsHexValue.Checked,
+                     strSectionNameInclusionFilter = txtBoxSectionsFilterInclude.Text,
+                     strSectionNameExclusionFilter = txtBoxSectionsFilterExclude.Text,
+                     sectionPageProtectionFilter = (librpc.VM_PROT)Enum.Parse(typeof(librpc.VM_PROT), (String)cmbBoxSectionsFilterProtection.SelectedItem)
+                  };
+                  bgWorkerScanner.RunWorkerAsync(scanOptions);
                   break;
                case Memory.ScanStatus.DidScan:
                   listViewResults.Items.Clear();
@@ -225,7 +242,16 @@ namespace PlayEngine.Forms {
       }
       private void btnScanNext_OnClick() {
          try {
-            bgWorkerScanner.RunWorkerAsync(new Object[3] { txtBoxScanValue.Text, txtBoxScanValueSecond.Text, chkBoxIsHexValue.Checked });
+            ScanOptions scanOptions = new ScanOptions()
+            {
+               strScanValue = txtBoxScanValue.Text,
+               strScanSecondValue = txtBoxScanSecondValue.Text,
+               isHexValue = chkBoxIsHexValue.Checked,
+               strSectionNameInclusionFilter = txtBoxSectionsFilterInclude.Text,
+               strSectionNameExclusionFilter = txtBoxSectionsFilterExclude.Text,
+               sectionPageProtectionFilter = (librpc.VM_PROT)Enum.Parse(typeof(librpc.VM_PROT), (String)cmbBoxSectionsFilterProtection.SelectedItem)
+            };
+            bgWorkerScanner.RunWorkerAsync(scanOptions);
          } catch (Exception ex) {
             MessageBox.Show(ex.ToString(), "btnScanNext");
          }
@@ -315,7 +341,7 @@ namespace PlayEngine.Forms {
          currentScanCompareType = newScanCompareType;
 
          txtBoxScanValue.Enabled = newScanCompareType.supportsScanValue;
-         lblSecondValue.Enabled = txtBoxScanValueSecond.Enabled = newScanCompareType.supportsScanSecondValue;
+         lblSecondValue.Enabled = txtBoxScanSecondValue.Enabled = newScanCompareType.supportsScanSecondValue;
       }
 
       private void uiToolStrip_PayloadManager_chkPayloadActive_CheckedChanged(Object sender, EventArgs e) {
@@ -474,9 +500,9 @@ namespace PlayEngine.Forms {
 
          #region Read values
          fnUpdateProgress("Reading values...", 0);
-         Boolean isHexValue = (Boolean)((Object[])e.Argument)[2];
-         String[] strScanValues = new String[2] { (String)((Object[])e.Argument)[0], (String)((Object[])e.Argument)[1] };
-         if (String.IsNullOrWhiteSpace(strScanValues[0]) || (currentScanCompareType == CompareTypeValueBetween.mSelf & String.IsNullOrWhiteSpace(strScanValues[1]))) {
+         ScanOptions scanOptions = (ScanOptions)e.Argument;
+         if (String.IsNullOrWhiteSpace(scanOptions.strScanValue)
+            || (currentScanCompareType == CompareTypeValueBetween.mSelf & String.IsNullOrWhiteSpace(scanOptions.strScanSecondValue))) {
             fnUpdateProgress("Invalid values!", -1);
             throw new Exception("Invalid values!");
          }
@@ -486,11 +512,11 @@ namespace PlayEngine.Forms {
          dynamic[] scanValues = new dynamic[2];
          if (currentScanValueType == ValueTypeArrayOfBytes.mSelf) {
             List<Byte> listBytes = new List<Byte>();
-            foreach (String strByte in strScanValues[0].Split(new Char[] { ' ', '-', ':' }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (String strByte in scanOptions.strScanValue.Split(new Char[] { ' ', '-', ':' }, StringSplitOptions.RemoveEmptyEntries))
                listBytes.Add(Convert.ToByte(strByte, 16));
             scanValues[0] = listBytes.ToArray();
          } else {
-            if (isHexValue) {
+            if (scanOptions.isHexValue) {
                var dicHexCast = new Dictionary<Type, Func<String, dynamic>>
                   {
                       { typeof(Byte),   val => Byte.Parse(val, NumberStyles.HexNumber) },
@@ -505,21 +531,21 @@ namespace PlayEngine.Forms {
                       { typeof(Double), val => Double.Parse(val, NumberStyles.HexNumber) }
                   };
                try {
-                  scanValues[0] = dicHexCast[scanValueType](strScanValues[0]);
-                  scanValues[1] = dicHexCast[scanValueType](strScanValues[1]);
+                  scanValues[0] = dicHexCast[scanValueType](scanOptions.strScanValue);
+                  scanValues[1] = dicHexCast[scanValueType](scanOptions.strScanSecondValue);
                } catch (OverflowException) {
                   scanValueType = currentScanValueType.getSignedType();
-                  scanValues[0] = dicHexCast[scanValueType](strScanValues[0]);
-                  scanValues[1] = dicHexCast[scanValueType](strScanValues[1]);
+                  scanValues[0] = dicHexCast[scanValueType](scanOptions.strScanValue);
+                  scanValues[1] = dicHexCast[scanValueType](scanOptions.strScanSecondValue);
                }
             } else {
                try {
-                  scanValues[0] = Convert.ChangeType(strScanValues[0], currentScanValueType.getType());
-                  scanValues[1] = Convert.ChangeType(strScanValues[1], currentScanValueType.getType());
+                  scanValues[0] = Convert.ChangeType(scanOptions.strScanValue, currentScanValueType.getType());
+                  scanValues[1] = Convert.ChangeType(scanOptions.strScanSecondValue, currentScanValueType.getType());
                } catch (OverflowException) {
                   scanValueType = currentScanValueType.getSignedType();
-                  scanValues[0] = Convert.ChangeType(strScanValues[0], scanValueType);
-                  scanValues[1] = Convert.ChangeType(strScanValues[1], scanValueType);
+                  scanValues[0] = Convert.ChangeType(scanOptions.strScanValue, scanValueType);
+                  scanValues[1] = Convert.ChangeType(scanOptions.strScanSecondValue, scanValueType);
                }
             }
          }
@@ -528,12 +554,14 @@ namespace PlayEngine.Forms {
          #region Init new scan
          if (oldScanStatus == Memory.ScanStatus.CanScan) {
             listLastScanResults.Clear();
-
             #region Filter sections
             listProcessMemorySections.Clear();
-            librpc.VM_PROT sectionProtection = librpc.VM_PROT.NONE;
-            cmbBoxSectionsFilterProtection.Invoke(new Action(() => sectionProtection = (librpc.VM_PROT)Enum.Parse(typeof(librpc.VM_PROT), (String)cmbBoxSectionsFilterProtection.SelectedItem)));
-            listProcessMemorySections.AddRange(Memory.Sections.getMemorySections(processInfo, sectionProtection));
+            foreach (var memorySection in Memory.Sections.getMemorySections(processInfo, scanOptions.sectionPageProtectionFilter)) {
+               if (memorySection.name.Contains(scanOptions.strSectionNameInclusionFilter, StringComparison.InvariantCultureIgnoreCase)
+                  && !memorySection.name.Contains(scanOptions.strSectionNameExclusionFilter, StringComparison.InvariantCultureIgnoreCase)) {
+                  listProcessMemorySections.Add(memorySection);
+               }
+            }
             #endregion
          }
          #endregion

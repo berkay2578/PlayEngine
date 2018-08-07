@@ -543,8 +543,10 @@ namespace PlayEngine.Forms {
          Int32 lastAddedSectionIndex = -1;
          Action<UInt64, Int32> fnAddSection = (UInt64 start, Int32 length) =>
          {
-            listScanAddressRange.Add(new Tuple<UInt64, Int32>(start, length));
-            lastAddedSectionIndex++;
+            if (length > 0) {
+               listScanAddressRange.Add(new Tuple<UInt64, Int32>(start, length));
+               lastAddedSectionIndex++;
+            }
          };
 
          foreach (var section in listProcessMemorySections) {
@@ -554,7 +556,7 @@ namespace PlayEngine.Forms {
             } else {
                var lastAddedSectionEnd = lastAddedSection.Item1 + (UInt64)lastAddedSection.Item2;
                if (lastAddedSectionEnd == section.start) {
-                  if (lastAddedSection.Item2 < 50 * 1024)
+                  if (lastAddedSection.Item2 < 100 * 1024)
                      listScanAddressRange[lastAddedSectionIndex] = new Tuple<UInt64, Int32>(lastAddedSection.Item1, lastAddedSection.Item2 + section.length);
                   else
                      fnAddSection(section.start, section.length);
@@ -563,19 +565,18 @@ namespace PlayEngine.Forms {
                }
             }
             totalMemoryRange += section.length;
-            fnUpdateProgress($"Total to scan: {totalMemoryRange / 1024}KB.", -1);
+            fnUpdateProgress($"Total to scan: {totalMemoryRange / 1024 * 1024}MB.", -1);
          }
          #endregion
 
-         #region Search
+         #region Scan
          List<ScanResult> scanResults = new List<ScanResult>();
          foreach (var scanTuple in listScanAddressRange) {
-            fnUpdateProgress($"Scanning: Reading from memory...", Convert.ToInt32(((processedMemoryRange / totalMemoryRange) * 100)));
+            fnUpdateProgress($"Scanning...", Convert.ToInt32(((processedMemoryRange / totalMemoryRange) * 100)));
+
             var scanSearchBuffer = Memory.readByteArray(processInfo.id, scanTuple.Item1, scanTuple.Item2);
             if (scanSearchBuffer != null) {
-               fnUpdateProgress($"Scanning...", Convert.ToInt32(((processedMemoryRange / totalMemoryRange) * 100)));
                var results = Memory.scan(scanTuple.Item1, scanSearchBuffer, scanValues[0], scanValueType, currentScanCompareType, new dynamic[2] { scanValues[0], scanValues[1] });
-
                foreach (var resultTuple in results) {
                   ScanResult scanResult = new ScanResult()
                   {
@@ -599,13 +600,14 @@ namespace PlayEngine.Forms {
          #endregion
          #region Filter if next scan
          if (oldScanStatus == Memory.ScanStatus.DidScan) {
+            fnUpdateProgress("Filtering values...", 0);
             scanResults = scanResults.Intersect(listLastScanResults).ToList();
          }
-         listLastScanResults.Clear();
-         listLastScanResults.AddRange(scanResults);
          #endregion
          #endregion
          #region List results
+         listLastScanResults.Clear();
+         listLastScanResults.AddRange(scanResults);
          if (listLastScanResults.Count < 1000) {
             fnUpdateProgress($"Adding {listLastScanResults.Count} results to the list... (window may freeze)", 95);
             listViewResults.Invoke(new Action(() => listViewResults.SetObjects(listLastScanResults)));

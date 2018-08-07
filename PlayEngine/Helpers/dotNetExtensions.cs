@@ -27,7 +27,7 @@ using System.Text;
 
 namespace PlayEngine.Helpers {
    public static class dotNetExtensions {
-      public static Boolean Contains(this String source, String toCheck, StringComparison comparison = StringComparison.OrdinalIgnoreCase) {
+      public static Boolean ContainsEx(this String source, String toCheck, StringComparison comparison = StringComparison.InvariantCultureIgnoreCase) {
          return source != null && toCheck != null && source.IndexOf(toCheck, comparison) >= 0;
       }
 

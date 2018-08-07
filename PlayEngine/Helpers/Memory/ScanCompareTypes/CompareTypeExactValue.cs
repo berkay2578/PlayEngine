@@ -37,7 +37,7 @@ namespace PlayEngine.Helpers.MemoryClasses.ScanCompareTypes {
       }
 
       public override Boolean compare(dynamic value, dynamic memoryValue, dynamic previousMemoryValue, dynamic[] extraParams = null) {
-         return value == memoryValue;
+         throw new InvalidOperationException("This scan type is optimized, do not call member method 'compare'!");
       }
 
       public override String ToString() {

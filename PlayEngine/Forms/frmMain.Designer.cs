@@ -23,7 +23,7 @@
       /// the contents of this method with the code editor.
       /// </summary>
       private void InitializeComponent() {
-         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
+         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
          this.uiToolStrip = new System.Windows.Forms.ToolStrip();
          this.uiToolStrip_linkFile = new System.Windows.Forms.ToolStripDropDownButton();
          this.uiToolStrip_btnLoadCheatTable = new System.Windows.Forms.ToolStripMenuItem();
@@ -274,14 +274,14 @@
          // splitContainerMain.Panel1
          // 
          this.splitContainerMain.Panel1.Controls.Add(this.splitContainerScanner);
-         this.splitContainerMain.Panel1MinSize = 315;
+         this.splitContainerMain.Panel1MinSize = 280;
          // 
          // splitContainerMain.Panel2
          // 
          this.splitContainerMain.Panel2.Controls.Add(this.dataGridSavedResults);
          this.splitContainerMain.Panel2MinSize = 50;
          this.splitContainerMain.Size = new System.Drawing.Size(484, 404);
-         this.splitContainerMain.SplitterDistance = 315;
+         this.splitContainerMain.SplitterDistance = 280;
          this.splitContainerMain.SplitterWidth = 3;
          this.splitContainerMain.TabIndex = 1;
          // 
@@ -306,8 +306,8 @@
          this.splitContainerScanner.Panel2.Controls.Add(this.btnScan);
          this.splitContainerScanner.Panel2.Padding = new System.Windows.Forms.Padding(0, 0, 1, 0);
          this.splitContainerScanner.Panel2MinSize = 160;
-         this.splitContainerScanner.Size = new System.Drawing.Size(484, 315);
-         this.splitContainerScanner.SplitterDistance = 230;
+         this.splitContainerScanner.Size = new System.Drawing.Size(484, 280);
+         this.splitContainerScanner.SplitterDistance = 236;
          this.splitContainerScanner.SplitterWidth = 1;
          this.splitContainerScanner.TabIndex = 15;
          // 
@@ -330,7 +330,7 @@
          this.listViewResults.Name = "listViewResults";
          this.listViewResults.ShowGroups = false;
          this.listViewResults.ShowItemToolTips = true;
-         this.listViewResults.Size = new System.Drawing.Size(230, 315);
+         this.listViewResults.Size = new System.Drawing.Size(236, 280);
          this.listViewResults.TabIndex = 0;
          this.listViewResults.TabStop = false;
          this.listViewResults.UseCellFormatEvents = true;
@@ -349,7 +349,7 @@
          this.columnHeaderAddress.Searchable = false;
          this.columnHeaderAddress.Text = "Address";
          this.columnHeaderAddress.UseFiltering = false;
-         this.columnHeaderAddress.Width = 86;
+         this.columnHeaderAddress.Width = 95;
          // 
          // columnHeaderValue
          // 
@@ -358,7 +358,7 @@
          this.columnHeaderValue.Searchable = false;
          this.columnHeaderValue.Text = "Value";
          this.columnHeaderValue.UseFiltering = false;
-         this.columnHeaderValue.Width = 59;
+         this.columnHeaderValue.Width = 65;
          // 
          // columnHeaderPreviousValue
          // 
@@ -367,7 +367,7 @@
          this.columnHeaderPreviousValue.Searchable = false;
          this.columnHeaderPreviousValue.Text = "Previous";
          this.columnHeaderPreviousValue.UseFiltering = false;
-         this.columnHeaderPreviousValue.Width = 61;
+         this.columnHeaderPreviousValue.Width = 70;
          // 
          // panelScanControls
          // 
@@ -594,7 +594,7 @@
          this.dataGridSavedResults.RowHeadersVisible = false;
          this.dataGridSavedResults.RowTemplate.Height = 23;
          this.dataGridSavedResults.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-         this.dataGridSavedResults.Size = new System.Drawing.Size(484, 86);
+         this.dataGridSavedResults.Size = new System.Drawing.Size(484, 121);
          this.dataGridSavedResults.TabIndex = 51;
          this.dataGridSavedResults.TabStop = false;
          this.dataGridSavedResults.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridSavedResults_CellContentClick);
@@ -619,9 +619,9 @@
          // 
          // dataGridSavedResults_txtBoxAddress
          // 
-         dataGridViewCellStyle8.Format = "X0";
-         dataGridViewCellStyle8.NullValue = null;
-         this.dataGridSavedResults_txtBoxAddress.DefaultCellStyle = dataGridViewCellStyle8;
+         dataGridViewCellStyle1.Format = "X0";
+         dataGridViewCellStyle1.NullValue = null;
+         this.dataGridSavedResults_txtBoxAddress.DefaultCellStyle = dataGridViewCellStyle1;
          this.dataGridSavedResults_txtBoxAddress.HeaderText = "Address";
          this.dataGridSavedResults_txtBoxAddress.Name = "dataGridSavedResults_txtBoxAddress";
          this.dataGridSavedResults_txtBoxAddress.ReadOnly = true;

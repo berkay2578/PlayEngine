@@ -164,94 +164,105 @@ namespace PlayEngine.Helpers {
 
       public static List<Tuple<UInt64, dynamic>> scan(UInt64 searchStartAddress, Byte[] searchBuffer, dynamic value, Type valueType, IScanCompareType compareType, dynamic[] extraParams = null) {
          List<Tuple<UInt64, dynamic>> listResults = new List<Tuple<UInt64, dynamic>>();
-         Int32 objectTypeSize = 0;
-         Func<Int32 /* searchBufferIndex */, dynamic /* returnValue */> fnGetMemoryValueAt = null;
-
-         switch (Type.GetTypeCode(valueType)) {
-            case TypeCode.SByte: {
-               fnGetMemoryValueAt = (iBuffer) => searchBuffer[iBuffer];
-               objectTypeSize = sizeof(SByte);
-            }
-            break;
-            case TypeCode.Byte: {
-               fnGetMemoryValueAt = (iBuffer) => searchBuffer[iBuffer];
-               objectTypeSize = sizeof(Byte);
-            }
-            break;
-            case TypeCode.Boolean: {
-               fnGetMemoryValueAt = (iBuffer) => BitConverter.ToBoolean(searchBuffer, iBuffer);
-               objectTypeSize = 1;
-            }
-            break;
-            case TypeCode.Int16: {
-               fnGetMemoryValueAt = (iBuffer) => BitConverter.ToInt16(searchBuffer, iBuffer);
-               objectTypeSize = sizeof(Int16);
-            }
-            break;
-            case TypeCode.UInt16: {
-               fnGetMemoryValueAt = (iBuffer) => BitConverter.ToUInt16(searchBuffer, iBuffer);
-               objectTypeSize = sizeof(UInt16);
-            }
-            break;
-            case TypeCode.Int32: {
-               fnGetMemoryValueAt = (iBuffer) => BitConverter.ToUInt32(searchBuffer, iBuffer);
-               objectTypeSize = sizeof(Int32);
-            }
-            break;
-            case TypeCode.UInt32: {
-               fnGetMemoryValueAt = (iBuffer) => BitConverter.ToUInt32(searchBuffer, iBuffer);
-               objectTypeSize = sizeof(UInt32);
-            }
-            break;
-            case TypeCode.Int64: {
-               fnGetMemoryValueAt = (iBuffer) => BitConverter.ToUInt64(searchBuffer, iBuffer);
-               objectTypeSize = sizeof(Int64);
-            }
-            break;
-            case TypeCode.UInt64: {
-               fnGetMemoryValueAt = (iBuffer) => BitConverter.ToUInt64(searchBuffer, iBuffer);
-               objectTypeSize = sizeof(UInt64);
-            }
-            break;
-            case TypeCode.Double: {
-               fnGetMemoryValueAt = (iBuffer) => BitConverter.ToDouble(searchBuffer, iBuffer);
-               objectTypeSize = sizeof(Double);
-            }
-            break;
-            case TypeCode.Single: {
-               fnGetMemoryValueAt = (iBuffer) => BitConverter.ToSingle(searchBuffer, iBuffer);
-               objectTypeSize = sizeof(Single);
-            }
-            break;
-            case TypeCode.String: {
-               var scanResults = scan(searchStartAddress, searchBuffer, ((Object)value).getBytes(typeof(String)), typeof(Byte[]), compareType, extraParams);
-               foreach (Tuple<UInt64, dynamic> tuple in scanResults)
-                  listResults.Add(new Tuple<UInt64, dynamic>(tuple.Item1, Encoding.ASCII.GetString(tuple.Item2)));
-               return listResults;
-            }
-         }
          if (valueType == typeof(Byte[])) {
             Byte[] valueBuffer = value;
-            Int32 indexEnd = searchBuffer.Length - valueBuffer.Length;
-            if (indexEnd > 0) {
-               for (Int32 index = 0; index < indexEnd; index += valueBuffer.Length) {
-                  Boolean isFound = false;
-                  for (Int32 j = 0; j < valueBuffer.Length - 1; j++) {
-                     isFound = searchBuffer[index + j] == valueBuffer[j];
-                     if (!isFound)
-                        break;
+            Int64 lenValueBuffer = valueBuffer.LongLength;
+            Int64[] bufBoyerMoore = new Int64[256];
+            for (Int32 i = 0; i < 256; i++)
+               bufBoyerMoore[i] = lenValueBuffer;
+            Int64 indexPatternEnd = lenValueBuffer - 1;
+            for (Int64 i = 0; i < indexPatternEnd; i++)
+               bufBoyerMoore[value[i]] = indexPatternEnd;
+
+            Int64 index = 0;
+            while (index <= searchBuffer.LongLength - lenValueBuffer) {
+               for (Int64 i = indexPatternEnd; searchBuffer[index + i] == value[i]; i--) {
+                  if (i == 0) {
+                     listResults.Add(new Tuple<UInt64, dynamic>(searchStartAddress + (UInt64)index, value));
+                     break;
                   }
-                  if (isFound)
-                     listResults.Add(new Tuple<UInt64, dynamic>(searchStartAddress + (UInt64)index, valueBuffer));
                }
+               index += bufBoyerMoore[searchBuffer[index + indexPatternEnd]];
             }
          } else {
-            Int32 indexEnd = searchBuffer.Length - objectTypeSize;
-            if (indexEnd > 0) {
-               for (Int32 index = 0; index < indexEnd; index += objectTypeSize) {
-                  dynamic memoryValue = fnGetMemoryValueAt(index);
-                  if (compareType.compare(value, memoryValue, null, extraParams))
-                     listResults.Add(new Tuple<UInt64, dynamic>(searchStartAddress + (UInt64)index, memoryValue));
+            if (compareType == CompareTypeExactValue.mSelf) {
+               var patternMatchScanResults = scan(searchStartAddress, searchBuffer, dotNetExtensions.getBytes(value, valueType), typeof(Byte[]), null);
+               foreach (Tuple<UInt64, dynamic> tuple in patternMatchScanResults)
+                  listResults.Add(new Tuple<UInt64, dynamic>(tuple.Item1, value));
+            } else {
+               Int32 objectTypeSize = 0;
+               Func<Int32 /* searchBufferIndex */, dynamic /* returnValue */> fnGetMemoryValueAt = null;
+               switch (Type.GetTypeCode(valueType)) {
+                  case TypeCode.SByte: {
+                     fnGetMemoryValueAt = (iBuffer) => searchBuffer[iBuffer];
+                     objectTypeSize = sizeof(SByte);
+                  }
+                  break;
+                  case TypeCode.Byte: {
+                     fnGetMemoryValueAt = (iBuffer) => searchBuffer[iBuffer];
+                     objectTypeSize = sizeof(Byte);
+                  }
+                  break;
+                  case TypeCode.Boolean: {
+                     fnGetMemoryValueAt = (iBuffer) => BitConverter.ToBoolean(searchBuffer, iBuffer);
+                     objectTypeSize = 1;
+                  }
+                  break;
+                  case TypeCode.Int16: {
+                     fnGetMemoryValueAt = (iBuffer) => BitConverter.ToInt16(searchBuffer, iBuffer);
+                     objectTypeSize = sizeof(Int16);
+                  }
+                  break;
+                  case TypeCode.UInt16: {
+                     fnGetMemoryValueAt = (iBuffer) => BitConverter.ToUInt16(searchBuffer, iBuffer);
+                     objectTypeSize = sizeof(UInt16);
+                  }
+                  break;
+                  case TypeCode.Int32: {
+                     fnGetMemoryValueAt = (iBuffer) => BitConverter.ToUInt32(searchBuffer, iBuffer);
+                     objectTypeSize = sizeof(Int32);
+                  }
+                  break;
+                  case TypeCode.UInt32: {
+                     fnGetMemoryValueAt = (iBuffer) => BitConverter.ToUInt32(searchBuffer, iBuffer);
+                     objectTypeSize = sizeof(UInt32);
+                  }
+                  break;
+                  case TypeCode.Int64: {
+                     fnGetMemoryValueAt = (iBuffer) => BitConverter.ToUInt64(searchBuffer, iBuffer);
+                     objectTypeSize = sizeof(Int64);
+                  }
+                  break;
+                  case TypeCode.UInt64: {
+                     fnGetMemoryValueAt = (iBuffer) => BitConverter.ToUInt64(searchBuffer, iBuffer);
+                     objectTypeSize = sizeof(UInt64);
+                  }
+                  break;
+                  case TypeCode.Double: {
+                     fnGetMemoryValueAt = (iBuffer) => BitConverter.ToDouble(searchBuffer, iBuffer);
+                     objectTypeSize = sizeof(Double);
+                  }
+                  break;
+                  case TypeCode.Single: {
+                     fnGetMemoryValueAt = (iBuffer) => BitConverter.ToSingle(searchBuffer, iBuffer);
+                     objectTypeSize = sizeof(Single);
+                  }
+                  break;
+                  case TypeCode.String: {
+                     var scanResults = scan(searchStartAddress, searchBuffer, ((Object)value).getBytes(typeof(String)), typeof(Byte[]), compareType, extraParams);
+                     foreach (Tuple<UInt64, dynamic> tuple in scanResults)
+                        listResults.Add(new Tuple<UInt64, dynamic>(tuple.Item1, Encoding.ASCII.GetString(tuple.Item2)));
+                     return listResults;
+                  }
+               }
+
+               Int32 indexEnd = searchBuffer.Length - objectTypeSize;
+               if (indexEnd > 0) {
+                  for (Int32 index = 0; index < indexEnd; index += objectTypeSize) {
+                     dynamic memoryValue = fnGetMemoryValueAt(index);
+                     if (compareType.compare(value, memoryValue, null, extraParams))
+                        listResults.Add(new Tuple<UInt64, dynamic>(searchStartAddress + (UInt64)index, memoryValue));
+                  }
                }
             }
          }

@@ -33,7 +33,6 @@ using System.Windows.Forms;
 
 using PlayEngine.Helpers;
 using PlayEngine.Helpers.CheatManager;
-using PlayEngine.Helpers.MemoryClasses;
 using PlayEngine.Helpers.MemoryClasses.ScanCompareTypes;
 using PlayEngine.Helpers.MemoryClasses.ScanValueTypes;
 
@@ -104,6 +103,27 @@ namespace PlayEngine.Forms {
          foreach (Control cntrl in arrControls) {
             cntrl.Invoke(new Action(() => cntrl.Enabled = isEnabled));
          }
+      }
+      private String getSizeStr(UInt64 sizeInBytes) {
+         UInt64 B = 0, KB = 1024, MB = KB * 1024, GB = MB * 1024, TB = GB * 1024;
+         Double size = sizeInBytes;
+         String suffix = "B";
+
+         if (sizeInBytes >= TB) {
+            size = Math.Round(size / TB, 2);
+            suffix = "TB";
+         } else if (sizeInBytes >= GB) {
+            size = Math.Round(size / GB, 2);
+            suffix = "GB";
+         } else if (sizeInBytes >= MB) {
+            size = Math.Round(size / MB, 2);
+            suffix = "MB";
+         } else if (sizeInBytes >= KB) {
+            size = Math.Round(size / KB, 2);
+            suffix = "KB";
+         }
+
+         return $"{size} {suffix}";
       }
 
       private IScanCompareType currentScanCompareType = CompareTypeExactValue.mSelf;
@@ -177,7 +197,7 @@ namespace PlayEngine.Forms {
             ValueTypeArrayOfBytes.mSelf
          });
          // ComboBox selection
-         cmbBoxSectionsFilterProtection.SelectedItem = librpc.VM_PROT.NONE.ToString();
+         cmbBoxSectionsFilterProtection.SelectedItem = librpc.VM_PROT.RW.ToString();
          cmbBoxScanValueType.SelectedItem = ValueType4Bytes.mSelf;
          // Check for existing jkpatch
          using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)) {
@@ -197,6 +217,7 @@ namespace PlayEngine.Forms {
       private void MainForm_Load(Object sender, EventArgs e) {
          if (uiToolStrip_PayloadManager_chkPayloadActive.Checked)
             btnRefreshProcessList_OnClick();
+         txtBoxScanValue.Select();
       }
 
       #region Functions
@@ -556,17 +577,16 @@ namespace PlayEngine.Forms {
             listLastScanResults.Clear();
             #region Filter sections
             listProcessMemorySections.Clear();
-            foreach (var memorySection in Memory.Sections.getMemorySections(processInfo, scanOptions.sectionPageProtectionFilter)) {
-               if (memorySection.name.Contains(scanOptions.strSectionNameInclusionFilter, StringComparison.InvariantCultureIgnoreCase)
-                  && !memorySection.name.Contains(scanOptions.strSectionNameExclusionFilter, StringComparison.InvariantCultureIgnoreCase)) {
-                  listProcessMemorySections.Add(memorySection);
-               }
-            }
+            listProcessMemorySections = new List<librpc.MemorySection>(Memory.Sections.getMemorySections(processInfo, scanOptions.sectionPageProtectionFilter));
+            if (!String.IsNullOrWhiteSpace(scanOptions.strSectionNameInclusionFilter))
+               listProcessMemorySections.RemoveAll(section => !section.name.ContainsEx(scanOptions.strSectionNameInclusionFilter));
+            if (!String.IsNullOrWhiteSpace(scanOptions.strSectionNameExclusionFilter))
+               listProcessMemorySections.RemoveAll(section => section.name.ContainsEx(scanOptions.strSectionNameExclusionFilter));
             #endregion
          }
          #endregion
          #region Find address range of the scan
-         Double processedMemoryRange = 0, totalMemoryRange = 0;
+         UInt64 processedMemoryRange = 0, totalMemoryRange = 0;
          var listScanAddressRange = new List<Tuple<UInt64, Int32>>();
          Int32 lastAddedSectionIndex = -1;
          Action<UInt64, Int32> fnAddSection = (UInt64 start, Int32 length) =>
@@ -592,15 +612,15 @@ namespace PlayEngine.Forms {
                   fnAddSection(section.start, section.length);
                }
             }
-            totalMemoryRange += section.length;
-            fnUpdateProgress($"Total to scan: {totalMemoryRange / 1024 * 1024}MB.", -1);
+            totalMemoryRange += (UInt64)section.length;
+            fnUpdateProgress($"Total to scan: {getSizeStr(totalMemoryRange)}MB.", -1);
          }
          #endregion
 
          #region Scan
          List<ScanResult> scanResults = new List<ScanResult>();
          foreach (var scanTuple in listScanAddressRange) {
-            fnUpdateProgress($"Scanning...", Convert.ToInt32(((processedMemoryRange / totalMemoryRange) * 100)));
+            fnUpdateProgress($"Scanning... (scan size: {getSizeStr(totalMemoryRange)})", Convert.ToInt32(((processedMemoryRange / (Double)totalMemoryRange) * 100)));
 
             var scanSearchBuffer = Memory.readByteArray(processInfo.id, scanTuple.Item1, scanTuple.Item2);
             if (scanSearchBuffer != null) {
@@ -619,7 +639,7 @@ namespace PlayEngine.Forms {
                      break;
                }
             }
-            processedMemoryRange += scanTuple.Item2;
+            processedMemoryRange += (UInt64)scanTuple.Item2;
             if (bgWorkerScanner.CancellationPending)
                break;
 
@@ -703,8 +723,6 @@ namespace PlayEngine.Forms {
          }
       }
       #endregion
-
       #endregion
-
    }
 }

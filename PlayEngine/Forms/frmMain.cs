@@ -123,7 +123,7 @@ namespace PlayEngine.Forms {
             suffix = "KB";
          }
 
-         return $"{size} {suffix}";
+         return $"{size}{suffix}";
       }
 
       private IScanCompareType currentScanCompareType = CompareTypeExactValue.mSelf;
@@ -507,6 +507,7 @@ namespace PlayEngine.Forms {
       #region Background Workers
       #region bgWorkerScanner
       private unsafe void bgWorkerScanner_DoWork(Object sender, DoWorkEventArgs e) {
+         Int32 mainUpdateProgress = 0, subUpdateProgress = 0;
          Action<String, Int32> fnUpdateProgress = (String strUpdateText, Int32 updateProgress) =>
          {
             if (updateProgress >= 0)
@@ -520,16 +521,17 @@ namespace PlayEngine.Forms {
          currentScanStatus = Memory.ScanStatus.Scanning;
 
          #region Read values
-         fnUpdateProgress("Reading values...", 0);
+         fnUpdateProgress("Reading values...", mainUpdateProgress);
          ScanOptions scanOptions = (ScanOptions)e.Argument;
          if (String.IsNullOrWhiteSpace(scanOptions.strScanValue)
             || (currentScanCompareType == CompareTypeValueBetween.mSelf & String.IsNullOrWhiteSpace(scanOptions.strScanSecondValue))) {
             fnUpdateProgress("Invalid values!", -1);
             throw new Exception("Invalid values!");
          }
+         mainUpdateProgress += 2;
          #endregion
          #region Parse values
-         fnUpdateProgress("Parsing values...", 0);
+         fnUpdateProgress("Parsing values...", mainUpdateProgress);
          dynamic[] scanValues = new dynamic[2];
          if (currentScanValueType == ValueTypeArrayOfBytes.mSelf) {
             List<Byte> listBytes = new List<Byte>();
@@ -570,6 +572,7 @@ namespace PlayEngine.Forms {
                }
             }
          }
+         mainUpdateProgress += 3;
          #endregion
          #region Scan values
          #region Init new scan
@@ -577,7 +580,7 @@ namespace PlayEngine.Forms {
             listLastScanResults.Clear();
             #region Filter sections
             listProcessMemorySections.Clear();
-            listProcessMemorySections = new List<librpc.MemorySection>(Memory.Sections.getMemorySections(processInfo, scanOptions.sectionPageProtectionFilter));
+            listProcessMemorySections = Memory.Sections.getMemorySections(processInfo, scanOptions.sectionPageProtectionFilter);
             if (!String.IsNullOrWhiteSpace(scanOptions.strSectionNameInclusionFilter))
                listProcessMemorySections.RemoveAll(section => !section.name.ContainsEx(scanOptions.strSectionNameInclusionFilter));
             if (!String.IsNullOrWhiteSpace(scanOptions.strSectionNameExclusionFilter))
@@ -587,6 +590,8 @@ namespace PlayEngine.Forms {
          #endregion
          #region Find address range of the scan
          UInt64 processedMemoryRange = 0, totalMemoryRange = 0;
+         String scanSizeStr = getSizeStr(0);
+
          var listScanAddressRange = new List<Tuple<UInt64, Int32>>();
          Int32 lastAddedSectionIndex = -1;
          Action<UInt64, Int32> fnAddSection = (UInt64 start, Int32 length) =>
@@ -613,14 +618,19 @@ namespace PlayEngine.Forms {
                }
             }
             totalMemoryRange += (UInt64)section.length;
-            fnUpdateProgress($"Total to scan: {getSizeStr(totalMemoryRange)}MB.", -1);
+            scanSizeStr = getSizeStr(totalMemoryRange);
+
+            subUpdateProgress = Convert.ToInt32(((lastAddedSectionIndex + 1) / (Double)listProcessMemorySections.Count) * 100);
+            mainUpdateProgress += Convert.ToInt32(subUpdateProgress * 0.45f);
+            fnUpdateProgress($"Finding scan address range... %{subUpdateProgress} (Total: {scanSizeStr})", mainUpdateProgress);
          }
          #endregion
 
          #region Scan
          List<ScanResult> scanResults = new List<ScanResult>();
          foreach (var scanTuple in listScanAddressRange) {
-            fnUpdateProgress($"Scanning... (scan size: {getSizeStr(totalMemoryRange)})", Convert.ToInt32(((processedMemoryRange / (Double)totalMemoryRange) * 100)));
+            mainUpdateProgress += Convert.ToInt32((processedMemoryRange / (Double)totalMemoryRange) * 45);
+            fnUpdateProgress($"Scanning... (scan size: {scanSizeStr})", mainUpdateProgress);
 
             var scanSearchBuffer = Memory.readByteArray(processInfo.id, scanTuple.Item1, scanTuple.Item2);
             if (scanSearchBuffer != null) {
@@ -648,7 +658,7 @@ namespace PlayEngine.Forms {
          #endregion
          #region Filter if next scan
          if (oldScanStatus == Memory.ScanStatus.DidScan) {
-            fnUpdateProgress("Filtering values...", 0);
+            fnUpdateProgress("Filtering values...", mainUpdateProgress);
             scanResults = scanResults.Intersect(listLastScanResults).ToList();
          }
          #endregion
@@ -673,7 +683,7 @@ namespace PlayEngine.Forms {
          listViewResults.EndUpdate();
          currentScanStatus = Memory.ScanStatus.DidScan;
          if (e.Error != null)
-            uiStatusStrip_lblStatus.Text = e.Error.Message;
+            uiStatusStrip_lblStatus.Text = $"Error: {e.Error.Message}";
          else
             uiStatusStrip_lblStatus.Text = $"[100%] Finished scanning, {listLastScanResults.Count} results.";
       }

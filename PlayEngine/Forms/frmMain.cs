@@ -141,25 +141,25 @@ namespace PlayEngine.Forms {
                case Memory.ScanStatus.CantScan: {
                   setControlEnabled(new Control[] { splitContainerMain }, false);
                   splitContainerMain.Invoke(new Action(() => splitContainerMain.Enabled = false));
-                  this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
-                  this.Invoke(new Action(() => uiToolStrip_linkTools.Enabled = true));
+                  uiToolStrip.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
+                  uiToolStrip.Invoke(new Action(() => uiToolStrip_linkTools.Enabled = true));
                }
                break;
                case Memory.ScanStatus.CanScan: {
                   setControlEnabled(new Control[] { btnScan, panelScanControls, cmbBoxScanValueType, panelSectionSearchOptions, listViewResults }, true);
-                  setControlEnabled(new Control[] { btnScanNext }, false);
-                  this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
+                  setControlEnabled(new Control[] { btnScanNext, btnScanUndo }, false);
+                  uiToolStrip.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
 
                   cmbBoxScanValueType.Invoke(new Action(() => cmbBoxScanCompareType.DataSource = currentScanValueType.supportedFirstScanCompareTypes));
                   btnScan.Invoke(new Action(() => btnScan.Text = "First Scan"));
-                  this.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = "Standby..."));
-                  progressBarScanPercent.Invoke(new Action(() => progressBarScanPercent.Value = 0));
+                  uiStatusStrip.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = "Standby..."));
+                  uiStatusStrip.Invoke(new Action(() => uiStatusStrip_progressBarScanPercent.Value = 0));
                }
                break;
                case Memory.ScanStatus.DidScan: {
                   setControlEnabled(new Control[] { btnScan, btnScanNext, panelScanControls, listViewResults }, true);
                   setControlEnabled(new Control[] { cmbBoxScanValueType, panelSectionSearchOptions }, false);
-                  this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
+                  uiToolStrip.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
 
                   cmbBoxScanValueType.Invoke(new Action(() => cmbBoxScanCompareType.DataSource = currentScanValueType.supportedNextScanCompareTypes));
                   btnScan.Invoke(new Action(() => btnScan.Text = "New Scan"));
@@ -167,11 +167,11 @@ namespace PlayEngine.Forms {
                break;
                case Memory.ScanStatus.Scanning: {
                   setControlEnabled(new Control[] { btnScan }, true);
-                  setControlEnabled(new Control[] { btnScanNext, panelScanControls, listViewResults }, false);
-                  this.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = false));
+                  setControlEnabled(new Control[] { btnScanNext, btnScanUndo, panelScanControls, listViewResults }, false);
+                  uiToolStrip.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = false));
 
                   btnScan.Invoke(new Action(() => btnScan.Text = "Stop"));
-                  this.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = "Scanning..."));
+                  uiStatusStrip.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = "Scanning..."));
                }
                break;
             }
@@ -180,7 +180,8 @@ namespace PlayEngine.Forms {
 
       private librpc.ProcessInfo processInfo = null;
       private List<librpc.MemorySection> listProcessMemorySections = new List<librpc.MemorySection>();
-      private List<ScanResult> listLastScanResults = new List<ScanResult>();
+      private List<ScanResult> listPreviousScanResults = new List<ScanResult>();
+      private List<ScanResult> listScanResults = new List<ScanResult>();
 
       public MainForm() {
          InitializeComponent();
@@ -277,6 +278,14 @@ namespace PlayEngine.Forms {
             bgWorkerScanner.RunWorkerAsync(scanOptions);
          } catch (Exception ex) {
             MessageBox.Show(ex.ToString(), "btnScanNext");
+         }
+      }
+      private void btnScanUndo_OnClick() {
+         if (MessageBox.Show("Do you really want to undo the scan?", "PlayEngine", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+            listScanResults.Clear();
+            listScanResults.AddRange(listPreviousScanResults);
+            listViewResults.SetObjects(listScanResults.Take(1000));
+            uiStatusStrip_lblStatus.Text = $"Undid scan, {listScanResults.Count} results";
          }
       }
       #region uiToolStrip_linkPayloadAndProcess
@@ -514,9 +523,10 @@ namespace PlayEngine.Forms {
          {
             if (updateProgress >= 0)
                bgWorkerScanner.ReportProgress(updateProgress);
-            listViewResults.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = $"[{progressBarScanPercent.Value}%] {strUpdateText}"));
+            listViewResults.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = $"[{uiStatusStrip_progressBarScanPercent.Value}%] {strUpdateText}"));
          };
 
+         listPreviousScanResults = listScanResults;
          listViewResults.Invoke(new Action(() => listViewResults.BeginUpdate()));
          var oldScanStatus = currentScanStatus;
          var scanValueType = currentScanValueType.getType();
@@ -579,7 +589,7 @@ namespace PlayEngine.Forms {
          #region Scan values
          #region Init new scan
          if (oldScanStatus == Memory.ScanStatus.CanScan) {
-            listLastScanResults.Clear();
+            listScanResults.Clear();
             #region Filter sections
             listProcessMemorySections.Clear();
             listProcessMemorySections = Memory.Sections.getMemorySections(processInfo, scanOptions.sectionPageProtectionFilter);
@@ -661,25 +671,25 @@ namespace PlayEngine.Forms {
          #region Filter if next scan
          if (oldScanStatus == Memory.ScanStatus.DidScan) {
             fnUpdateProgress("Filtering values...", mainUpdateProgress);
-            scanResults = scanResults.Intersect(listLastScanResults).ToList();
+            scanResults = scanResults.Intersect(listScanResults).ToList();
          }
          #endregion
          #endregion
          #region List results
-         listLastScanResults.Clear();
-         listLastScanResults.AddRange(scanResults);
-         if (listLastScanResults.Count < 1000) {
-            fnUpdateProgress($"Adding {listLastScanResults.Count} results to the list... (window may freeze)", 95);
-            listViewResults.Invoke(new Action(() => listViewResults.SetObjects(listLastScanResults)));
+         listScanResults.Clear();
+         listScanResults.AddRange(scanResults);
+         if (listScanResults.Count < 1000) {
+            fnUpdateProgress($"Adding {listScanResults.Count} results to the list... (window may freeze)", 95);
+            listViewResults.Invoke(new Action(() => listViewResults.SetObjects(listScanResults)));
          } else {
-            fnUpdateProgress($"Adding 1000 of {listLastScanResults.Count} results to the list... (window may freeze)", 95);
-            listViewResults.Invoke(new Action(() => listViewResults.SetObjects(listLastScanResults.Take(1000))));
+            fnUpdateProgress($"Adding 1000 of {listScanResults.Count} results to the list... (window may freeze)", 95);
+            listViewResults.Invoke(new Action(() => listViewResults.SetObjects(listScanResults.Take(1000))));
          }
          #endregion
          bgWorkerScanner.ReportProgress(100);
       }
       private void bgWorkerScanner_ProgressChanged(Object sender, ProgressChangedEventArgs e) {
-         progressBarScanPercent.Value = Math.Max(0, Math.Min(e.ProgressPercentage, 100));
+         uiStatusStrip_progressBarScanPercent.Value = Math.Max(0, Math.Min(e.ProgressPercentage, 100));
       }
       private void bgWorkerScanner_RunWorkerCompleted(Object sender, RunWorkerCompletedEventArgs e) {
          listViewResults.EndUpdate();
@@ -687,7 +697,9 @@ namespace PlayEngine.Forms {
          if (e.Error != null)
             uiStatusStrip_lblStatus.Text = $"Error: {e.Error.Message}";
          else
-            uiStatusStrip_lblStatus.Text = $"[100%] Finished scanning, {listLastScanResults.Count} results.";
+            uiStatusStrip_lblStatus.Text = $"[100%] Finished scanning, {listScanResults.Count} results.";
+
+         btnScanUndo.Enabled = listPreviousScanResults.Count > 0;
       }
       #endregion
       #region bgWorkerResultsUpdater

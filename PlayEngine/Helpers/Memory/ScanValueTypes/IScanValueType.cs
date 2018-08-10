@@ -66,6 +66,7 @@ namespace PlayEngine.Helpers.MemoryClasses.ScanValueTypes {
 
       public abstract Type getType();
       public abstract Type getSignedType();
+      public abstract Int32 getSize();
       public abstract override String ToString();
    }
 }

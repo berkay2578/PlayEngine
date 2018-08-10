@@ -44,6 +44,9 @@ namespace PlayEngine.Helpers.MemoryClasses.ScanValueTypes {
       public override Type getSignedType() {
          return typeof(SByte);
       }
+      public override Int32 getSize() {
+         return sizeof(Byte);
+      }
       public override String ToString() {
          return "Byte";
       }

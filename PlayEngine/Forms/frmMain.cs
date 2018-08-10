@@ -92,6 +92,7 @@ namespace PlayEngine.Forms {
          public String strSectionNameInclusionFilter;
          public String strSectionNameExclusionFilter;
          public librpc.VM_PROT sectionPageProtectionFilter;
+         public Int32 sectionMaxLengthFilter;
       }
       public static class SavedResultsColumnIndex {
          public static readonly Int32 iFreeze = 0;
@@ -140,13 +141,12 @@ namespace PlayEngine.Forms {
             switch (value) {
                case Memory.ScanStatus.CantScan: {
                   setControlEnabled(new Control[] { splitContainerMain }, false);
-                  splitContainerMain.Invoke(new Action(() => splitContainerMain.Enabled = false));
                   uiToolStrip.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
                   uiToolStrip.Invoke(new Action(() => uiToolStrip_linkTools.Enabled = true));
                }
                break;
                case Memory.ScanStatus.CanScan: {
-                  setControlEnabled(new Control[] { btnScan, panelScanControls, cmbBoxScanValueType, panelSectionSearchOptions, listViewResults }, true);
+                  setControlEnabled(new Control[] { btnScan, panelScanControls, cmbBoxScanValueType, panelSectionSearchOptions, listViewResults, splitContainerMain }, true);
                   setControlEnabled(new Control[] { btnScanNext, btnScanUndo }, false);
                   uiToolStrip.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = true));
 
@@ -248,7 +248,8 @@ namespace PlayEngine.Forms {
                      isHexValue = chkBoxIsHexValue.Checked,
                      strSectionNameInclusionFilter = txtBoxSectionsFilterInclude.Text,
                      strSectionNameExclusionFilter = txtBoxSectionsFilterExclude.Text,
-                     sectionPageProtectionFilter = (librpc.VM_PROT)Enum.Parse(typeof(librpc.VM_PROT), (String)cmbBoxSectionsFilterProtection.SelectedItem)
+                     sectionPageProtectionFilter = (librpc.VM_PROT)Enum.Parse(typeof(librpc.VM_PROT), (String)cmbBoxSectionsFilterProtection.SelectedItem),
+                     sectionMaxLengthFilter = Convert.ToInt32(numUpDownSectionMaxLength.Value)
                   };
                   bgWorkerScanner.RunWorkerAsync(scanOptions);
                   break;
@@ -273,7 +274,8 @@ namespace PlayEngine.Forms {
                isHexValue = chkBoxIsHexValue.Checked,
                strSectionNameInclusionFilter = txtBoxSectionsFilterInclude.Text,
                strSectionNameExclusionFilter = txtBoxSectionsFilterExclude.Text,
-               sectionPageProtectionFilter = (librpc.VM_PROT)Enum.Parse(typeof(librpc.VM_PROT), (String)cmbBoxSectionsFilterProtection.SelectedItem)
+               sectionPageProtectionFilter = (librpc.VM_PROT)Enum.Parse(typeof(librpc.VM_PROT), (String)cmbBoxSectionsFilterProtection.SelectedItem),
+               sectionMaxLengthFilter = Convert.ToInt32(numUpDownSectionMaxLength.Value)
             };
             bgWorkerScanner.RunWorkerAsync(scanOptions);
          } catch (Exception ex) {
@@ -286,6 +288,7 @@ namespace PlayEngine.Forms {
             listScanResults.AddRange(listPreviousScanResults);
             listViewResults.SetObjects(listScanResults.Take(1000));
             uiStatusStrip_lblStatus.Text = $"Undid scan, {listScanResults.Count} results";
+            btnScanUndo.Enabled = false;
          }
       }
       #region uiToolStrip_linkPayloadAndProcess
@@ -300,9 +303,13 @@ namespace PlayEngine.Forms {
       private void btnRefreshProcessList_OnClick() {
          try {
             uiToolStrip_ProcessManager_cmbBoxActiveProcess.Items.Clear();
-            foreach (librpc.Process process in Memory.ps4RPC.GetProcessList())
+            foreach (librpc.Process process in Memory.ps4RPC.GetProcessList()) {
                uiToolStrip_ProcessManager_cmbBoxActiveProcess.Items.Add(process.name);
-            uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedIndex = 0;
+               if (process.name == "eboot.bin")
+                  uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedItem = "eboot.bin";
+            }
+            if (uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedIndex < 0)
+               uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedIndex = 0;
          } catch (Exception ex) {
             MessageBox.Show(ex.ToString(), "Error during getting process list", MessageBoxButtons.OK, MessageBoxIcon.Error);
          }
@@ -336,6 +343,9 @@ namespace PlayEngine.Forms {
                break;
             case "btnScanNext":
                btnScanNext_OnClick();
+               break;
+            case "btnScanUndo":
+               btnScanUndo_OnClick();
                break;
             #region uiToolStrip_linkFile
             case "uiToolStrip_btnExit":
@@ -383,10 +393,11 @@ namespace PlayEngine.Forms {
       private void uiToolStrip_ProcessManager_cmbBoxActiveProcess_SelectedIndexChanged(Object sender, EventArgs e) {
          try {
             var comboBox = sender as ToolStripComboBox;
-            if (comboBox.SelectedIndex < 1) {
-               comboBox.SelectedIndex = 1;
+            if (comboBox.SelectedIndex < 0) {
+               comboBox.SelectedIndex = 0;
                return;
             }
+
             String selectedProcessName = (String)uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedItem;
             currentScanStatus = Memory.ScanStatus.CanScan;
             processInfo = Memory.getProcessInfoFromName(selectedProcessName);
@@ -394,7 +405,6 @@ namespace PlayEngine.Forms {
             if (selectedProcessName == "eboot.bin")
                lblProcessInfo.Text = $"{Memory.ActiveProcess.getId()} ({Memory.ActiveProcess.getVersionStr()})";
             uiToolStrip_lblActiveProcess.Text = $"Process: {selectedProcessName}";
-            splitContainerMain.Enabled = true;
             //uiToolStrip_btnOpenPointerScanner.Enabled = true;
          } catch (Exception exception) {
             MessageBox.Show(exception.ToString());
@@ -517,7 +527,7 @@ namespace PlayEngine.Forms {
 
       #region Background Workers
       #region bgWorkerScanner
-      private unsafe void bgWorkerScanner_DoWork(Object sender, DoWorkEventArgs e) {
+      private void bgWorkerScanner_DoWork(Object sender, DoWorkEventArgs e) {
          Int32 mainUpdateProgress = 0, subUpdateProgress = 0;
          Action<String, Int32> fnUpdateProgress = (String strUpdateText, Int32 updateProgress) =>
          {
@@ -526,8 +536,11 @@ namespace PlayEngine.Forms {
             listViewResults.Invoke(new Action(() => uiStatusStrip_lblStatus.Text = $"[{uiStatusStrip_progressBarScanPercent.Value}%] {strUpdateText}"));
          };
 
-         listPreviousScanResults = listScanResults;
+         listPreviousScanResults.Clear();
+         listPreviousScanResults.AddRange(listScanResults);
+         listScanResults.Clear();
          listViewResults.Invoke(new Action(() => listViewResults.BeginUpdate()));
+
          var oldScanStatus = currentScanStatus;
          var scanValueType = currentScanValueType.getType();
          currentScanStatus = Memory.ScanStatus.Scanning;
@@ -545,7 +558,7 @@ namespace PlayEngine.Forms {
          #region Parse values
          fnUpdateProgress("Parsing values...", mainUpdateProgress);
          dynamic[] scanValues = new dynamic[2];
-         if (currentScanValueType == ValueTypeArrayOfBytes.mSelf) {
+         if (currentScanValueType.getType() == typeof(Byte[])) {
             List<Byte> listBytes = new List<Byte>();
             foreach (String strByte in scanOptions.strScanValue.Split(new Char[] { ' ', '-', ':' }, StringSplitOptions.RemoveEmptyEntries))
                listBytes.Add(Convert.ToByte(strByte, 16));
@@ -587,96 +600,135 @@ namespace PlayEngine.Forms {
          mainUpdateProgress += 3;
          #endregion
          #region Scan values
-         #region Init new scan
+         #region First scan
+         List<ScanResult> scanResults = new List<ScanResult>();
          if (oldScanStatus == Memory.ScanStatus.CanScan) {
-            listScanResults.Clear();
-            #region Filter sections
+            #region Find sections
             listProcessMemorySections.Clear();
             listProcessMemorySections = Memory.Sections.getMemorySections(processInfo, scanOptions.sectionPageProtectionFilter);
             if (!String.IsNullOrWhiteSpace(scanOptions.strSectionNameInclusionFilter))
                listProcessMemorySections.RemoveAll(section => !section.name.ContainsEx(scanOptions.strSectionNameInclusionFilter));
             if (!String.IsNullOrWhiteSpace(scanOptions.strSectionNameExclusionFilter))
                listProcessMemorySections.RemoveAll(section => section.name.ContainsEx(scanOptions.strSectionNameExclusionFilter));
+            listProcessMemorySections.RemoveAll(section => section.length > scanOptions.sectionMaxLengthFilter);
+            #endregion
+            #region Find address range of the scan
+            UInt64 processedMemoryRange = 0, totalMemoryRange = 0;
+            String scanSizeStr = getSizeStr(0);
+
+            var listScanAddressRange = new List<Tuple<UInt64, Int32>>();
+            Int32 lastAddedSectionIndex = -1;
+            Action<UInt64, Int32> fnAddSection = (UInt64 start, Int32 length) =>
+            {
+               if (length > 0) {
+                  listScanAddressRange.Add(new Tuple<UInt64, Int32>(start, length));
+                  lastAddedSectionIndex++;
+               }
+            };
+
+            Int32 dummyCounter = 0;
+            foreach (var section in listProcessMemorySections) {
+               var lastAddedSection = listScanAddressRange.LastOrDefault();
+               if (lastAddedSection == null) {
+                  fnAddSection(section.start, section.length);
+               } else {
+                  var lastAddedSectionEnd = lastAddedSection.Item1 + (UInt64)lastAddedSection.Item2;
+                  if (lastAddedSectionEnd == section.start) {
+                     if (lastAddedSection.Item2 < 100 * 1024)
+                        listScanAddressRange[lastAddedSectionIndex] = new Tuple<UInt64, Int32>(lastAddedSection.Item1, lastAddedSection.Item2 + section.length);
+                     else
+                        fnAddSection(section.start, section.length);
+                  } else {
+                     fnAddSection(section.start, section.length);
+                  }
+               }
+               totalMemoryRange += (UInt64)section.length;
+               scanSizeStr = getSizeStr(totalMemoryRange);
+
+               subUpdateProgress = Convert.ToInt32((++dummyCounter / (Double)listProcessMemorySections.Count) * 100);
+               mainUpdateProgress = Convert.ToInt32(subUpdateProgress * 0.45f);
+               fnUpdateProgress($"Finding scan address range... %{subUpdateProgress}", mainUpdateProgress);
+            }
+            #endregion
+            #region Scan
+            dummyCounter = 0;
+            foreach (var scanTuple in listScanAddressRange) {
+               mainUpdateProgress = 45 + Convert.ToInt32((processedMemoryRange / (Double)totalMemoryRange) * 45);
+               fnUpdateProgress($"Scanning... {getSizeStr(processedMemoryRange)}/{scanSizeStr} - part {++dummyCounter}/{listScanAddressRange.Count}", mainUpdateProgress);
+
+               var scanSearchBuffer = Memory.readByteArray(processInfo.id, scanTuple.Item1, scanTuple.Item2);
+               if (scanSearchBuffer != null) {
+                  var results = Memory.scan(scanTuple.Item1, scanSearchBuffer, scanValues[0], scanValueType, currentScanCompareType, new dynamic[2] { scanValues[0], scanValues[1] });
+                  foreach (var resultTuple in results) {
+                     ScanResult scanResult = new ScanResult()
+                     {
+                        address = resultTuple.Item1,
+                        memoryValue = resultTuple.Item2,
+                        previousMemoryValue = resultTuple.Item2,
+                        valueType = scanValueType
+                     };
+
+                     scanResults.Add(scanResult);
+                     if (bgWorkerScanner.CancellationPending)
+                        break;
+                  }
+               }
+               processedMemoryRange += (UInt64)scanTuple.Item2;
+               if (bgWorkerScanner.CancellationPending)
+                  break;
+
+               System.Threading.Thread.Sleep(10);
+            }
             #endregion
          }
          #endregion
-         #region Find address range of the scan
-         UInt64 processedMemoryRange = 0, totalMemoryRange = 0;
-         String scanSizeStr = getSizeStr(0);
+         #region Next scan
+         else if (oldScanStatus == Memory.ScanStatus.DidScan) {
+            #region Find address range of the scan
+            UInt64 addressBeginScan = listPreviousScanResults.First().address;
+            UInt64 addressFinishScan = listPreviousScanResults.Last().address;
+            UInt64 processedMemoryRange = 0, totalMemoryRange = addressFinishScan - addressBeginScan;
+            String scanSizeStr = getSizeStr(totalMemoryRange);
+            mainUpdateProgress = 10;
+            #endregion
+            #region Scan
+            UInt64 tempBufferLength = 8 * 1024; // 8 KB
+            for (UInt64 currentAddress = addressBeginScan; currentAddress < addressFinishScan; currentAddress += tempBufferLength) {
+               mainUpdateProgress = 10 + Convert.ToInt32((processedMemoryRange / (Double)totalMemoryRange) * 80);
+               fnUpdateProgress($"Scanning... {getSizeStr(processedMemoryRange)}/{scanSizeStr}", mainUpdateProgress);
 
-         var listScanAddressRange = new List<Tuple<UInt64, Int32>>();
-         Int32 lastAddedSectionIndex = -1;
-         Action<UInt64, Int32> fnAddSection = (UInt64 start, Int32 length) =>
-         {
-            if (length > 0) {
-               listScanAddressRange.Add(new Tuple<UInt64, Int32>(start, length));
-               lastAddedSectionIndex++;
-            }
-         };
+               var scanSearchBuffer = Memory.readByteArray(processInfo.id, currentAddress, (Int32)tempBufferLength);
+               if (scanSearchBuffer != null) {
+                  var results = Memory.scan(currentAddress, scanSearchBuffer, scanValues[0], scanValueType, currentScanCompareType, new dynamic[2] { scanValues[0], scanValues[1] });
+                  foreach (var resultTuple in results) {
+                     ScanResult scanResult = new ScanResult()
+                     {
+                        address = resultTuple.Item1,
+                        memoryValue = resultTuple.Item2,
+                        previousMemoryValue = resultTuple.Item2,
+                        valueType = scanValueType
+                     };
 
-         foreach (var section in listProcessMemorySections) {
-            var lastAddedSection = listScanAddressRange.LastOrDefault();
-            if (lastAddedSection == null) {
-               fnAddSection(section.start, section.length);
-            } else {
-               var lastAddedSectionEnd = lastAddedSection.Item1 + (UInt64)lastAddedSection.Item2;
-               if (lastAddedSectionEnd == section.start) {
-                  if (lastAddedSection.Item2 < 100 * 1024)
-                     listScanAddressRange[lastAddedSectionIndex] = new Tuple<UInt64, Int32>(lastAddedSection.Item1, lastAddedSection.Item2 + section.length);
-                  else
-                     fnAddSection(section.start, section.length);
-               } else {
-                  fnAddSection(section.start, section.length);
+                     scanResults.Add(scanResult);
+                     if (bgWorkerScanner.CancellationPending)
+                        break;
+                  }
                }
+               processedMemoryRange += tempBufferLength;
+               if (bgWorkerScanner.CancellationPending)
+                  break;
+
+               System.Threading.Thread.Sleep(10);
             }
-            totalMemoryRange += (UInt64)section.length;
-            scanSizeStr = getSizeStr(totalMemoryRange);
-
-            subUpdateProgress = Convert.ToInt32(((lastAddedSectionIndex + 1) / (Double)listProcessMemorySections.Count) * 100);
-            mainUpdateProgress += Convert.ToInt32(subUpdateProgress * 0.45f);
-            fnUpdateProgress($"Finding scan address range... %{subUpdateProgress} (Total: {scanSizeStr})", mainUpdateProgress);
-         }
-         #endregion
-
-         #region Scan
-         List<ScanResult> scanResults = new List<ScanResult>();
-         foreach (var scanTuple in listScanAddressRange) {
-            mainUpdateProgress += Convert.ToInt32((processedMemoryRange / (Double)totalMemoryRange) * 45);
-            fnUpdateProgress($"Scanning... (scan size: {scanSizeStr})", mainUpdateProgress);
-
-            var scanSearchBuffer = Memory.readByteArray(processInfo.id, scanTuple.Item1, scanTuple.Item2);
-            if (scanSearchBuffer != null) {
-               var results = Memory.scan(scanTuple.Item1, scanSearchBuffer, scanValues[0], scanValueType, currentScanCompareType, new dynamic[2] { scanValues[0], scanValues[1] });
-               foreach (var resultTuple in results) {
-                  ScanResult scanResult = new ScanResult()
-                  {
-                     address = resultTuple.Item1,
-                     memoryValue = resultTuple.Item2,
-                     previousMemoryValue = resultTuple.Item2,
-                     valueType = scanValueType
-                  };
-
-                  scanResults.Add(scanResult);
-                  if (bgWorkerScanner.CancellationPending)
-                     break;
-               }
-            }
-            processedMemoryRange += (UInt64)scanTuple.Item2;
-            if (bgWorkerScanner.CancellationPending)
-               break;
-
-            System.Threading.Thread.Sleep(10);
-         }
-         #endregion
-         #region Filter if next scan
-         if (oldScanStatus == Memory.ScanStatus.DidScan) {
+            #endregion
+            #region Filter
             fnUpdateProgress("Filtering values...", mainUpdateProgress);
-            scanResults = scanResults.Intersect(listScanResults).ToList();
+            scanResults = scanResults.Intersect(listPreviousScanResults).ToList();
+            #endregion
          }
          #endregion
          #endregion
          #region List results
-         listScanResults.Clear();
          listScanResults.AddRange(scanResults);
          if (listScanResults.Count < 1000) {
             fnUpdateProgress($"Adding {listScanResults.Count} results to the list... (window may freeze)", 95);
@@ -698,7 +750,6 @@ namespace PlayEngine.Forms {
             uiStatusStrip_lblStatus.Text = $"Error: {e.Error.Message}";
          else
             uiStatusStrip_lblStatus.Text = $"[100%] Finished scanning, {listScanResults.Count} results.";
-
          btnScanUndo.Enabled = listPreviousScanResults.Count > 0;
       }
       #endregion

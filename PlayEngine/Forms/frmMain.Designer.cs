@@ -53,6 +53,8 @@
          this.btnScanUndo = new System.Windows.Forms.Button();
          this.panelScanControls = new System.Windows.Forms.Panel();
          this.panelSectionSearchOptions = new System.Windows.Forms.Panel();
+         this.numUpDownSectionMaxLength = new System.Windows.Forms.NumericUpDown();
+         this.label7 = new System.Windows.Forms.Label();
          this.label6 = new System.Windows.Forms.Label();
          this.cmbBoxSectionsFilterProtection = new System.Windows.Forms.ComboBox();
          this.label3 = new System.Windows.Forms.Label();
@@ -96,6 +98,7 @@
          ((System.ComponentModel.ISupportInitialize)(this.listViewResults)).BeginInit();
          this.panelScanControls.SuspendLayout();
          this.panelSectionSearchOptions.SuspendLayout();
+         ((System.ComponentModel.ISupportInitialize)(this.numUpDownSectionMaxLength)).BeginInit();
          ((System.ComponentModel.ISupportInitialize)(this.dataGridSavedResults)).BeginInit();
          this.uiStatusStrip.SuspendLayout();
          this.SuspendLayout();
@@ -113,7 +116,7 @@
          this.uiToolStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
          this.uiToolStrip.Location = new System.Drawing.Point(0, 0);
          this.uiToolStrip.Name = "uiToolStrip";
-         this.uiToolStrip.Size = new System.Drawing.Size(501, 25);
+         this.uiToolStrip.Size = new System.Drawing.Size(484, 25);
          this.uiToolStrip.TabIndex = 0;
          // 
          // uiToolStrip_linkFile
@@ -282,7 +285,7 @@
          // 
          this.splitContainerMain.Panel2.Controls.Add(this.dataGridSavedResults);
          this.splitContainerMain.Panel2MinSize = 50;
-         this.splitContainerMain.Size = new System.Drawing.Size(501, 404);
+         this.splitContainerMain.Size = new System.Drawing.Size(484, 404);
          this.splitContainerMain.SplitterDistance = 280;
          this.splitContainerMain.SplitterWidth = 3;
          this.splitContainerMain.TabIndex = 1;
@@ -298,7 +301,7 @@
          // splitContainerScanner.Panel1
          // 
          this.splitContainerScanner.Panel1.Controls.Add(this.listViewResults);
-         this.splitContainerScanner.Panel1MinSize = 150;
+         this.splitContainerScanner.Panel1MinSize = 250;
          // 
          // splitContainerScanner.Panel2
          // 
@@ -308,8 +311,8 @@
          this.splitContainerScanner.Panel2.Controls.Add(this.btnScan);
          this.splitContainerScanner.Panel2.Padding = new System.Windows.Forms.Padding(0, 0, 1, 0);
          this.splitContainerScanner.Panel2MinSize = 160;
-         this.splitContainerScanner.Size = new System.Drawing.Size(501, 280);
-         this.splitContainerScanner.SplitterDistance = 265;
+         this.splitContainerScanner.Size = new System.Drawing.Size(484, 280);
+         this.splitContainerScanner.SplitterDistance = 259;
          this.splitContainerScanner.SplitterWidth = 1;
          this.splitContainerScanner.TabIndex = 15;
          // 
@@ -333,7 +336,7 @@
          this.listViewResults.Name = "listViewResults";
          this.listViewResults.ShowGroups = false;
          this.listViewResults.ShowItemToolTips = true;
-         this.listViewResults.Size = new System.Drawing.Size(265, 280);
+         this.listViewResults.Size = new System.Drawing.Size(259, 280);
          this.listViewResults.TabIndex = 0;
          this.listViewResults.TabStop = false;
          this.listViewResults.UseCellFormatEvents = true;
@@ -375,9 +378,9 @@
          // btnScanUndo
          // 
          this.btnScanUndo.Enabled = false;
-         this.btnScanUndo.Location = new System.Drawing.Point(155, 3);
+         this.btnScanUndo.Location = new System.Drawing.Point(145, 3);
          this.btnScanUndo.Name = "btnScanUndo";
-         this.btnScanUndo.Size = new System.Drawing.Size(73, 23);
+         this.btnScanUndo.Size = new System.Drawing.Size(76, 23);
          this.btnScanUndo.TabIndex = 40;
          this.btnScanUndo.Text = "Undo Scan";
          this.btnScanUndo.UseVisualStyleBackColor = true;
@@ -385,6 +388,9 @@
          // 
          // panelScanControls
          // 
+         this.panelScanControls.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
          this.panelScanControls.Controls.Add(this.panelSectionSearchOptions);
          this.panelScanControls.Controls.Add(this.label5);
          this.panelScanControls.Controls.Add(this.label4);
@@ -395,14 +401,18 @@
          this.panelScanControls.Controls.Add(this.txtBoxScanValue);
          this.panelScanControls.Controls.Add(this.chkBoxIsHexValue);
          this.panelScanControls.Location = new System.Drawing.Point(0, 32);
-         this.panelScanControls.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
          this.panelScanControls.Name = "panelScanControls";
          this.panelScanControls.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
-         this.panelScanControls.Size = new System.Drawing.Size(231, 248);
+         this.panelScanControls.Size = new System.Drawing.Size(220, 248);
          this.panelScanControls.TabIndex = 39;
          // 
          // panelSectionSearchOptions
          // 
+         this.panelSectionSearchOptions.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+         this.panelSectionSearchOptions.Controls.Add(this.numUpDownSectionMaxLength);
+         this.panelSectionSearchOptions.Controls.Add(this.label7);
          this.panelSectionSearchOptions.Controls.Add(this.label6);
          this.panelSectionSearchOptions.Controls.Add(this.cmbBoxSectionsFilterProtection);
          this.panelSectionSearchOptions.Controls.Add(this.label3);
@@ -411,11 +421,41 @@
          this.panelSectionSearchOptions.Controls.Add(this.txtBoxSectionsFilterInclude);
          this.panelSectionSearchOptions.Controls.Add(this.label2);
          this.panelSectionSearchOptions.Location = new System.Drawing.Point(0, 103);
-         this.panelSectionSearchOptions.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
          this.panelSectionSearchOptions.Name = "panelSectionSearchOptions";
          this.panelSectionSearchOptions.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
-         this.panelSectionSearchOptions.Size = new System.Drawing.Size(232, 108);
+         this.panelSectionSearchOptions.Size = new System.Drawing.Size(220, 130);
          this.panelSectionSearchOptions.TabIndex = 58;
+         // 
+         // numUpDownSectionMaxLength
+         // 
+         this.numUpDownSectionMaxLength.Increment = new decimal(new int[] {
+            1024,
+            0,
+            0,
+            0});
+         this.numUpDownSectionMaxLength.Location = new System.Drawing.Point(148, 100);
+         this.numUpDownSectionMaxLength.Maximum = new decimal(new int[] {
+            1073741824,
+            0,
+            0,
+            0});
+         this.numUpDownSectionMaxLength.Name = "numUpDownSectionMaxLength";
+         this.numUpDownSectionMaxLength.Size = new System.Drawing.Size(77, 23);
+         this.numUpDownSectionMaxLength.TabIndex = 64;
+         this.numUpDownSectionMaxLength.Value = new decimal(new int[] {
+            51200,
+            0,
+            0,
+            0});
+         // 
+         // label7
+         // 
+         this.label7.AutoSize = true;
+         this.label7.Location = new System.Drawing.Point(0, 102);
+         this.label7.Name = "label7";
+         this.label7.Size = new System.Drawing.Size(149, 15);
+         this.label7.TabIndex = 63;
+         this.label7.Text = "Size must be under (bytes):";
          // 
          // label6
          // 
@@ -429,13 +469,16 @@
          // 
          // cmbBoxSectionsFilterProtection
          // 
+         this.cmbBoxSectionsFilterProtection.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
          this.cmbBoxSectionsFilterProtection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
          this.cmbBoxSectionsFilterProtection.DropDownWidth = 100;
          this.cmbBoxSectionsFilterProtection.FormattingEnabled = true;
-         this.cmbBoxSectionsFilterProtection.Location = new System.Drawing.Point(155, 74);
+         this.cmbBoxSectionsFilterProtection.Location = new System.Drawing.Point(148, 74);
          this.cmbBoxSectionsFilterProtection.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.cmbBoxSectionsFilterProtection.Name = "cmbBoxSectionsFilterProtection";
-         this.cmbBoxSectionsFilterProtection.Size = new System.Drawing.Size(73, 23);
+         this.cmbBoxSectionsFilterProtection.Size = new System.Drawing.Size(65, 23);
          this.cmbBoxSectionsFilterProtection.TabIndex = 61;
          // 
          // label3
@@ -449,11 +492,15 @@
          // 
          // txtBoxSectionsFilterExclude
          // 
-         this.txtBoxSectionsFilterExclude.Location = new System.Drawing.Point(155, 49);
+         this.txtBoxSectionsFilterExclude.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+         this.txtBoxSectionsFilterExclude.Location = new System.Drawing.Point(148, 49);
          this.txtBoxSectionsFilterExclude.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.txtBoxSectionsFilterExclude.Name = "txtBoxSectionsFilterExclude";
-         this.txtBoxSectionsFilterExclude.Size = new System.Drawing.Size(73, 23);
+         this.txtBoxSectionsFilterExclude.Size = new System.Drawing.Size(65, 23);
          this.txtBoxSectionsFilterExclude.TabIndex = 57;
+         this.txtBoxSectionsFilterExclude.Text = "Sce";
          // 
          // label1
          // 
@@ -466,10 +513,13 @@
          // 
          // txtBoxSectionsFilterInclude
          // 
-         this.txtBoxSectionsFilterInclude.Location = new System.Drawing.Point(125, 24);
+         this.txtBoxSectionsFilterInclude.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+         this.txtBoxSectionsFilterInclude.Location = new System.Drawing.Point(118, 24);
          this.txtBoxSectionsFilterInclude.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.txtBoxSectionsFilterInclude.Name = "txtBoxSectionsFilterInclude";
-         this.txtBoxSectionsFilterInclude.Size = new System.Drawing.Size(103, 23);
+         this.txtBoxSectionsFilterInclude.Size = new System.Drawing.Size(95, 23);
          this.txtBoxSectionsFilterInclude.TabIndex = 56;
          // 
          // label2
@@ -501,11 +551,14 @@
          // 
          // txtBoxScanSecondValue
          // 
+         this.txtBoxScanSecondValue.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
          this.txtBoxScanSecondValue.Enabled = false;
          this.txtBoxScanSecondValue.Location = new System.Drawing.Point(72, 25);
          this.txtBoxScanSecondValue.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.txtBoxScanSecondValue.Name = "txtBoxScanSecondValue";
-         this.txtBoxScanSecondValue.Size = new System.Drawing.Size(156, 23);
+         this.txtBoxScanSecondValue.Size = new System.Drawing.Size(141, 23);
          this.txtBoxScanSecondValue.TabIndex = 46;
          this.txtBoxScanSecondValue.Text = "0";
          this.txtBoxScanSecondValue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
@@ -522,33 +575,42 @@
          // 
          // cmbBoxScanCompareType
          // 
+         this.cmbBoxScanCompareType.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
          this.cmbBoxScanCompareType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
          this.cmbBoxScanCompareType.FormattingEnabled = true;
          this.cmbBoxScanCompareType.Location = new System.Drawing.Point(72, 50);
          this.cmbBoxScanCompareType.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.cmbBoxScanCompareType.Name = "cmbBoxScanCompareType";
-         this.cmbBoxScanCompareType.Size = new System.Drawing.Size(156, 23);
+         this.cmbBoxScanCompareType.Size = new System.Drawing.Size(141, 23);
          this.cmbBoxScanCompareType.TabIndex = 47;
          this.cmbBoxScanCompareType.SelectedIndexChanged += new System.EventHandler(this.cmbBoxScanCompareType_SelectedIndexChanged);
          // 
          // cmbBoxScanValueType
          // 
+         this.cmbBoxScanValueType.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
          this.cmbBoxScanValueType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
          this.cmbBoxScanValueType.DropDownWidth = 200;
          this.cmbBoxScanValueType.FormattingEnabled = true;
          this.cmbBoxScanValueType.Location = new System.Drawing.Point(72, 75);
          this.cmbBoxScanValueType.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.cmbBoxScanValueType.Name = "cmbBoxScanValueType";
-         this.cmbBoxScanValueType.Size = new System.Drawing.Size(156, 23);
+         this.cmbBoxScanValueType.Size = new System.Drawing.Size(141, 23);
          this.cmbBoxScanValueType.TabIndex = 48;
          this.cmbBoxScanValueType.SelectedIndexChanged += new System.EventHandler(this.cmbBoxScanValueType_SelectedIndexChanged);
          // 
          // txtBoxScanValue
          // 
+         this.txtBoxScanValue.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
          this.txtBoxScanValue.Location = new System.Drawing.Point(72, 0);
          this.txtBoxScanValue.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.txtBoxScanValue.Name = "txtBoxScanValue";
-         this.txtBoxScanValue.Size = new System.Drawing.Size(156, 23);
+         this.txtBoxScanValue.Size = new System.Drawing.Size(141, 23);
          this.txtBoxScanValue.TabIndex = 45;
          this.txtBoxScanValue.Text = "0";
          this.txtBoxScanValue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
@@ -565,7 +627,7 @@
          // 
          // btnScanNext
          // 
-         this.btnScanNext.Location = new System.Drawing.Point(75, 3);
+         this.btnScanNext.Location = new System.Drawing.Point(73, 3);
          this.btnScanNext.Name = "btnScanNext";
          this.btnScanNext.Size = new System.Drawing.Size(70, 23);
          this.btnScanNext.TabIndex = 27;
@@ -613,7 +675,7 @@
          this.dataGridSavedResults.RowHeadersVisible = false;
          this.dataGridSavedResults.RowTemplate.Height = 23;
          this.dataGridSavedResults.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-         this.dataGridSavedResults.Size = new System.Drawing.Size(501, 121);
+         this.dataGridSavedResults.Size = new System.Drawing.Size(484, 121);
          this.dataGridSavedResults.TabIndex = 51;
          this.dataGridSavedResults.TabStop = false;
          this.dataGridSavedResults.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridSavedResults_CellContentClick);
@@ -667,7 +729,7 @@
          this.uiStatusStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
          this.uiStatusStrip.Location = new System.Drawing.Point(0, 429);
          this.uiStatusStrip.Name = "uiStatusStrip";
-         this.uiStatusStrip.Size = new System.Drawing.Size(501, 22);
+         this.uiStatusStrip.Size = new System.Drawing.Size(484, 22);
          this.uiStatusStrip.TabIndex = 52;
          // 
          // uiStatusStrip_progressBarScanPercent
@@ -734,7 +796,7 @@
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
          this.AutoSize = true;
          this.BackColor = System.Drawing.SystemColors.Control;
-         this.ClientSize = new System.Drawing.Size(501, 451);
+         this.ClientSize = new System.Drawing.Size(484, 451);
          this.Controls.Add(this.splitContainerMain);
          this.Controls.Add(this.uiToolStrip);
          this.Controls.Add(this.uiStatusStrip);
@@ -760,6 +822,7 @@
          this.panelScanControls.PerformLayout();
          this.panelSectionSearchOptions.ResumeLayout(false);
          this.panelSectionSearchOptions.PerformLayout();
+         ((System.ComponentModel.ISupportInitialize)(this.numUpDownSectionMaxLength)).EndInit();
          ((System.ComponentModel.ISupportInitialize)(this.dataGridSavedResults)).EndInit();
          this.uiStatusStrip.ResumeLayout(false);
          this.uiStatusStrip.PerformLayout();
@@ -829,5 +892,7 @@
       private System.Windows.Forms.Label label2;
       private System.Windows.Forms.Button btnScanUndo;
       private System.Windows.Forms.ToolStripProgressBar uiStatusStrip_progressBarScanPercent;
+      private System.Windows.Forms.NumericUpDown numUpDownSectionMaxLength;
+      private System.Windows.Forms.Label label7;
    }
 }

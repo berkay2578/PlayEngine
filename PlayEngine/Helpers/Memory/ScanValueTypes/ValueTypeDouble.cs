@@ -82,6 +82,9 @@ namespace PlayEngine.Helpers.MemoryClasses.ScanValueTypes {
       public override Type getSignedType() {
          throw new InvalidOperationException("Cannot return signed type of Double");
       }
+      public override Int32 getSize() {
+         return sizeof(Double);
+      }
       public override String ToString() {
          return "Double";
       }

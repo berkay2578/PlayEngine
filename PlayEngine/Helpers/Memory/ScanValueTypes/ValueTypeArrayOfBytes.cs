@@ -39,7 +39,8 @@ namespace PlayEngine.Helpers.MemoryClasses.ScanValueTypes {
          }
       }
 
-      public override List<ScanCompareTypes.IScanCompareType> supportedFirstScanCompareTypes {
+      public override List<ScanCompareTypes.IScanCompareType> supportedFirstScanCompareTypes
+      {
          get {
             var retList = new List<ScanCompareTypes.IScanCompareType>()
             {
@@ -48,7 +49,8 @@ namespace PlayEngine.Helpers.MemoryClasses.ScanValueTypes {
             return retList;
          }
       }
-      public override List<ScanCompareTypes.IScanCompareType> supportedNextScanCompareTypes {
+      public override List<ScanCompareTypes.IScanCompareType> supportedNextScanCompareTypes
+      {
          get {
             var retList = new List<ScanCompareTypes.IScanCompareType>()
             {
@@ -63,6 +65,9 @@ namespace PlayEngine.Helpers.MemoryClasses.ScanValueTypes {
       }
       public override Type getSignedType() {
          return typeof(SByte[]);
+      }
+      public override Int32 getSize() {
+         throw new NotSupportedException("Cannot return size of a runtime array");
       }
       public override String ToString() {
          return "Array of bytes";

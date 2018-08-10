@@ -86,6 +86,7 @@
          this.uiStatusStrip_lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
          this.bgWorkerScanner = new System.ComponentModel.BackgroundWorker();
          this.bgWorkerResultsUpdater = new System.ComponentModel.BackgroundWorker();
+         this.bgWorkerValueFreezer = new System.ComponentModel.BackgroundWorker();
          this.uiToolStrip.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.splitContainerMain)).BeginInit();
          this.splitContainerMain.Panel1.SuspendLayout();
@@ -312,7 +313,7 @@
          this.splitContainerScanner.Panel2.Padding = new System.Windows.Forms.Padding(0, 0, 1, 0);
          this.splitContainerScanner.Panel2MinSize = 160;
          this.splitContainerScanner.Size = new System.Drawing.Size(484, 280);
-         this.splitContainerScanner.SplitterDistance = 259;
+         this.splitContainerScanner.SplitterDistance = 262;
          this.splitContainerScanner.SplitterWidth = 1;
          this.splitContainerScanner.TabIndex = 15;
          // 
@@ -336,7 +337,7 @@
          this.listViewResults.Name = "listViewResults";
          this.listViewResults.ShowGroups = false;
          this.listViewResults.ShowItemToolTips = true;
-         this.listViewResults.Size = new System.Drawing.Size(259, 280);
+         this.listViewResults.Size = new System.Drawing.Size(262, 280);
          this.listViewResults.TabIndex = 0;
          this.listViewResults.TabStop = false;
          this.listViewResults.UseCellFormatEvents = true;
@@ -428,6 +429,9 @@
          // 
          // numUpDownSectionMaxLength
          // 
+         this.numUpDownSectionMaxLength.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
          this.numUpDownSectionMaxLength.Increment = new decimal(new int[] {
             1024,
             0,
@@ -440,7 +444,7 @@
             0,
             0});
          this.numUpDownSectionMaxLength.Name = "numUpDownSectionMaxLength";
-         this.numUpDownSectionMaxLength.Size = new System.Drawing.Size(77, 23);
+         this.numUpDownSectionMaxLength.Size = new System.Drawing.Size(65, 23);
          this.numUpDownSectionMaxLength.TabIndex = 64;
          this.numUpDownSectionMaxLength.Value = new decimal(new int[] {
             51200,
@@ -790,6 +794,10 @@
          // 
          this.bgWorkerResultsUpdater.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgWorkerResultsUpdater_DoWork);
          // 
+         // bgWorkerValueFreezer
+         // 
+         this.bgWorkerValueFreezer.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgWorkerValueFreezer_DoWork);
+         // 
          // MainForm
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -894,5 +902,6 @@
       private System.Windows.Forms.ToolStripProgressBar uiStatusStrip_progressBarScanPercent;
       private System.Windows.Forms.NumericUpDown numUpDownSectionMaxLength;
       private System.Windows.Forms.Label label7;
+      private System.ComponentModel.BackgroundWorker bgWorkerValueFreezer;
    }
 }

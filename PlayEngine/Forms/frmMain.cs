@@ -214,8 +214,9 @@ namespace PlayEngine.Forms {
                socket.Close();
             } catch (Exception) { }
          }
-         // Run updater thread
+         // Run threads
          bgWorkerResultsUpdater.RunWorkerAsync();
+         bgWorkerValueFreezer.RunWorkerAsync();
       }
       private void MainForm_Load(Object sender, EventArgs e) {
          if (uiToolStrip_PayloadManager_chkPayloadActive.Checked)
@@ -777,14 +778,7 @@ namespace PlayEngine.Forms {
             dataGridSavedResults.Invoke(new Action(() =>
             {
                foreach (DataGridViewRow row in dataGridSavedResults.Rows) {
-                  if (((CheatInformation)row.Tag).isValueFrozen) {
-                     Memory.write(
-                        processInfo.id,
-                        (UInt64)row.Cells[SavedResultsColumnIndex.iAddress].Value,
-                        row.Cells[SavedResultsColumnIndex.iValue].Value,
-                        (Type)row.Cells[SavedResultsColumnIndex.iValueType].Value
-                     );
-                  } else {
+                  if (!((CheatInformation)row.Tag).isValueFrozen) {
                      var runtimeValue = Memory.read(
                         processInfo.id,
                         (UInt64)row.Cells[SavedResultsColumnIndex.iAddress].Value,
@@ -794,7 +788,27 @@ namespace PlayEngine.Forms {
                   }
                }
             }));
-            System.Threading.Thread.Sleep(2000);
+            System.Threading.Thread.Sleep(1000);
+         }
+      }
+      #endregion
+      #region bgWorkerValueFreezer
+      private void bgWorkerValueFreezer_DoWork(Object sender, DoWorkEventArgs e) {
+         while (true) {
+            dataGridSavedResults.Invoke(new Action(() =>
+            {
+               foreach (DataGridViewRow row in dataGridSavedResults.Rows) {
+                  if (((CheatInformation)row.Tag).isValueFrozen) {
+                     Memory.write(
+                        processInfo.id,
+                        (UInt64)row.Cells[SavedResultsColumnIndex.iAddress].Value,
+                        row.Cells[SavedResultsColumnIndex.iValue].Value,
+                        (Type)row.Cells[SavedResultsColumnIndex.iValueType].Value
+                     );
+                  }
+               }
+            }));
+            System.Threading.Thread.Sleep(250);
          }
       }
       #endregion

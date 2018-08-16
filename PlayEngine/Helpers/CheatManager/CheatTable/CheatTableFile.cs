@@ -42,7 +42,7 @@ namespace PlayEngine.Helpers.CheatManager.CheatTable {
       [XmlArray("CheatEntries")]
       public List<ICheatEntry> cheatEntries = new List<ICheatEntry>();
 
-      public static Version getAssemblyTableVersion() {
+      public static Version getAssemblyVersion() {
          return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
       }
       public static CheatTableFile loadFromFile(String cheatTableFilePath) {

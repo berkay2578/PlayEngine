@@ -13,8 +13,6 @@ namespace PlayEngine.Helpers.CheatManager.CheatTable.Objects {
       public String description;
       [XmlElement("ValueType")]
       public Type valueType;
-      [XmlElement("ScanValueType")]
-      public IScanValueType scanValueType;
 
       public abstract Boolean isSimple();
    }

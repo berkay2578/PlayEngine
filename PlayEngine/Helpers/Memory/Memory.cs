@@ -67,6 +67,8 @@ namespace PlayEngine.Helpers {
       public class ActiveProcess {
          public static String getId() {
             librpc.ProcessInfo processInfo = Memory.ps4RPC.GetProcessInfo("SceCdlgApp");
+            if (processInfo == null)
+               return String.Empty;
             librpc.MemorySection memorySection = Sections.findMemorySectionByName(processInfo, "libSceCdlgUtilServer.sprx", librpc.VM_PROT.RW);
             if (memorySection == null)
                return String.Empty;
@@ -75,6 +77,8 @@ namespace PlayEngine.Helpers {
          }
          public static String getVersionStr() {
             librpc.ProcessInfo processInfo = Memory.ps4RPC.GetProcessInfo("SceCdlgApp");
+            if (processInfo == null)
+               return String.Empty;
             librpc.MemorySection memorySection = Sections.findMemorySectionByName(processInfo, "libSceCdlgUtilServer.sprx", librpc.VM_PROT.RW);
             if (memorySection == null)
                return String.Empty;

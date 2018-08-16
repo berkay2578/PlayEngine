@@ -321,8 +321,8 @@ namespace PlayEngine.Forms {
                throw new NotImplementedException();
             }
             var cheatTable = CheatTableFile.loadFromFile(openFileDialog.FileName);
-            if (cheatTable.tableVersion.Major > CheatTableFile.getAssemblyTableVersion().Major
-               || cheatTable.tableVersion.Minor > CheatTableFile.getAssemblyTableVersion().Minor) {
+            if (cheatTable.tableVersion.Major > CheatTableFile.getAssemblyVersion().Major
+               || cheatTable.tableVersion.Minor > CheatTableFile.getAssemblyVersion().Minor) {
                MessageBox.Show("Selected cheat table requires a higher version of PlayEngine!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                return;
             }
@@ -338,7 +338,30 @@ namespace PlayEngine.Forms {
          }
       }
       private void btnSaveCheatTable_OnClick() {
-         throw new NotImplementedException();
+         SaveFileDialog saveFileDialog = new SaveFileDialog()
+         {
+            AddExtension = true,
+            DefaultExt = "PECheatTable",
+            Filter = "PlayEngine cheat tables|*.PECheatTable",
+            FilterIndex = 0,
+            SupportMultiDottedExtensions = true,
+            Title = "Save cheat table",
+            ValidateNames = true
+         };
+         if (saveFileDialog.ShowDialog() == DialogResult.OK) {
+            var cheatTable = new CheatTableFile();
+            foreach (DataGridViewRow row in dataGridSavedResults.Rows) {
+               SimpleCheatEntry simpleCheatEntry = new SimpleCheatEntry()
+               {
+                  description = (String)row.Cells[SavedResultsColumnIndex.iDescription].Value,
+                  address = (UInt64)row.Cells[SavedResultsColumnIndex.iAddress].Value,
+                  valueType = (Type)row.Cells[SavedResultsColumnIndex.iValueType].Value
+               };
+               cheatTable.cheatEntries.Add(simpleCheatEntry);
+            }
+            cheatTable.tableVersion = CheatTableFile.getAssemblyVersion();
+            cheatTable.saveToFile(saveFileDialog.FileName);
+         }
       }
       #endregion
       #region uiToolStrip_linkPayloadAndProcess

@@ -8,7 +8,7 @@ namespace PlayEngine.Helpers.CheatManager.CheatTable.Objects {
    public class ComplexCheatEntry : ICheatEntry {
       [XmlArray("PointerOffsetsList")]
       [XmlArrayItem("PointerOffset")]
-      public List<UInt32> listPointers = new List<UInt32>();
+      public List<UInt32> listPointerOffsets = new List<UInt32>();
 
       [XmlElement("SectionIndex")]
       public Int32 sectionIndex;

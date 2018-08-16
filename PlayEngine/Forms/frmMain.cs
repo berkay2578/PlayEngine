@@ -443,7 +443,7 @@ namespace PlayEngine.Forms {
          currentScanCompareType = newScanCompareType;
 
          txtBoxScanValue.Enabled = newScanCompareType.supportsScanValue;
-         lblSecondValue.Enabled = txtBoxScanSecondValue.Enabled = newScanCompareType.supportsScanSecondValue;
+         txtBoxScanSecondValue.Enabled = newScanCompareType.supportsScanSecondValue;
       }
 
       private void uiToolStrip_PayloadManager_chkPayloadActive_CheckedChanged(Object sender, EventArgs e) {

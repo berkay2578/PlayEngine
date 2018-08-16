@@ -6,7 +6,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Text;
+using PlayEngine.Helpers;
+using PlayEngine.Helpers.MemoryClasses.ScanCompareTypes;
+using PlayEngine.Helpers.MemoryClasses.ScanValueTypes;
 
 namespace librpc {
    public class PS4RPC {
@@ -35,7 +39,9 @@ namespace librpc {
          RPC_REBOOT = 0xBD000009,
          RPC_KERN_BASE = 0xBD00000A,
          RPC_KERN_READ = 0xBD00000B,
-         RPC_KERN_WRITE = 0xBD00000C
+         RPC_KERN_WRITE = 0xBD00000C,
+         RPC_PROC_PROTECT = 0xBD00000D,
+         RPC_PROC_SCAN = 0xBD00000E
       };
 
       /** packet sizes **/
@@ -53,6 +59,8 @@ namespace librpc {
       private const Int32 RPC_KERN_BASE_SIZE = 8;
       private const Int32 RPC_KERN_READ_SIZE = 12;
       private const Int32 RPC_KERN_WRITE_SIZE = 12;
+      private const Int32 RPC_PROC_PROTECT_SIZE = 20;
+      private const Int32 RPC_PROC_SCAN_SIZE = 26;
 
       /** status **/
       private enum RPC_STATUS : UInt32 {
@@ -128,7 +136,7 @@ namespace librpc {
 
       private static Boolean IsFatalStatus(RPC_STATUS status) {
          // if status first nibble starts with F
-         return (UInt32)status >> 28 == 15;
+         return (UInt32)status >> 28 == 0xF;
       }
 
       /// <summary>
@@ -374,6 +382,138 @@ namespace librpc {
             SendData(data, data.Length);
             CheckRPCStatus();
          }
+      }
+
+      enum scan_ValueType : Byte {
+         valTypeUInt8 = 0,
+         valTypeInt8,
+         valTypeUInt16,
+         valTypeInt16,
+         valTypeUInt32,
+         valTypeInt32,
+         valTypeUInt64,
+         valTypeInt64,
+         valTypeFloat,
+         valTypeDouble,
+         valTypeArrBytes,
+         valTypeString
+      }
+      private scan_ValueType getLibRPCValueType(Type valueType) {
+         switch (Type.GetTypeCode(valueType)) {
+            case TypeCode.SByte:
+               return scan_ValueType.valTypeInt8;
+            case TypeCode.Byte:
+            case TypeCode.Boolean:
+               return scan_ValueType.valTypeUInt8;
+            case TypeCode.Int16:
+               return scan_ValueType.valTypeInt16;
+            case TypeCode.UInt16:
+               return scan_ValueType.valTypeUInt16;
+            case TypeCode.Int32:
+               return scan_ValueType.valTypeInt32;
+            case TypeCode.UInt32:
+               return scan_ValueType.valTypeUInt32;
+            case TypeCode.Int64:
+               return scan_ValueType.valTypeInt64;
+            case TypeCode.UInt64:
+               return scan_ValueType.valTypeUInt64;
+            case TypeCode.Single:
+               return scan_ValueType.valTypeFloat;
+            case TypeCode.Double:
+            case TypeCode.Decimal:
+               return scan_ValueType.valTypeDouble;
+            case TypeCode.String:
+               return scan_ValueType.valTypeString;
+         }
+         return scan_ValueType.valTypeArrBytes;
+      }
+
+      enum scan_CompareType : Byte {
+         cmpTypeExactValue = 0,
+         cmpTypeFuzzyValue,
+         cmpTypeBiggerThan,
+         cmpTypeSmallerThan,
+         cmpTypeValueBetween,
+         cmpTypeIncreasedValue,
+         cmpTypeIncreasedValueBy,
+         cmpTypeDecreasedValue,
+         cmpTypeDecreasedValueBy,
+         cmpTypeChangedValue,
+         cmpTypeUnchangedValue,
+         cmpTypeUnknownInitialValue
+      }
+      private scan_CompareType getLibRPCCompareType<T>(T compareType) where T : IScanCompareType {
+         if (typeof(T) == typeof(CompareTypeExactValue))
+            return scan_CompareType.cmpTypeExactValue;
+         else if (typeof(T) == typeof(CompareTypeFuzzyValue))
+            return scan_CompareType.cmpTypeFuzzyValue;
+         else if (typeof(T) == typeof(CompareTypeBiggerThan))
+            return scan_CompareType.cmpTypeBiggerThan;
+         else if (typeof(T) == typeof(CompareTypeSmallerThan))
+            return scan_CompareType.cmpTypeSmallerThan;
+         else if (typeof(T) == typeof(CompareTypeValueBetween))
+            return scan_CompareType.cmpTypeValueBetween;
+         else if (typeof(T) == typeof(CompareTypeIncreasedValue))
+            return scan_CompareType.cmpTypeIncreasedValue;
+         else if (typeof(T) == typeof(CompareTypeIncreasedValueBy))
+            return scan_CompareType.cmpTypeIncreasedValueBy;
+         else if (typeof(T) == typeof(CompareTypeDecreasedValue))
+            return scan_CompareType.cmpTypeDecreasedValue;
+         else if (typeof(T) == typeof(CompareTypeDecreasedValueBy))
+            return scan_CompareType.cmpTypeDecreasedValueBy;
+         else if (typeof(T) == typeof(CompareTypeChangedValue))
+            return scan_CompareType.cmpTypeChangedValue;
+         else if (typeof(T) == typeof(CompareTypeUnchangedValue))
+            return scan_CompareType.cmpTypeUnchangedValue;
+         else if (typeof(T) == typeof(CompareTypeUnknownInitialValue))
+            return scan_CompareType.cmpTypeUnknownInitialValue;
+         return scan_CompareType.cmpTypeUnknownInitialValue;
+      }
+
+      /// <summary>
+      /// Scan memory
+      /// </summary>
+      /// <param name="pid"></param>
+      /// <param name="beginAddress"></param>
+      /// <param name="endAddress"></param>
+      /// <param name="valueType"></param>
+      /// <param name="compareType"></param>
+      /// <param name="scanValue"></param>
+      /// <param name="extraValue"></param>
+      /// <param name="fnAddScanResult"></param>
+      public void ScanMemory(Int32 pid, UInt64 beginAddress, UInt64 endAddress, Type valueType, IScanCompareType compareType,
+                             dynamic scanValue, dynamic extraValue, Action<UInt64> fnAddScanResult) {
+         if (!IsConnected)
+            throw new Exception(NotConnectedErrorMessage);
+
+         SendCMDPacket(RPC_CMDS.RPC_PROC_SCAN, RPC_PROC_SCAN_SIZE);
+         Int32 lenData = Marshal.SizeOf(scanValue) + Marshal.SizeOf(extraValue);
+
+         using (MemoryStream s = new MemoryStream()) {
+            s.Write(BitConverter.GetBytes(pid), 0, sizeof(Int32));
+            s.Write(BitConverter.GetBytes(beginAddress), 0, sizeof(UInt64));
+            s.Write(BitConverter.GetBytes(endAddress), 0, sizeof(UInt64));
+            s.WriteByte((Byte)getLibRPCValueType(valueType));
+            s.WriteByte((Byte)getLibRPCCompareType(compareType));
+            s.Write(BitConverter.GetBytes(lenData), 0, sizeof(UInt32));
+            SendData(s.ToArray(), RPC_PROC_SCAN_SIZE);
+         }
+         using (MemoryStream s = new MemoryStream()) {
+            s.Write(dotNetExtensions.getBytes(scanValue, valueType), 0, Marshal.SizeOf(scanValue));
+            s.Write(dotNetExtensions.getBytes(extraValue, valueType), 0, Marshal.SizeOf(extraValue));
+            SendData(s.ToArray(), lenData);
+         }
+         CheckRPCStatus();
+         sock.ReceiveTimeout = 0;
+
+         while (true) {
+            UInt64 address = BitConverter.ToUInt64(ReceiveData(sizeof(UInt64)), 0);
+            if (address == 0xDEADBEEF00ABCDEF)
+               break;
+            else
+               fnAddScanResult(address);
+         }
+         sock.ReceiveTimeout = 5 * 1000;
       }
 
       /// <summary>

@@ -297,6 +297,11 @@ namespace PlayEngine.Forms {
       }
       #region uiToolStrip_linkFile
       private void btnLoadCheatTable_OnClick() {
+         if (currentScanStatus != Memory.ScanStatus.CantScan) {
+            MessageBox.Show("Cannot load a cheat table while the payload is not injected!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+         }
+
          OpenFileDialog openFileDialog = new OpenFileDialog()
          {
             AddExtension = false,
@@ -314,17 +319,37 @@ namespace PlayEngine.Forms {
          };
          if (openFileDialog.ShowDialog() == DialogResult.OK) {
             CheatTableFile cheatTable = null;
-            if (openFileDialog.SafeFileName.EndsWith(".cht")) {
-               String newFileName = openFileDialog.FileName.Replace(".cht", ".PECheatTable");
-               cheatTable = CheatTableFile.updateOldFormat(openFileDialog.FileName);
-               cheatTable.saveToFile(newFileName);
-            } else {
-               cheatTable = CheatTableFile.loadFromFile(openFileDialog.FileName);
-               if (cheatTable.playEngineVersion.Major > CheatTableFile.getAssemblyVersion().Major
-                  || cheatTable.playEngineVersion.Minor > CheatTableFile.getAssemblyVersion().Minor) {
-                  MessageBox.Show("Selected cheat table requires a higher version of PlayEngine!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                  return;
+            try {
+               if (openFileDialog.SafeFileName.EndsWith(".cht")) {
+                  String newFileName = openFileDialog.FileName.Replace(".cht", ".PECheatTable");
+                  cheatTable = CheatTableFile.updateOldFormat(openFileDialog.FileName);
+                  cheatTable.saveToFile(newFileName);
+               } else {
+                  cheatTable = CheatTableFile.loadFromFile(openFileDialog.FileName);
+                  if (cheatTable.playEngineVersion.Major > CheatTableFile.getAssemblyVersion().Major
+                     || cheatTable.playEngineVersion.Minor > CheatTableFile.getAssemblyVersion().Minor) {
+                     MessageBox.Show("Selected cheat table requires a higher version of PlayEngine!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                     return;
+                  }
                }
+
+            } catch (Exception ex) {
+               MessageBox.Show(ex.ToString(), "Exception occured while loading cheat table", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            if (!uiToolStrip_ProcessManager_cmbBoxActiveProcess.Items.Contains(cheatTable.targetProcess)) {
+               MessageBox.Show("Cheat table process is not found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+               return;
+            }
+            uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedItem = cheatTable.targetProcess;
+
+            if (cheatTable.targetProcess == "eboot.bin") {
+               string _Id =  Memory.ActiveProcess.getId();
+               string _Ver = Memory.ActiveProcess.getVersionStr();
+               if (_Id != cheatTable.cusaId)
+                  MessageBox.Show("CUSA ids do not match, loading anyway...", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+               if (_Ver != cheatTable.cusaVersion)
+                  MessageBox.Show("CUSA versions do not match, loading anyway..." +
+                     $"\r\nActive CUSA Version: v{_Ver}/File CUSA Version: v{cheatTable.cusaVersion}.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             foreach (var cheatEntry in cheatTable.cheatEntries) {
                if (cheatEntry.isSimple()) {
@@ -359,6 +384,9 @@ namespace PlayEngine.Forms {
                cheatTable.cheatEntries.Add(simpleCheatEntry);
             }
             cheatTable.playEngineVersion = CheatTableFile.getAssemblyVersion();
+            cheatTable.targetProcess = (String)uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedItem;
+            cheatTable.cusaId = Memory.ActiveProcess.getId();
+            cheatTable.cusaVersion = Memory.ActiveProcess.getVersionStr();
             cheatTable.saveToFile(saveFileDialog.FileName);
          }
       }

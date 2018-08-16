@@ -40,7 +40,7 @@ namespace PlayEngine.Helpers.CheatManager.CheatTable {
       [XmlElement("PlayEngineVersion")]
       public Version playEngineVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
       [XmlElement("TargetProcess")]
-      String targetProcess = "eboot.bin";
+      public String targetProcess = "eboot.bin";
       [XmlElement("CusaID")]
       public String cusaId;
       [XmlElement("CusaVersion")]

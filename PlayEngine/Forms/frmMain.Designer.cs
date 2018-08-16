@@ -23,8 +23,8 @@
       /// the contents of this method with the code editor.
       /// </summary>
       private void InitializeComponent() {
-         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
          this.uiToolStrip = new System.Windows.Forms.ToolStrip();
          this.uiToolStrip_linkFile = new System.Windows.Forms.ToolStripDropDownButton();
          this.uiToolStrip_btnLoadCheatTable = new System.Windows.Forms.ToolStripMenuItem();
@@ -302,7 +302,7 @@
          // splitContainerScanner.Panel1
          // 
          this.splitContainerScanner.Panel1.Controls.Add(this.listViewResults);
-         this.splitContainerScanner.Panel1MinSize = 250;
+         this.splitContainerScanner.Panel1MinSize = 230;
          // 
          // splitContainerScanner.Panel2
          // 
@@ -311,9 +311,9 @@
          this.splitContainerScanner.Panel2.Controls.Add(this.btnScanNext);
          this.splitContainerScanner.Panel2.Controls.Add(this.btnScan);
          this.splitContainerScanner.Panel2.Padding = new System.Windows.Forms.Padding(0, 0, 1, 0);
-         this.splitContainerScanner.Panel2MinSize = 160;
+         this.splitContainerScanner.Panel2MinSize = 100;
          this.splitContainerScanner.Size = new System.Drawing.Size(484, 280);
-         this.splitContainerScanner.SplitterDistance = 280;
+         this.splitContainerScanner.SplitterDistance = 230;
          this.splitContainerScanner.SplitterWidth = 1;
          this.splitContainerScanner.TabIndex = 15;
          // 
@@ -337,7 +337,7 @@
          this.listViewResults.Name = "listViewResults";
          this.listViewResults.ShowGroups = false;
          this.listViewResults.ShowItemToolTips = true;
-         this.listViewResults.Size = new System.Drawing.Size(280, 280);
+         this.listViewResults.Size = new System.Drawing.Size(230, 280);
          this.listViewResults.TabIndex = 0;
          this.listViewResults.TabStop = false;
          this.listViewResults.UseCellFormatEvents = true;
@@ -379,9 +379,9 @@
          // btnScanUndo
          // 
          this.btnScanUndo.Enabled = false;
-         this.btnScanUndo.Location = new System.Drawing.Point(140, 3);
+         this.btnScanUndo.Location = new System.Drawing.Point(167, 3);
          this.btnScanUndo.Name = "btnScanUndo";
-         this.btnScanUndo.Size = new System.Drawing.Size(72, 23);
+         this.btnScanUndo.Size = new System.Drawing.Size(80, 23);
          this.btnScanUndo.TabIndex = 40;
          this.btnScanUndo.Text = "Undo Scan";
          this.btnScanUndo.UseVisualStyleBackColor = true;
@@ -404,7 +404,7 @@
          this.panelScanControls.Location = new System.Drawing.Point(0, 32);
          this.panelScanControls.Name = "panelScanControls";
          this.panelScanControls.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
-         this.panelScanControls.Size = new System.Drawing.Size(209, 248);
+         this.panelScanControls.Size = new System.Drawing.Size(253, 248);
          this.panelScanControls.TabIndex = 39;
          // 
          // panelSectionSearchOptions
@@ -424,7 +424,7 @@
          this.panelSectionSearchOptions.Location = new System.Drawing.Point(0, 103);
          this.panelSectionSearchOptions.Name = "panelSectionSearchOptions";
          this.panelSectionSearchOptions.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
-         this.panelSectionSearchOptions.Size = new System.Drawing.Size(209, 130);
+         this.panelSectionSearchOptions.Size = new System.Drawing.Size(253, 130);
          this.panelSectionSearchOptions.TabIndex = 58;
          // 
          // numUpDownSectionMaxLength
@@ -444,7 +444,7 @@
             0,
             0});
          this.numUpDownSectionMaxLength.Name = "numUpDownSectionMaxLength";
-         this.numUpDownSectionMaxLength.Size = new System.Drawing.Size(54, 23);
+         this.numUpDownSectionMaxLength.Size = new System.Drawing.Size(99, 23);
          this.numUpDownSectionMaxLength.TabIndex = 64;
          this.numUpDownSectionMaxLength.Value = new decimal(new int[] {
             51200,
@@ -482,7 +482,7 @@
          this.cmbBoxSectionsFilterProtection.Location = new System.Drawing.Point(148, 74);
          this.cmbBoxSectionsFilterProtection.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.cmbBoxSectionsFilterProtection.Name = "cmbBoxSectionsFilterProtection";
-         this.cmbBoxSectionsFilterProtection.Size = new System.Drawing.Size(54, 23);
+         this.cmbBoxSectionsFilterProtection.Size = new System.Drawing.Size(99, 23);
          this.cmbBoxSectionsFilterProtection.TabIndex = 61;
          // 
          // label3
@@ -502,7 +502,7 @@
          this.txtBoxSectionsFilterExclude.Location = new System.Drawing.Point(148, 49);
          this.txtBoxSectionsFilterExclude.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.txtBoxSectionsFilterExclude.Name = "txtBoxSectionsFilterExclude";
-         this.txtBoxSectionsFilterExclude.Size = new System.Drawing.Size(54, 23);
+         this.txtBoxSectionsFilterExclude.Size = new System.Drawing.Size(99, 23);
          this.txtBoxSectionsFilterExclude.TabIndex = 57;
          this.txtBoxSectionsFilterExclude.Text = "Sce";
          // 
@@ -523,7 +523,7 @@
          this.txtBoxSectionsFilterInclude.Location = new System.Drawing.Point(118, 24);
          this.txtBoxSectionsFilterInclude.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.txtBoxSectionsFilterInclude.Name = "txtBoxSectionsFilterInclude";
-         this.txtBoxSectionsFilterInclude.Size = new System.Drawing.Size(84, 23);
+         this.txtBoxSectionsFilterInclude.Size = new System.Drawing.Size(129, 23);
          this.txtBoxSectionsFilterInclude.TabIndex = 56;
          // 
          // label2
@@ -562,7 +562,7 @@
          this.txtBoxScanSecondValue.Location = new System.Drawing.Point(72, 25);
          this.txtBoxScanSecondValue.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.txtBoxScanSecondValue.Name = "txtBoxScanSecondValue";
-         this.txtBoxScanSecondValue.Size = new System.Drawing.Size(130, 23);
+         this.txtBoxScanSecondValue.Size = new System.Drawing.Size(175, 23);
          this.txtBoxScanSecondValue.TabIndex = 46;
          this.txtBoxScanSecondValue.Text = "0";
          this.txtBoxScanSecondValue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
@@ -587,7 +587,7 @@
          this.cmbBoxScanCompareType.Location = new System.Drawing.Point(72, 50);
          this.cmbBoxScanCompareType.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.cmbBoxScanCompareType.Name = "cmbBoxScanCompareType";
-         this.cmbBoxScanCompareType.Size = new System.Drawing.Size(130, 23);
+         this.cmbBoxScanCompareType.Size = new System.Drawing.Size(175, 23);
          this.cmbBoxScanCompareType.TabIndex = 47;
          this.cmbBoxScanCompareType.SelectedIndexChanged += new System.EventHandler(this.cmbBoxScanCompareType_SelectedIndexChanged);
          // 
@@ -602,7 +602,7 @@
          this.cmbBoxScanValueType.Location = new System.Drawing.Point(72, 75);
          this.cmbBoxScanValueType.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.cmbBoxScanValueType.Name = "cmbBoxScanValueType";
-         this.cmbBoxScanValueType.Size = new System.Drawing.Size(130, 23);
+         this.cmbBoxScanValueType.Size = new System.Drawing.Size(175, 23);
          this.cmbBoxScanValueType.TabIndex = 48;
          this.cmbBoxScanValueType.SelectedIndexChanged += new System.EventHandler(this.cmbBoxScanValueType_SelectedIndexChanged);
          // 
@@ -614,7 +614,7 @@
          this.txtBoxScanValue.Location = new System.Drawing.Point(72, 0);
          this.txtBoxScanValue.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.txtBoxScanValue.Name = "txtBoxScanValue";
-         this.txtBoxScanValue.Size = new System.Drawing.Size(130, 23);
+         this.txtBoxScanValue.Size = new System.Drawing.Size(175, 23);
          this.txtBoxScanValue.TabIndex = 45;
          this.txtBoxScanValue.Text = "0";
          this.txtBoxScanValue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
@@ -631,9 +631,9 @@
          // 
          // btnScanNext
          // 
-         this.btnScanNext.Location = new System.Drawing.Point(71, 3);
+         this.btnScanNext.Location = new System.Drawing.Point(86, 3);
          this.btnScanNext.Name = "btnScanNext";
-         this.btnScanNext.Size = new System.Drawing.Size(69, 23);
+         this.btnScanNext.Size = new System.Drawing.Size(82, 23);
          this.btnScanNext.TabIndex = 27;
          this.btnScanNext.Text = "Next Scan";
          this.btnScanNext.UseVisualStyleBackColor = true;
@@ -643,7 +643,7 @@
          // 
          this.btnScan.Location = new System.Drawing.Point(5, 3);
          this.btnScan.Name = "btnScan";
-         this.btnScan.Size = new System.Drawing.Size(66, 23);
+         this.btnScan.Size = new System.Drawing.Size(82, 23);
          this.btnScan.TabIndex = 26;
          this.btnScan.Text = "First Scan";
          this.btnScan.UseVisualStyleBackColor = true;
@@ -657,15 +657,15 @@
          this.dataGridSavedResults.BackgroundColor = System.Drawing.SystemColors.Window;
          this.dataGridSavedResults.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
          this.dataGridSavedResults.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-         dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-         dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-         dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-         dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-         dataGridViewCellStyle1.NullValue = "null";
-         dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-         dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-         dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-         this.dataGridSavedResults.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+         dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+         dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Control;
+         dataGridViewCellStyle5.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+         dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.WindowText;
+         dataGridViewCellStyle5.NullValue = "null";
+         dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+         dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+         dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+         this.dataGridSavedResults.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
          this.dataGridSavedResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
          this.dataGridSavedResults.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.dataGridSavedResults_chkBoxFreezeValue,
@@ -704,9 +704,9 @@
          // 
          // dataGridSavedResults_txtBoxAddress
          // 
-         dataGridViewCellStyle2.Format = "X0";
-         dataGridViewCellStyle2.NullValue = null;
-         this.dataGridSavedResults_txtBoxAddress.DefaultCellStyle = dataGridViewCellStyle2;
+         dataGridViewCellStyle6.Format = "X0";
+         dataGridViewCellStyle6.NullValue = null;
+         this.dataGridSavedResults_txtBoxAddress.DefaultCellStyle = dataGridViewCellStyle6;
          this.dataGridSavedResults_txtBoxAddress.HeaderText = "Address";
          this.dataGridSavedResults_txtBoxAddress.Name = "dataGridSavedResults_txtBoxAddress";
          this.dataGridSavedResults_txtBoxAddress.ReadOnly = true;
@@ -802,9 +802,7 @@
          // 
          // MainForm
          // 
-         this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-         this.AutoSize = true;
+         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
          this.BackColor = System.Drawing.SystemColors.Control;
          this.ClientSize = new System.Drawing.Size(484, 451);
          this.Controls.Add(this.splitContainerMain);

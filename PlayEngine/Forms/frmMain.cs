@@ -170,7 +170,7 @@ namespace PlayEngine.Forms {
                break;
                case Memory.ScanStatus.Scanning: {
                   setControlEnabled(new Control[] { btnScan }, true);
-                  setControlEnabled(new Control[] { btnScanNext, btnScanUndo, panelScanControls, listViewResults }, false);
+                  setControlEnabled(new Control[] { btnScanNext, btnScanUndo, panelScanControls, panelSectionSearchOptions, listViewResults }, false);
                   uiToolStrip.Invoke(new Action(() => uiToolStrip_linkPayloadAndProcess.Enabled = false));
 
                   btnScan.Invoke(new Action(() => btnScan.Text = "Stop"));

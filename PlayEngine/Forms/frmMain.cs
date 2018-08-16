@@ -27,6 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
@@ -35,6 +36,8 @@ using System.Windows.Forms;
 
 using PlayEngine.Helpers;
 using PlayEngine.Helpers.CheatManager;
+using PlayEngine.Helpers.CheatManager.CheatTable;
+using PlayEngine.Helpers.CheatManager.CheatTable.Objects;
 using PlayEngine.Helpers.MemoryClasses.ScanCompareTypes;
 using PlayEngine.Helpers.MemoryClasses.ScanValueTypes;
 
@@ -214,14 +217,14 @@ namespace PlayEngine.Forms {
                socket.Close();
             } catch (Exception) { }
          }
-         // Run threads
-         bgWorkerResultsUpdater.RunWorkerAsync();
-         bgWorkerValueFreezer.RunWorkerAsync();
       }
       private void MainForm_Load(Object sender, EventArgs e) {
          if (uiToolStrip_PayloadManager_chkPayloadActive.Checked)
             btnRefreshProcessList_OnClick();
          txtBoxScanValue.Select();
+         // Run threads
+         bgWorkerResultsUpdater.RunWorkerAsync();
+         bgWorkerValueFreezer.RunWorkerAsync();
       }
 
       #region Functions
@@ -292,12 +295,60 @@ namespace PlayEngine.Forms {
             btnScanUndo.Enabled = false;
          }
       }
+      #region uiToolStrip_linkFile
+      private void btnLoadCheatTable_OnClick() {
+         OpenFileDialog openFileDialog = new OpenFileDialog()
+         {
+            AddExtension = false,
+            CheckFileExists = true,
+            CheckPathExists = true,
+            FileName = Memory.ActiveProcess.getVersionStr(),
+            DefaultExt = "PECheatTable",
+            Filter = "PlayEngine cheat tables|*.PECheatTable|PS4Cheater cheat tables|*.cht",
+            FilterIndex = 0,
+            Multiselect = false,
+            ShowReadOnly = false,
+            SupportMultiDottedExtensions = true,
+            Title = "Select a cheat table to load",
+            ValidateNames = true
+         };
+         if (openFileDialog.ShowDialog() == DialogResult.OK) {
+            Boolean isOldFormat = openFileDialog.SafeFileName.EndsWith(".cht");
+            if (isOldFormat) {
+               String newFileName = openFileDialog.FileName.Replace(".cht", ".PECheatTable");
+               openFileDialog.FileName = newFileName;
+               // Convert
+               throw new NotImplementedException();
+            }
+            var cheatTable = CheatTableFile.loadFromFile(openFileDialog.FileName);
+            if (cheatTable.tableVersion.Major > CheatTableFile.getAssemblyTableVersion().Major
+               || cheatTable.tableVersion.Minor > CheatTableFile.getAssemblyTableVersion().Minor) {
+               MessageBox.Show("Selected cheat table requires a higher version of PlayEngine!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+               return;
+            }
+
+            foreach (var cheatEntry in cheatTable.cheatEntries) {
+               if (cheatEntry.isSimple()) {
+                  var simpleCheatEntry = (SimpleCheatEntry)cheatEntry;
+                  saveResult(simpleCheatEntry.description, simpleCheatEntry.address, null, simpleCheatEntry.valueType);
+               } else {
+                  throw new NotImplementedException();
+               }
+            }
+         }
+      }
+      private void btnSaveCheatTable_OnClick() {
+         throw new NotImplementedException();
+      }
+      #endregion
       #region uiToolStrip_linkPayloadAndProcess
       private void btnSendPayload_OnClick() {
          if (new Forms.ChildForms.childFrmSendPayload().ShowDialog() == DialogResult.OK) {
             if (Memory.initPS4RPC(Settings.mInstance.ps4.IPAddress)) {
                uiToolStrip_PayloadManager_chkPayloadActive.Checked = true;
                btnRefreshProcessList_OnClick();
+            } else {
+               MessageBox.Show("Could not connect to the payload!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
          }
       }
@@ -309,8 +360,10 @@ namespace PlayEngine.Forms {
                if (process.name == "eboot.bin")
                   uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedItem = "eboot.bin";
             }
-            if (uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedIndex < 0)
-               uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedIndex = 0;
+
+            // ignore rpcproc
+            if (uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedIndex < 1)
+               uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedIndex = 1;
          } catch (Exception ex) {
             MessageBox.Show(ex.ToString(), "Error during getting process list", MessageBoxButtons.OK, MessageBoxIcon.Error);
          }
@@ -349,6 +402,12 @@ namespace PlayEngine.Forms {
                btnScanUndo_OnClick();
                break;
             #region uiToolStrip_linkFile
+            case "uiToolStrip_btnLoadCheatTable":
+               btnLoadCheatTable_OnClick();
+               break;
+            case "uiToolStrip_btnSaveCheatTable":
+               btnSaveCheatTable_OnClick();
+               break;
             case "uiToolStrip_btnExit":
                Application.Exit();
                break;
@@ -757,6 +816,10 @@ namespace PlayEngine.Forms {
       #region bgWorkerResultsUpdater
       private void bgWorkerResultsUpdater_DoWork(Object sender, DoWorkEventArgs e) {
          while (true) {
+            if (bgWorkerResultsUpdater.CancellationPending) {
+               e.Cancel = true;
+               break;
+            }
             // Scan results
             if (currentScanStatus != Memory.ScanStatus.Scanning) {
                listViewResults.Invoke(new Action(() =>
@@ -795,6 +858,10 @@ namespace PlayEngine.Forms {
       #region bgWorkerValueFreezer
       private void bgWorkerValueFreezer_DoWork(Object sender, DoWorkEventArgs e) {
          while (true) {
+            if (bgWorkerValueFreezer.CancellationPending) {
+               e.Cancel = true;
+               break;
+            }
             dataGridSavedResults.Invoke(new Action(() =>
             {
                foreach (DataGridViewRow row in dataGridSavedResults.Rows) {
@@ -812,6 +879,12 @@ namespace PlayEngine.Forms {
          }
       }
       #endregion
+
       #endregion
+
+      private void MainForm_FormClosing(Object sender, FormClosingEventArgs e) {
+         bgWorkerResultsUpdater.CancelAsync();
+         bgWorkerValueFreezer.CancelAsync();
+      }
    }
 }

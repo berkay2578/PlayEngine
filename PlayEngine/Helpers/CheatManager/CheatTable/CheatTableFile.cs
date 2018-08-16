@@ -25,8 +25,10 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
+using PlayEngine.Helpers.CheatManager.CheatTable.Objects;
 
 namespace PlayEngine.Helpers.CheatManager.CheatTable {
    [Serializable]
@@ -35,10 +37,15 @@ namespace PlayEngine.Helpers.CheatManager.CheatTable {
       [XmlIgnore]
       public static XmlSerializer serializer = null;
 
-      [XmlElement]
-      public Version TableVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+      [XmlElement("TableVersion")]
+      public Version tableVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+      [XmlArray("CheatEntries")]
+      public List<ICheatEntry> cheatEntries = new List<ICheatEntry>();
 
-      public static CheatTableFile loadCheatTableFile(String cheatTableFilePath) {
+      public static Version getAssemblyTableVersion() {
+         return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+      }
+      public static CheatTableFile loadFromFile(String cheatTableFilePath) {
          if (serializer == null)
             serializer = new XmlSerializer(typeof(CheatTableFile));
 

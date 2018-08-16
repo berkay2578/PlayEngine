@@ -103,6 +103,9 @@
       <DependentUpon>childFrmSendPayload.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\CheatManager\CheatInformation.cs" />
+    <Compile Include="Helpers\CheatManager\CheatTable\Objects\ICheatEntry.cs" />
+    <Compile Include="Helpers\CheatManager\CheatTable\Objects\ComplexCheatEntry.cs" />
+    <Compile Include="Helpers\CheatManager\CheatTable\Objects\SimpleCheatEntry.cs" />
     <Compile Include="Helpers\librpc\Process.librpc.cs" />
     <Compile Include="Helpers\librpc\PS4RPC.librpc.cs" />
     <Compile Include="Helpers\Memory\Memory.cs" />

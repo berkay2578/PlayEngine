@@ -88,7 +88,7 @@ namespace PlayEngine.Helpers {
       public static Boolean initPS4RPC(String ipAddress) {
          try {
             mutex.WaitOne();
-            if (ps4RPC != null)
+            if (ps4RPC != null && ps4RPC.IsConnected)
                ps4RPC.Disconnect();
             ps4RPC = new librpc.PS4RPC(ipAddress);
             ps4RPC.Connect();
@@ -96,7 +96,7 @@ namespace PlayEngine.Helpers {
          } finally {
             mutex.ReleaseMutex();
          }
-         return ps4RPC != null;
+         return ps4RPC != null && ps4RPC.IsConnected;
       }
       public static librpc.ProcessInfo getProcessInfoFromName(String processName) {
          return Memory.ps4RPC.GetProcessInfo(Memory.ps4RPC.GetProcessList().Where(proc => proc.name == processName).First().id);

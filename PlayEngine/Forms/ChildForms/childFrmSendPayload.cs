@@ -45,8 +45,8 @@ namespace PlayEngine.Forms.ChildForms {
 
          txtBoxIPAddress.Text = Settings.mInstance.ps4.IPAddress;
          txtBoxIPPort.Text = Settings.mInstance.ps4.IPPort.ToString();
+         cmbBoxPayload.SelectedIndex = 0;
          if (cmbBoxPayload.Items.Count == 1) {
-            cmbBoxPayload.SelectedIndex = 0;
             cmbBoxPayload.Enabled = false;
          } else {
             if (cmbBoxPayload.Items.Contains(Settings.mInstance.ps4.LastUsedPayload))
@@ -81,7 +81,7 @@ namespace PlayEngine.Forms.ChildForms {
             }
             Settings.mInstance.ps4.IPAddress = txtBoxIPAddress.Text;
             Settings.mInstance.ps4.IPPort = Convert.ToInt32(txtBoxIPPort.Text);
-            Settings.mInstance.ps4.LastUsedPayload = cmbBoxPayload.SelectedText;
+            Settings.mInstance.ps4.LastUsedPayload = (String)cmbBoxPayload.SelectedItem;
             Settings.mInstance.saveToFile();
 
             this.DialogResult = DialogResult.OK;
@@ -104,7 +104,7 @@ namespace PlayEngine.Forms.ChildForms {
 
             Settings.mInstance.ps4.IPAddress = txtBoxIPAddress.Text;
             Settings.mInstance.ps4.IPPort = Convert.ToInt32(txtBoxIPPort.Text);
-            Settings.mInstance.ps4.LastUsedPayload = cmbBoxPayload.SelectedText;
+            Settings.mInstance.ps4.LastUsedPayload = (String)cmbBoxPayload.SelectedItem;
             Settings.mInstance.saveToFile();
 
             this.DialogResult = DialogResult.OK;

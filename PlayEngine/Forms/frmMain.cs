@@ -313,20 +313,19 @@ namespace PlayEngine.Forms {
             ValidateNames = true
          };
          if (openFileDialog.ShowDialog() == DialogResult.OK) {
-            Boolean isOldFormat = openFileDialog.SafeFileName.EndsWith(".cht");
-            if (isOldFormat) {
+            CheatTableFile cheatTable = null;
+            if (openFileDialog.SafeFileName.EndsWith(".cht")) {
                String newFileName = openFileDialog.FileName.Replace(".cht", ".PECheatTable");
-               openFileDialog.FileName = newFileName;
-               // Convert
-               throw new NotImplementedException();
+               cheatTable = CheatTableFile.updateOldFormat(openFileDialog.FileName);
+               cheatTable.saveToFile(newFileName);
+            } else {
+               cheatTable = CheatTableFile.loadFromFile(openFileDialog.FileName);
+               if (cheatTable.playEngineVersion.Major > CheatTableFile.getAssemblyVersion().Major
+                  || cheatTable.playEngineVersion.Minor > CheatTableFile.getAssemblyVersion().Minor) {
+                  MessageBox.Show("Selected cheat table requires a higher version of PlayEngine!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                  return;
+               }
             }
-            var cheatTable = CheatTableFile.loadFromFile(openFileDialog.FileName);
-            if (cheatTable.tableVersion.Major > CheatTableFile.getAssemblyVersion().Major
-               || cheatTable.tableVersion.Minor > CheatTableFile.getAssemblyVersion().Minor) {
-               MessageBox.Show("Selected cheat table requires a higher version of PlayEngine!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-               return;
-            }
-
             foreach (var cheatEntry in cheatTable.cheatEntries) {
                if (cheatEntry.isSimple()) {
                   var simpleCheatEntry = (SimpleCheatEntry)cheatEntry;
@@ -359,7 +358,7 @@ namespace PlayEngine.Forms {
                };
                cheatTable.cheatEntries.Add(simpleCheatEntry);
             }
-            cheatTable.tableVersion = CheatTableFile.getAssemblyVersion();
+            cheatTable.playEngineVersion = CheatTableFile.getAssemblyVersion();
             cheatTable.saveToFile(saveFileDialog.FileName);
          }
       }

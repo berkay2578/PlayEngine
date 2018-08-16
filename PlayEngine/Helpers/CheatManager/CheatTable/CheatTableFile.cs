@@ -37,14 +37,21 @@ namespace PlayEngine.Helpers.CheatManager.CheatTable {
       [XmlIgnore]
       public static XmlSerializer serializer = null;
 
-      [XmlElement("TableVersion")]
-      public Version tableVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+      [XmlElement("PlayEngineVersion")]
+      public Version playEngineVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+      [XmlElement("TargetProcess")]
+      String targetProcess = "eboot.bin";
+      [XmlElement("CusaID")]
+      public String cusaId;
+      [XmlElement("CusaVersion")]
+      public String cusaVersion;
       [XmlArray("CheatEntries")]
       public List<ICheatEntry> cheatEntries = new List<ICheatEntry>();
 
       public static Version getAssemblyVersion() {
          return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
       }
+
       public static CheatTableFile loadFromFile(String cheatTableFilePath) {
          if (serializer == null)
             serializer = new XmlSerializer(typeof(CheatTableFile));
@@ -65,6 +72,39 @@ namespace PlayEngine.Helpers.CheatManager.CheatTable {
          } catch (Exception) {
             return false;
          }
+      }
+
+      public static CheatTableFile updateOldFormat(String oldFormatFilePath) {
+         if (!File.Exists(oldFormatFilePath))
+            throw new FileNotFoundException("Cheat table file is not found!", oldFormatFilePath);
+
+         String[] lines = File.ReadAllLines(oldFormatFilePath, System.Text.Encoding.UTF8);
+         String[] split = lines[0].Split('|');
+         if (split[0] != "1.4")
+            throw new NotSupportedException($"Only PS4Cheater v1.4 cheat files are supported!\r\nThis cheat file is for v{split[0]}");
+         if (split[4] != "FM:505")
+            throw new NotSupportedException($"Only 5.05FW cheat files are supported!\r\nThis cheat file is for {split[4].Replace("FM:", "")}FW");
+
+         CheatTableFile cheatTableFile = new CheatTableFile();
+         cheatTableFile.targetProcess = split[1];
+         cheatTableFile.cusaId = split[2].Replace("ID:", "");
+         cheatTableFile.cusaVersion = split[3].Replace("VER:", "");
+         for (Int32 i = 1; i < lines.Length - 1; i++) {
+            split = lines[i].Split('|');
+            // Int32 sectionIndex = split[1];
+            // UInt32 sectionOffsetHEX = split[2];
+
+            if (lines[0] == "data") {
+               SimpleCheatEntry simpleCheatEntry = new SimpleCheatEntry()
+               {
+                  description = split[6],
+                  address = Convert.ToUInt64(split[7]),
+                  valueType = split[3] == "4 bytes" ? typeof(Int32) : split[3] == "float" ? typeof(Single) : throw new NotImplementedException()
+               };
+               cheatTableFile.cheatEntries.Add(simpleCheatEntry);
+            }
+         }
+         return cheatTableFile;
       }
    }
 }

@@ -694,38 +694,39 @@ namespace PlayEngine.Forms {
          ObservableCollection<Tuple<librpc.MemorySection, Byte[]>> listReadBuffers = new ObservableCollection<Tuple<librpc.MemorySection, Byte[]>>();
          listReadBuffers.CollectionChanged += new NotifyCollectionChangedEventHandler((collection, eventArgs) =>
          {
-            if (eventArgs.Action == NotifyCollectionChangedAction.Add) {
-               foreach (Tuple<librpc.MemorySection, Byte[]> scanTuple in eventArgs.NewItems) {
-                  mainUpdateProgress = 45 + Convert.ToInt32((processedMemoryRange / (Double)totalMemoryRange) * 45);
-                  fnUpdateProgress($"Scanning... {getSizeStr(processedMemoryRange)}/{scanSizeStr} - part {++dummyCounter}/{listScanAddressRange.Count}", mainUpdateProgress);
+            new Thread(() =>
+            {
+               if (eventArgs.Action == NotifyCollectionChangedAction.Add) {
+                  foreach (Tuple<librpc.MemorySection, Byte[]> scanTuple in eventArgs.NewItems) {
+                     mainUpdateProgress = 45 + Convert.ToInt32((processedMemoryRange / (Double)totalMemoryRange) * 45);
+                     fnUpdateProgress($"Scanning... {getSizeStr(processedMemoryRange)}/{scanSizeStr} - part {++dummyCounter}/{listScanAddressRange.Count}", mainUpdateProgress);
 
-                  var results = Memory.scan(scanTuple.Item1.start, scanTuple.Item2, scanValues[0], scanValueType, currentScanCompareType, new dynamic[2] { scanValues[0], scanValues[1] });
-                  foreach (var resultTuple in results) {
-                     ScanResult scanResult = new ScanResult()
-                     {
-                        address = resultTuple.Item1,
-                        memorySection = scanTuple.Item1,
-                        memoryValue = resultTuple.Item2,
-                        previousMemoryValue = resultTuple.Item2,
-                        valueType = scanValueType
-                     };
+                     var results = Memory.scan(scanTuple.Item1.start, scanTuple.Item2, scanValues[0], scanValueType, currentScanCompareType, new dynamic[2] { scanValues[0], scanValues[1] });
+                     foreach (var resultTuple in results) {
+                        ScanResult scanResult = new ScanResult()
+                        {
+                           address = resultTuple.Item1,
+                           memorySection = scanTuple.Item1,
+                           memoryValue = resultTuple.Item2,
+                           previousMemoryValue = resultTuple.Item2,
+                           valueType = scanValueType
+                        };
 
-                     scanResults.Add(scanResult);
+                        scanResults.Add(scanResult);
+                        if (bgWorkerScanner.CancellationPending)
+                           break;
+                     }
+                     processedMemoryRange += (UInt64)scanTuple.Item2.Length;
+                     shouldEscape = (dummyCounter == listScanAddressRange.Count) || bgWorkerScanner.CancellationPending;
                      if (bgWorkerScanner.CancellationPending)
                         break;
                   }
-                  processedMemoryRange += (UInt64)scanTuple.Item2.Length;
-                  shouldEscape = (dummyCounter == listScanAddressRange.Count) || bgWorkerScanner.CancellationPending;
-                  if (bgWorkerScanner.CancellationPending)
-                     break;
                }
-            }
+            }).Start();
          });
-
-         Thread readThread = new Thread(() =>
+         new Thread(() =>
          {
-            foreach (var scanTuple in listScanAddressRange)
-            {
+            foreach (var scanTuple in listScanAddressRange) {
                Byte[] scanSearchBuffer = Memory.ActiveProcess.readByteArray(scanTuple.Item1.start, scanTuple.Item2);
                if (scanSearchBuffer != null)
                   listReadBuffers.Add(new Tuple<librpc.MemorySection, Byte[]>(scanTuple.Item1, scanSearchBuffer));
@@ -733,8 +734,8 @@ namespace PlayEngine.Forms {
                   break;
                Thread.Sleep(10);
             }
-         });
-         readThread.Start();
+         }).Start();
+
          while (!shouldEscape)
             Thread.Sleep(100);
          #endregion

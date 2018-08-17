@@ -33,13 +33,18 @@ namespace PlayEngine.Forms.ChildForms {
       public class ReturnInformation {
          public String description;
          public UInt64 address;
+         public Int32 sectionIndex;
+         public UInt32 sectionOffset;
          public Type valueType;
          public String value;
+         public Boolean isAdvanced;
+         public Boolean isPointer;
       }
       public ReturnInformation returnInformation;
 
       private Boolean isCreatingNewEntry = false;
-      public childFrmEditCheatEntry(String description, UInt64 address, Type valueType, String value, Int32 focusIndex = 0, Boolean isCreatingNewEntry = false) {
+      public childFrmEditCheatEntry(String description, UInt64 address, Int32 sectionIndex, UInt32 sectionOffset, 
+                                    Type valueType, String valueStr, Boolean isCreatingNewEntry = false) {
          this.isCreatingNewEntry = isCreatingNewEntry;
 
          InitializeComponent();
@@ -59,12 +64,10 @@ namespace PlayEngine.Forms.ChildForms {
          } else {
             txtBoxDescription.Text = description;
             txtBoxAddress.Text = $"0x{address.ToString("X")}";
+            txtBoxSectionIndex.Text = sectionIndex.ToString();
+            txtBoxSectionOffset.Text = $"0x{sectionOffset.ToString("X")}";
             cmbBoxValueType.SelectedItem = valueType;
-            txtBoxValue.Text = value;
-
-            foreach (Control cntrl in this.Controls)
-               if (cntrl.TabIndex == focusIndex)
-                  cntrl.Select();
+            txtBoxValue.Text = valueStr;
          }
       }
 
@@ -84,8 +87,12 @@ namespace PlayEngine.Forms.ChildForms {
          {
             description = txtBoxDescription.Text,
             address = UInt64.Parse(txtBoxAddress.Text.Replace("0x", ""), System.Globalization.NumberStyles.HexNumber),
+            sectionIndex = Int32.Parse(txtBoxSectionIndex.Text),
+            sectionOffset = UInt32.Parse(txtBoxSectionOffset.Text.Replace("0x", ""), System.Globalization.NumberStyles.HexNumber),
             valueType = (Type)cmbBoxValueType.SelectedItem,
-            value = txtBoxValue.Text
+            value = txtBoxValue.Text,
+            isAdvanced = chkBoxAdvanced.Checked,
+            isPointer = chkBoxPointer.Checked
          };
          this.DialogResult = DialogResult.OK;
          this.Close();
@@ -104,6 +111,12 @@ namespace PlayEngine.Forms.ChildForms {
             e.SuppressKeyPress = true;
             btnCancel.PerformClick();
          }
+      }
+
+      private void chkBoxAdvanced_CheckedChanged(Object sender, EventArgs e) {
+         Boolean isChecked = (sender as CheckBox).Checked;
+         lblSectionIndex.Visible = txtBoxSectionIndex.Visible = isChecked;
+         lblSectionOffset.Visible = txtBoxSectionOffset.Visible = isChecked;
       }
    }
 }

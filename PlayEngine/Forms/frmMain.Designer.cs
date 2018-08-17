@@ -307,7 +307,7 @@
          this.splitContainerScanner.Panel2.Padding = new System.Windows.Forms.Padding(0, 0, 1, 0);
          this.splitContainerScanner.Panel2MinSize = 100;
          this.splitContainerScanner.Size = new System.Drawing.Size(497, 280);
-         this.splitContainerScanner.SplitterDistance = 232;
+         this.splitContainerScanner.SplitterDistance = 235;
          this.splitContainerScanner.SplitterWidth = 1;
          this.splitContainerScanner.TabIndex = 15;
          // 
@@ -331,7 +331,7 @@
          this.listViewResults.Name = "listViewResults";
          this.listViewResults.ShowGroups = false;
          this.listViewResults.ShowItemToolTips = true;
-         this.listViewResults.Size = new System.Drawing.Size(232, 280);
+         this.listViewResults.Size = new System.Drawing.Size(235, 280);
          this.listViewResults.TabIndex = 0;
          this.listViewResults.TabStop = false;
          this.listViewResults.UseCellFormatEvents = true;
@@ -395,7 +395,7 @@
          this.panelScanControls.Location = new System.Drawing.Point(0, 32);
          this.panelScanControls.Name = "panelScanControls";
          this.panelScanControls.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
-         this.panelScanControls.Size = new System.Drawing.Size(263, 248);
+         this.panelScanControls.Size = new System.Drawing.Size(260, 248);
          this.panelScanControls.TabIndex = 39;
          // 
          // panelSectionSearchOptions
@@ -412,7 +412,7 @@
          this.panelSectionSearchOptions.Dock = System.Windows.Forms.DockStyle.Bottom;
          this.panelSectionSearchOptions.Location = new System.Drawing.Point(0, 118);
          this.panelSectionSearchOptions.Name = "panelSectionSearchOptions";
-         this.panelSectionSearchOptions.Size = new System.Drawing.Size(260, 130);
+         this.panelSectionSearchOptions.Size = new System.Drawing.Size(257, 130);
          this.panelSectionSearchOptions.TabIndex = 58;
          // 
          // numUpDownSectionMaxLength
@@ -432,7 +432,7 @@
             0,
             0});
          this.numUpDownSectionMaxLength.Name = "numUpDownSectionMaxLength";
-         this.numUpDownSectionMaxLength.Size = new System.Drawing.Size(65, 23);
+         this.numUpDownSectionMaxLength.Size = new System.Drawing.Size(62, 23);
          this.numUpDownSectionMaxLength.TabIndex = 64;
          this.numUpDownSectionMaxLength.Value = new decimal(new int[] {
             51200,
@@ -470,7 +470,7 @@
          this.cmbBoxSectionsFilterProtection.Location = new System.Drawing.Point(191, 74);
          this.cmbBoxSectionsFilterProtection.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.cmbBoxSectionsFilterProtection.Name = "cmbBoxSectionsFilterProtection";
-         this.cmbBoxSectionsFilterProtection.Size = new System.Drawing.Size(65, 23);
+         this.cmbBoxSectionsFilterProtection.Size = new System.Drawing.Size(62, 23);
          this.cmbBoxSectionsFilterProtection.TabIndex = 61;
          // 
          // label3
@@ -490,7 +490,7 @@
          this.txtBoxSectionsFilterExclude.Location = new System.Drawing.Point(152, 49);
          this.txtBoxSectionsFilterExclude.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.txtBoxSectionsFilterExclude.Name = "txtBoxSectionsFilterExclude";
-         this.txtBoxSectionsFilterExclude.Size = new System.Drawing.Size(104, 23);
+         this.txtBoxSectionsFilterExclude.Size = new System.Drawing.Size(101, 23);
          this.txtBoxSectionsFilterExclude.TabIndex = 57;
          this.txtBoxSectionsFilterExclude.Text = "Sce";
          // 
@@ -511,7 +511,7 @@
          this.txtBoxSectionsFilterInclude.Location = new System.Drawing.Point(152, 24);
          this.txtBoxSectionsFilterInclude.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.txtBoxSectionsFilterInclude.Name = "txtBoxSectionsFilterInclude";
-         this.txtBoxSectionsFilterInclude.Size = new System.Drawing.Size(104, 23);
+         this.txtBoxSectionsFilterInclude.Size = new System.Drawing.Size(101, 23);
          this.txtBoxSectionsFilterInclude.TabIndex = 56;
          // 
          // label2
@@ -550,7 +550,7 @@
          this.txtBoxScanSecondValue.Location = new System.Drawing.Point(72, 35);
          this.txtBoxScanSecondValue.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.txtBoxScanSecondValue.Name = "txtBoxScanSecondValue";
-         this.txtBoxScanSecondValue.Size = new System.Drawing.Size(185, 23);
+         this.txtBoxScanSecondValue.Size = new System.Drawing.Size(182, 23);
          this.txtBoxScanSecondValue.TabIndex = 46;
          this.txtBoxScanSecondValue.Text = "0";
          this.txtBoxScanSecondValue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
@@ -565,7 +565,7 @@
          this.cmbBoxScanCompareType.Location = new System.Drawing.Point(72, 60);
          this.cmbBoxScanCompareType.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.cmbBoxScanCompareType.Name = "cmbBoxScanCompareType";
-         this.cmbBoxScanCompareType.Size = new System.Drawing.Size(185, 23);
+         this.cmbBoxScanCompareType.Size = new System.Drawing.Size(182, 23);
          this.cmbBoxScanCompareType.TabIndex = 47;
          this.cmbBoxScanCompareType.SelectedIndexChanged += new System.EventHandler(this.cmbBoxScanCompareType_SelectedIndexChanged);
          // 
@@ -580,7 +580,7 @@
          this.cmbBoxScanValueType.Location = new System.Drawing.Point(72, 85);
          this.cmbBoxScanValueType.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.cmbBoxScanValueType.Name = "cmbBoxScanValueType";
-         this.cmbBoxScanValueType.Size = new System.Drawing.Size(185, 23);
+         this.cmbBoxScanValueType.Size = new System.Drawing.Size(182, 23);
          this.cmbBoxScanValueType.TabIndex = 48;
          this.cmbBoxScanValueType.SelectedIndexChanged += new System.EventHandler(this.cmbBoxScanValueType_SelectedIndexChanged);
          // 
@@ -592,7 +592,7 @@
          this.txtBoxScanValue.Location = new System.Drawing.Point(72, 10);
          this.txtBoxScanValue.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.txtBoxScanValue.Name = "txtBoxScanValue";
-         this.txtBoxScanValue.Size = new System.Drawing.Size(185, 23);
+         this.txtBoxScanValue.Size = new System.Drawing.Size(182, 23);
          this.txtBoxScanValue.TabIndex = 45;
          this.txtBoxScanValue.Text = "0";
          this.txtBoxScanValue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
@@ -634,6 +634,7 @@
          this.listViewSavedResults.AllColumns.Add(this.columnHeaderCheatValueType);
          this.listViewSavedResults.AllColumns.Add(this.columnHeaderCheatValue);
          this.listViewSavedResults.CellEditActivation = BrightIdeasSoftware.ObjectListView.CellEditActivateMode.DoubleClick;
+         this.listViewSavedResults.CellEditUseWholeCell = false;
          this.listViewSavedResults.CheckBoxes = true;
          this.listViewSavedResults.CheckedAspectName = "isFrozen";
          this.listViewSavedResults.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {

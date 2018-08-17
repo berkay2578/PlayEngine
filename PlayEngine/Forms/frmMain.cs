@@ -435,12 +435,18 @@ namespace PlayEngine.Forms {
       #endregion
       #region uiStatusStrip_linkSavedResults
       private void btnAddEntry_OnClick() {
-         var frmEditInstance = new ChildForms.childFrmEditCheatEntry("No description", 0, null, String.Empty, 0, true);
+         var frmEditInstance = new ChildForms.childFrmEditCheatEntry("No description", 0, 0, 0, null, String.Empty, true);
          if (frmEditInstance.ShowDialog() == DialogResult.OK) {
             var returnInformation = frmEditInstance.returnInformation;
-            var runtimeValue = Memory.ActiveProcess.read(returnInformation.address, returnInformation.valueType);
-
-            saveResult(returnInformation.description, null, 0, returnInformation.valueType, runtimeValue, returnInformation.address);
+            if (returnInformation.isAdvanced) {
+               var memorySection = Memory.ActiveProcess.info.listProcessMemorySections[returnInformation.sectionIndex];
+               var runtimeAddress = memorySection.start + returnInformation.sectionOffset;
+               var runtimeValue = Memory.ActiveProcess.read(runtimeAddress, returnInformation.valueType);
+               saveResult(returnInformation.description, memorySection, returnInformation.sectionOffset, returnInformation.valueType, runtimeValue, returnInformation.address);
+            } else {
+               var runtimeValue = Memory.ActiveProcess.read(returnInformation.address, returnInformation.valueType);
+               saveResult(returnInformation.description, null, 0, returnInformation.valueType, runtimeValue, returnInformation.address);
+            }
          }
       }
       #endregion
@@ -656,12 +662,12 @@ namespace PlayEngine.Forms {
          var listScanAddressRange = new List<Tuple<librpc.MemorySection, Int32>>();
          Int32 lastAddedSectionIndex = -1;
          Action<librpc.MemorySection, Int32> fnAddSection = (librpc.MemorySection memorySection, Int32 length) =>
-            {
-               if (length > 0) {
-                  listScanAddressRange.Add(new Tuple<librpc.MemorySection, Int32>(memorySection, length));
-                  lastAddedSectionIndex++;
-               }
-            };
+         {
+            if (length > 0) {
+               listScanAddressRange.Add(new Tuple<librpc.MemorySection, Int32>(memorySection, length));
+               lastAddedSectionIndex++;
+            }
+         };
 
          Int32 dummyCounter = 0;
          foreach (var section in listFilteredProcessMemorySections) {

@@ -26,6 +26,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Xml.Serialization;
 using PlayEngine.Helpers.CheatManager.CheatTable.Objects;
@@ -91,17 +92,15 @@ namespace PlayEngine.Helpers.CheatManager.CheatTable {
          cheatTableFile.cusaVersion = split[3].Replace("VER:", "");
          for (Int32 i = 1; i < lines.Length - 1; i++) {
             split = lines[i].Split('|');
-            // Int32 sectionIndex = split[1];
-            // UInt32 sectionOffsetHEX = split[2];
-
             if (lines[0] == "data") {
-               SimpleCheatEntry simpleCheatEntry = new SimpleCheatEntry()
+               ComplexCheatEntry complexCheatEntry = new ComplexCheatEntry()
                {
                   description = split[6],
-                  address = Convert.ToUInt64(split[7]),
+                  sectionIndex = Convert.ToInt32(split[1]),
+                  sectionOffset = Convert.ToUInt32(split[2], 16),
                   valueType = split[3] == "4 bytes" ? typeof(Int32) : split[3] == "float" ? typeof(Single) : throw new NotImplementedException()
                };
-               cheatTableFile.cheatEntries.Add(simpleCheatEntry);
+               cheatTableFile.cheatEntries.Add(complexCheatEntry);
             }
          }
          return cheatTableFile;

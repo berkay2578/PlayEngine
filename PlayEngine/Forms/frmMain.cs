@@ -26,12 +26,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Net.Sockets;
+using System.Threading;
 using System.Windows.Forms;
 
 using PlayEngine.Helpers;
@@ -52,26 +54,32 @@ namespace PlayEngine.Forms {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
          }
 
-         private UInt64 _address;
-         private Type _valueType;
-         private dynamic _memoryValue;
-         private dynamic _previousMemoryValue;
+         public librpc.MemorySection memorySection;
+         public UInt32 sectionOffset
+         {
+            get { return (UInt32)(_address - memorySection.start); }
+         }
 
+         private UInt64 _address;
          public UInt64 address
          {
             get { return _address; }
             set { setField(ref _address, value, "address"); }
          }
+
+         private Type _valueType;
          public Type valueType
          {
             get { return _valueType; }
             set { setField(ref _valueType, value, "valueType"); }
          }
+         private dynamic _memoryValue;
          public dynamic memoryValue
          {
             get { return _memoryValue; }
             set { setField(ref _memoryValue, value, "memoryValue"); }
          }
+         private dynamic _previousMemoryValue;
          public dynamic previousMemoryValue
          {
             get { return _previousMemoryValue; }
@@ -96,13 +104,6 @@ namespace PlayEngine.Forms {
          public String strSectionNameExclusionFilter;
          public librpc.VM_PROT sectionPageProtectionFilter;
          public Int32 sectionMaxLengthFilter;
-      }
-      public static class SavedResultsColumnIndex {
-         public static readonly Int32 iFreeze = 0;
-         public static readonly Int32 iDescription = 1;
-         public static readonly Int32 iAddress = 2;
-         public static readonly Int32 iValueType = 3;
-         public static readonly Int32 iValue = 4;
       }
 
       private void setControlEnabled(Control[] arrControls, Boolean isEnabled) {
@@ -181,8 +182,7 @@ namespace PlayEngine.Forms {
          }
       }
 
-      private librpc.ProcessInfo processInfo = null;
-      private List<librpc.MemorySection> listProcessMemorySections = new List<librpc.MemorySection>();
+      private List<librpc.MemorySection> listFilteredProcessMemorySections = new List<librpc.MemorySection>();
       private List<ScanResult> listPreviousScanResults = new List<ScanResult>();
       private List<ScanResult> listScanResults = new List<ScanResult>();
 
@@ -228,15 +228,16 @@ namespace PlayEngine.Forms {
       }
 
       #region Functions
-      public void saveResult(String description, UInt64 address, dynamic value, Type valueType) {
-         DataGridViewRow row = dataGridSavedResults.Rows[dataGridSavedResults.Rows.Add()];
-         row.Cells[SavedResultsColumnIndex.iDescription].Value = description;
-         row.Cells[SavedResultsColumnIndex.iAddress].Value = address;
-         row.Cells[SavedResultsColumnIndex.iValueType].Value = valueType;
-         row.Cells[SavedResultsColumnIndex.iValue].Value = value;
-
-         CheatInformation cheatInformation = new CheatInformation();
-         row.Tag = cheatInformation;
+      public void saveResult(String _description, librpc.MemorySection _memorySection, UInt32 sectionOffset, Type _valueType, dynamic _value, UInt64 _address = 0) {
+         listViewSavedResults.AddObject(new CheatInformation()
+         {
+            address = _address,
+            description = _description,
+            memorySection = _memorySection,
+            sectionOffset = sectionOffset,
+            valueType = _valueType,
+            value = _value
+         });
       }
       #endregion
 
@@ -307,7 +308,7 @@ namespace PlayEngine.Forms {
             AddExtension = false,
             CheckFileExists = true,
             CheckPathExists = true,
-            FileName = Memory.ActiveProcess.getVersionStr(),
+            FileName = Memory.CUSAInfo.getVersionStr(),
             DefaultExt = "PECheatTable",
             Filter = "PlayEngine cheat tables|*.PECheatTable|PS4Cheater cheat tables|*.cht",
             FilterIndex = 0,
@@ -343,20 +344,23 @@ namespace PlayEngine.Forms {
             uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedItem = cheatTable.targetProcess;
 
             if (cheatTable.targetProcess == "eboot.bin") {
-               string _Id =  Memory.ActiveProcess.getId();
-               string _Ver = Memory.ActiveProcess.getVersionStr();
+               String _Id =  Memory.CUSAInfo.getId();
+               String _Ver = Memory.CUSAInfo.getVersionStr();
                if (_Id != cheatTable.cusaId)
-                  MessageBox.Show("CUSA ids do not match, loading anyway...", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                  MessageBox.Show("CUSA ids do not match, loading anyway...\r\n" +
+                     $"Active CUSA id: {_Id}/Cheat table CUSA id: {cheatTable.cusaId}", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                if (_Ver != cheatTable.cusaVersion)
-                  MessageBox.Show("CUSA versions do not match, loading anyway..." +
-                     $"\r\nActive CUSA Version: v{_Ver}/File CUSA Version: v{cheatTable.cusaVersion}.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                  MessageBox.Show("CUSA versions do not match, loading anyway...\r\n" +
+                     $"Active CUSA version: v{_Ver}/Cheat table CUSA version: v{cheatTable.cusaVersion}.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
-            foreach (var cheatEntry in cheatTable.cheatEntries) {
+            foreach (ICheatEntry cheatEntry in cheatTable.cheatEntries) {
                if (cheatEntry.isSimple()) {
-                  var simpleCheatEntry = (SimpleCheatEntry)cheatEntry;
-                  saveResult(simpleCheatEntry.description, simpleCheatEntry.address, null, simpleCheatEntry.valueType);
+                  var _cheatEntry = (SimpleCheatEntry)cheatEntry;
+                  saveResult(_cheatEntry.description, null, 0, _cheatEntry.valueType, null, _cheatEntry.address);
                } else {
-                  throw new NotImplementedException();
+                  var _cheatEntry = (ComplexCheatEntry)cheatEntry;
+                  var memorySection = Memory.ActiveProcess.info.listProcessMemorySections.First(s => s.index == _cheatEntry.sectionIndex);
+                  saveResult(_cheatEntry.description, memorySection, _cheatEntry.sectionOffset, _cheatEntry.valueType, null);
                }
             }
          }
@@ -374,19 +378,30 @@ namespace PlayEngine.Forms {
          };
          if (saveFileDialog.ShowDialog() == DialogResult.OK) {
             var cheatTable = new CheatTableFile();
-            foreach (DataGridViewRow row in dataGridSavedResults.Rows) {
-               SimpleCheatEntry simpleCheatEntry = new SimpleCheatEntry()
-               {
-                  description = (String)row.Cells[SavedResultsColumnIndex.iDescription].Value,
-                  address = (UInt64)row.Cells[SavedResultsColumnIndex.iAddress].Value,
-                  valueType = (Type)row.Cells[SavedResultsColumnIndex.iValueType].Value
-               };
-               cheatTable.cheatEntries.Add(simpleCheatEntry);
+            foreach (CheatInformation cheatInformation in listViewSavedResults.Objects) {
+               if (cheatInformation.memorySection == null) { // simple
+                  SimpleCheatEntry simpleCheatEntry = new SimpleCheatEntry()
+                  {
+                     description = cheatInformation.description,
+                     address = cheatInformation.address,
+                     valueType = cheatInformation.valueType
+                  };
+                  cheatTable.cheatEntries.Add(simpleCheatEntry);
+               } else {
+                  ComplexCheatEntry complexCheatEntry = new ComplexCheatEntry()
+                  {
+                     description = cheatInformation.description,
+                     sectionIndex = cheatInformation.memorySection.index,
+                     sectionOffset = cheatInformation.sectionOffset,
+                     valueType = cheatInformation.valueType
+                  };
+                  cheatTable.cheatEntries.Add(complexCheatEntry);
+               }
             }
             cheatTable.playEngineVersion = CheatTableFile.getAssemblyVersion();
             cheatTable.targetProcess = (String)uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedItem;
-            cheatTable.cusaId = Memory.ActiveProcess.getId();
-            cheatTable.cusaVersion = Memory.ActiveProcess.getVersionStr();
+            cheatTable.cusaId = Memory.CUSAInfo.getId();
+            cheatTable.cusaVersion = Memory.CUSAInfo.getVersionStr();
             cheatTable.saveToFile(saveFileDialog.FileName);
          }
       }
@@ -411,36 +426,26 @@ namespace PlayEngine.Forms {
                   uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedItem = "eboot.bin";
             }
 
-            // ignore rpcproc
-            if (uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedIndex < 1)
-               uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedIndex = 1;
+            if (uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedIndex < 0)
+               uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedIndex = 1; // ignore rpcproc
          } catch (Exception ex) {
             MessageBox.Show(ex.ToString(), "Error during getting process list", MessageBoxButtons.OK, MessageBoxIcon.Error);
          }
       }
       #endregion
       #region uiStatusStrip_linkSavedResults
-      private void btnAddAddress_OnClick() {
+      private void btnAddEntry_OnClick() {
          var frmEditInstance = new ChildForms.childFrmEditCheatEntry("No description", 0, null, String.Empty, 0, true);
          if (frmEditInstance.ShowDialog() == DialogResult.OK) {
             var returnInformation = frmEditInstance.returnInformation;
-            var runtimeValue = Memory.read(processInfo.id, returnInformation.address, returnInformation.valueType);
+            var runtimeValue = Memory.ActiveProcess.read(returnInformation.address, returnInformation.valueType);
 
-            DataGridViewRow row = dataGridSavedResults.Rows[dataGridSavedResults.Rows.Add()];
-            row.Cells[SavedResultsColumnIndex.iDescription].Value = returnInformation.description;
-            row.Cells[SavedResultsColumnIndex.iAddress].Value = returnInformation.address;
-            row.Cells[SavedResultsColumnIndex.iValueType].Value = returnInformation.valueType;
-            row.Cells[SavedResultsColumnIndex.iValue].Value = runtimeValue;
-
-            CheatInformation cheatInformation = new CheatInformation();
-            // TODO: Calculate
-            //cheatInformation.sectionAddressOffset = returnInformation.sectionAddressOffset;
-            row.Tag = cheatInformation;
+            saveResult(returnInformation.description, null, 0, returnInformation.valueType, runtimeValue, returnInformation.address);
          }
       }
       #endregion
       private void uiButtonHandler_Click(Object sender, EventArgs e) {
-         String btnName = sender.GetType() == typeof(Button) ? (sender as Button).Name : (sender as ToolStripMenuItem).Name;
+         String btnName = sender.GetType() == typeof(Button) ? (sender as Button).Name : (sender as ToolStripItem).Name;
          switch (btnName) {
             case "btnScan":
                btnScan_OnClick();
@@ -470,11 +475,9 @@ namespace PlayEngine.Forms {
                btnRefreshProcessList_OnClick();
                break;
             #endregion
-            #region uiStatusStrip_linkSavedResuls
-            case "uiStatusStrip_SavedResults_btnAddAddress":
-               btnAddAddress_OnClick();
+            case "uiStatusStrip_btnAddEntry":
+               btnAddEntry_OnClick();
                break;
-               #endregion
          }
       }
       #endregion
@@ -498,7 +501,7 @@ namespace PlayEngine.Forms {
 
       private void uiToolStrip_PayloadManager_chkPayloadActive_CheckedChanged(Object sender, EventArgs e) {
          Boolean isLoaded = uiToolStrip_PayloadManager_chkPayloadActive.Checked;
-         splitContainerMain.Enabled = uiToolStrip_linkProcessManager.Enabled = uiStatusStrip_linkSavedResults.Enabled = isLoaded;
+         splitContainerMain.Enabled = uiToolStrip_linkProcessManager.Enabled = uiStatusStrip_btnAddEntry.Enabled = isLoaded;
       }
       private void uiToolStrip_ProcessManager_cmbBoxActiveProcess_SelectedIndexChanged(Object sender, EventArgs e) {
          try {
@@ -510,10 +513,10 @@ namespace PlayEngine.Forms {
 
             String selectedProcessName = (String)uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedItem;
             currentScanStatus = Memory.ScanStatus.CanScan;
-            processInfo = Memory.getProcessInfoFromName(selectedProcessName);
+            Memory.ActiveProcess.setActiveProcess(Memory.getProcessInfoFromName(selectedProcessName));
 
             if (selectedProcessName == "eboot.bin")
-               lblProcessInfo.Text = $"{Memory.ActiveProcess.getId()} ({Memory.ActiveProcess.getVersionStr()})";
+               lblProcessInfo.Text = $"{Memory.CUSAInfo.getId()} ({Memory.CUSAInfo.getVersionStr()})";
             uiToolStrip_lblActiveProcess.Text = $"Process: {selectedProcessName}";
             //uiToolStrip_btnOpenPointerScanner.Enabled = true;
          } catch (Exception exception) {
@@ -523,92 +526,18 @@ namespace PlayEngine.Forms {
 
       private void listViewResults_FormatCell(Object sender, BrightIdeasSoftware.FormatCellEventArgs e) {
          ScanResult scanResult = (ScanResult)e.Model;
-         if (scanResult.previousMemoryValue != scanResult.memoryValue)
+         if (scanResult.previousMemoryValue != scanResult.memoryValue) {
             e.SubItem.ForeColor = Color.Red;
+            e.Item.SelectedForeColor = Color.Red;
+         }
       }
       private void listViewResults_SaveSelectedEntries() {
          foreach (ScanResult scanResult in listViewResults.SelectedObjects) {
-            saveResult("No description", scanResult.address, scanResult.memoryValue, scanResult.valueType);
+            saveResult("No description", scanResult.memorySection, scanResult.sectionOffset, scanResult.valueType, scanResult.memoryValue, scanResult.address);
          }
       }
       private void listViewResults_DoubleClick(Object sender, EventArgs e) {
          listViewResults_SaveSelectedEntries();
-      }
-
-      private void dataGridSavedResults_CellContentClick(Object sender, DataGridViewCellEventArgs e) {
-         if (e.RowIndex < 0 || e.ColumnIndex != SavedResultsColumnIndex.iFreeze)
-            return;
-         dataGridSavedResults.CommitEdit(DataGridViewDataErrorContexts.Commit);
-
-         var currentRow = dataGridSavedResults.Rows[e.RowIndex];
-         Boolean isChecked = (Boolean)currentRow.Cells[SavedResultsColumnIndex.iFreeze].Value;
-         ((CheatInformation)currentRow.Tag).isValueFrozen = isChecked;
-      }
-      private void dataGridSavedResults_CellDoubleClick(Object sender, DataGridViewCellEventArgs e) {
-         if (e.RowIndex < 0)
-            return;
-         var cells = dataGridSavedResults.Rows[e.RowIndex].Cells;
-         var cheatInformation = (CheatInformation)dataGridSavedResults.Rows[e.RowIndex].Tag;
-         var frmEditInstance = new ChildForms.childFrmEditCheatEntry(
-            (String)cells[SavedResultsColumnIndex.iDescription].Value,
-            (UInt64)cells[SavedResultsColumnIndex.iAddress].Value,
-            (Type)cells[SavedResultsColumnIndex.iValueType].Value,
-            cells[SavedResultsColumnIndex.iValue].Value.ToString(),
-            e.ColumnIndex
-         );
-         if (frmEditInstance.ShowDialog() == DialogResult.OK) {
-            var returnInformation = frmEditInstance.returnInformation;
-            dynamic newValue = Convert.ChangeType(returnInformation.value, returnInformation.valueType);
-            if (returnInformation.address == (UInt64)cells[SavedResultsColumnIndex.iAddress].Value)
-               try {
-                  Memory.write(
-                     processInfo.id,
-                     returnInformation.address,
-                     newValue,
-                     returnInformation.valueType
-                  );
-               } catch (OverflowException) {
-                  switch (Type.GetTypeCode(returnInformation.valueType)) {
-                     case TypeCode.SByte:
-                        returnInformation.valueType = typeof(Byte);
-                        break;
-                     case TypeCode.Byte:
-                        returnInformation.valueType = typeof(SByte);
-                        break;
-                     case TypeCode.Int16:
-                        returnInformation.valueType = typeof(UInt16);
-                        break;
-                     case TypeCode.UInt16:
-                        returnInformation.valueType = typeof(Int16);
-                        break;
-                     case TypeCode.Int32:
-                        returnInformation.valueType = typeof(UInt32);
-                        break;
-                     case TypeCode.UInt32:
-                        returnInformation.valueType = typeof(Int32);
-                        break;
-                     case TypeCode.Int64:
-                        returnInformation.valueType = typeof(UInt64);
-                        break;
-                     case TypeCode.UInt64:
-                        returnInformation.valueType = typeof(Int64);
-                        break;
-                  }
-                  Memory.write(
-                     processInfo.id,
-                     returnInformation.address,
-                     newValue,
-                     returnInformation.valueType
-                  );
-               }
-
-            cells[SavedResultsColumnIndex.iDescription].Value = returnInformation.description;
-            cells[SavedResultsColumnIndex.iAddress].Value = returnInformation.address;
-            cells[SavedResultsColumnIndex.iValueType].Value = returnInformation.valueType;
-            cells[SavedResultsColumnIndex.iValue].Value = newValue;
-            // TODO: Calculate
-            //cheatInformation.sectionAddressOffset = returnInformation.sectionAddressOffset;
-         }
       }
 
       #region OnKeyDown
@@ -710,110 +639,72 @@ namespace PlayEngine.Forms {
          mainUpdateProgress += 3;
          #endregion
          #region Scan values
-         #region First scan
          List<ScanResult> scanResults = new List<ScanResult>();
-         if (oldScanStatus == Memory.ScanStatus.CanScan) {
-            #region Find sections
-            listProcessMemorySections.Clear();
-            listProcessMemorySections = Memory.Sections.getMemorySections(processInfo, scanOptions.sectionPageProtectionFilter);
-            if (!String.IsNullOrWhiteSpace(scanOptions.strSectionNameInclusionFilter))
-               listProcessMemorySections.RemoveAll(section => !section.name.ContainsEx(scanOptions.strSectionNameInclusionFilter));
-            if (!String.IsNullOrWhiteSpace(scanOptions.strSectionNameExclusionFilter))
-               listProcessMemorySections.RemoveAll(section => section.name.ContainsEx(scanOptions.strSectionNameExclusionFilter));
-            listProcessMemorySections.RemoveAll(section => section.length > scanOptions.sectionMaxLengthFilter);
-            #endregion
-            #region Find address range of the scan
-            UInt64 processedMemoryRange = 0, totalMemoryRange = 0;
-            String scanSizeStr = getSizeStr(0);
+         #region Find sections
+         listFilteredProcessMemorySections.Clear();
+         listFilteredProcessMemorySections = Memory.Sections.getMemorySections(Memory.ActiveProcess.info, scanOptions.sectionPageProtectionFilter);
+         if (!String.IsNullOrWhiteSpace(scanOptions.strSectionNameInclusionFilter))
+            listFilteredProcessMemorySections.RemoveAll(section => !section.name.ContainsEx(scanOptions.strSectionNameInclusionFilter));
+         if (!String.IsNullOrWhiteSpace(scanOptions.strSectionNameExclusionFilter))
+            listFilteredProcessMemorySections.RemoveAll(section => section.name.ContainsEx(scanOptions.strSectionNameExclusionFilter));
+         listFilteredProcessMemorySections.RemoveAll(section => section.length > scanOptions.sectionMaxLengthFilter);
+         #endregion
+         #region Find address range of the scan
+         UInt64 processedMemoryRange = 0, totalMemoryRange = 0;
+         String scanSizeStr = getSizeStr(0);
 
-            var listScanAddressRange = new List<Tuple<UInt64, Int32>>();
-            Int32 lastAddedSectionIndex = -1;
-            Action<UInt64, Int32> fnAddSection = (UInt64 start, Int32 length) =>
+         var listScanAddressRange = new List<Tuple<librpc.MemorySection, Int32>>();
+         Int32 lastAddedSectionIndex = -1;
+         Action<librpc.MemorySection, Int32> fnAddSection = (librpc.MemorySection memorySection, Int32 length) =>
             {
                if (length > 0) {
-                  listScanAddressRange.Add(new Tuple<UInt64, Int32>(start, length));
+                  listScanAddressRange.Add(new Tuple<librpc.MemorySection, Int32>(memorySection, length));
                   lastAddedSectionIndex++;
                }
             };
 
-            Int32 dummyCounter = 0;
-            foreach (var section in listProcessMemorySections) {
-               var lastAddedSection = listScanAddressRange.LastOrDefault();
-               if (lastAddedSection == null) {
-                  fnAddSection(section.start, section.length);
+         Int32 dummyCounter = 0;
+         foreach (var section in listFilteredProcessMemorySections) {
+            var lastAddedSection = listScanAddressRange.LastOrDefault();
+            if (lastAddedSection == null) {
+               fnAddSection(section, section.length);
+            } else {
+               var lastAddedSectionEnd = lastAddedSection.Item1.start + (UInt64)lastAddedSection.Item2;
+               if (lastAddedSectionEnd == section.start) {
+                  if (lastAddedSection.Item2 < 100 * 1024)
+                     listScanAddressRange[lastAddedSectionIndex] = new Tuple<librpc.MemorySection, Int32>(lastAddedSection.Item1, lastAddedSection.Item2 + section.length);
+                  else
+                     fnAddSection(section, section.length);
                } else {
-                  var lastAddedSectionEnd = lastAddedSection.Item1 + (UInt64)lastAddedSection.Item2;
-                  if (lastAddedSectionEnd == section.start) {
-                     if (lastAddedSection.Item2 < 100 * 1024)
-                        listScanAddressRange[lastAddedSectionIndex] = new Tuple<UInt64, Int32>(lastAddedSection.Item1, lastAddedSection.Item2 + section.length);
-                     else
-                        fnAddSection(section.start, section.length);
-                  } else {
-                     fnAddSection(section.start, section.length);
-                  }
+                  fnAddSection(section, section.length);
                }
-               totalMemoryRange += (UInt64)section.length;
-               scanSizeStr = getSizeStr(totalMemoryRange);
-
-               subUpdateProgress = Convert.ToInt32((++dummyCounter / (Double)listProcessMemorySections.Count) * 100);
-               mainUpdateProgress = Convert.ToInt32(subUpdateProgress * 0.45f);
-               fnUpdateProgress($"Finding scan address range... %{subUpdateProgress}", mainUpdateProgress);
             }
-            #endregion
-            #region Scan
-            dummyCounter = 0;
-            foreach (var scanTuple in listScanAddressRange) {
-               mainUpdateProgress = 45 + Convert.ToInt32((processedMemoryRange / (Double)totalMemoryRange) * 45);
-               fnUpdateProgress($"Scanning... {getSizeStr(processedMemoryRange)}/{scanSizeStr} - part {++dummyCounter}/{listScanAddressRange.Count}", mainUpdateProgress);
+            totalMemoryRange += (UInt64)section.length;
+            scanSizeStr = getSizeStr(totalMemoryRange);
 
-               var scanSearchBuffer = Memory.readByteArray(processInfo.id, scanTuple.Item1, scanTuple.Item2);
-               if (scanSearchBuffer != null) {
-                  var results = Memory.scan(scanTuple.Item1, scanSearchBuffer, scanValues[0], scanValueType, currentScanCompareType, new dynamic[2] { scanValues[0], scanValues[1] });
-                  foreach (var resultTuple in results) {
-                     ScanResult scanResult = new ScanResult()
-                     {
-                        address = resultTuple.Item1,
-                        memoryValue = resultTuple.Item2,
-                        previousMemoryValue = resultTuple.Item2,
-                        valueType = scanValueType
-                     };
-
-                     scanResults.Add(scanResult);
-                     if (bgWorkerScanner.CancellationPending)
-                        break;
-                  }
-               }
-               processedMemoryRange += (UInt64)scanTuple.Item2;
-               if (bgWorkerScanner.CancellationPending)
-                  break;
-
-               System.Threading.Thread.Sleep(10);
-            }
-            #endregion
+            subUpdateProgress = Convert.ToInt32((++dummyCounter / (Double)listFilteredProcessMemorySections.Count) * 100);
+            mainUpdateProgress = Convert.ToInt32(subUpdateProgress * 0.45f);
+            fnUpdateProgress($"Finding scan address range... %{subUpdateProgress}", mainUpdateProgress);
          }
          #endregion
-         #region Next scan
-         else if (oldScanStatus == Memory.ScanStatus.DidScan) {
-            #region Find address range of the scan
-            UInt64 addressBeginScan = listPreviousScanResults.First().address;
-            UInt64 addressFinishScan = listPreviousScanResults.Last().address;
-            UInt64 processedMemoryRange = 0, totalMemoryRange = addressFinishScan - addressBeginScan;
-            String scanSizeStr = getSizeStr(totalMemoryRange);
-            mainUpdateProgress = 10;
-            #endregion
-            #region Scan
-            UInt64 tempBufferLength = 8 * 1024; // 8 KB
-            for (UInt64 currentAddress = addressBeginScan; currentAddress < addressFinishScan; currentAddress += tempBufferLength) {
-               mainUpdateProgress = 10 + Convert.ToInt32((processedMemoryRange / (Double)totalMemoryRange) * 80);
-               fnUpdateProgress($"Scanning... {getSizeStr(processedMemoryRange)}/{scanSizeStr}", mainUpdateProgress);
+         #region Scan
+         dummyCounter = 0;
+         Boolean shouldEscape = false;
 
-               var scanSearchBuffer = Memory.readByteArray(processInfo.id, currentAddress, (Int32)tempBufferLength);
-               if (scanSearchBuffer != null) {
-                  var results = Memory.scan(currentAddress, scanSearchBuffer, scanValues[0], scanValueType, currentScanCompareType, new dynamic[2] { scanValues[0], scanValues[1] });
+         ObservableCollection<Tuple<librpc.MemorySection, Byte[]>> listReadBuffers = new ObservableCollection<Tuple<librpc.MemorySection, Byte[]>>();
+         listReadBuffers.CollectionChanged += new NotifyCollectionChangedEventHandler((collection, eventArgs) =>
+         {
+            if (eventArgs.Action == NotifyCollectionChangedAction.Add) {
+               foreach (Tuple<librpc.MemorySection, Byte[]> scanTuple in eventArgs.NewItems) {
+                  mainUpdateProgress = 45 + Convert.ToInt32((processedMemoryRange / (Double)totalMemoryRange) * 45);
+                  fnUpdateProgress($"Scanning... {getSizeStr(processedMemoryRange)}/{scanSizeStr} - part {++dummyCounter}/{listScanAddressRange.Count}", mainUpdateProgress);
+
+                  var results = Memory.scan(scanTuple.Item1.start, scanTuple.Item2, scanValues[0], scanValueType, currentScanCompareType, new dynamic[2] { scanValues[0], scanValues[1] });
                   foreach (var resultTuple in results) {
                      ScanResult scanResult = new ScanResult()
                      {
                         address = resultTuple.Item1,
+                        memorySection = scanTuple.Item1,
                         memoryValue = resultTuple.Item2,
                         previousMemoryValue = resultTuple.Item2,
                         valueType = scanValueType
@@ -823,18 +714,34 @@ namespace PlayEngine.Forms {
                      if (bgWorkerScanner.CancellationPending)
                         break;
                   }
+                  processedMemoryRange += (UInt64)scanTuple.Item2.Length;
+                  shouldEscape = (dummyCounter == listScanAddressRange.Count) || bgWorkerScanner.CancellationPending;
+                  if (bgWorkerScanner.CancellationPending)
+                     break;
                }
-               processedMemoryRange += tempBufferLength;
-               if (bgWorkerScanner.CancellationPending)
-                  break;
-
-               System.Threading.Thread.Sleep(10);
             }
-            #endregion
-            #region Filter
+         });
+
+         Thread readThread = new Thread(() =>
+         {
+            foreach (var scanTuple in listScanAddressRange)
+            {
+               Byte[] scanSearchBuffer = Memory.ActiveProcess.readByteArray(scanTuple.Item1.start, scanTuple.Item2);
+               if (scanSearchBuffer != null)
+                  listReadBuffers.Add(new Tuple<librpc.MemorySection, Byte[]>(scanTuple.Item1, scanSearchBuffer));
+               if (bgWorkerScanner.CancellationPending || shouldEscape)
+                  break;
+               Thread.Sleep(10);
+            }
+         });
+         readThread.Start();
+         while (!shouldEscape)
+            Thread.Sleep(100);
+         #endregion
+         #region Filter if next scan
+         if (oldScanStatus == Memory.ScanStatus.DidScan) {
             fnUpdateProgress("Filtering values...", mainUpdateProgress);
             scanResults = scanResults.Intersect(listPreviousScanResults).ToList();
-            #endregion
          }
          #endregion
          #endregion
@@ -870,38 +777,28 @@ namespace PlayEngine.Forms {
                e.Cancel = true;
                break;
             }
-            // Scan results
-            if (currentScanStatus != Memory.ScanStatus.Scanning) {
-               listViewResults.Invoke(new Action(() =>
-               {
-                  for (Int32 i = listViewResults.TopItemIndex; i < listViewResults.TopItemIndex + 20; i++) {
-                     ScanResult scanResult = (ScanResult)listViewResults.GetModelObject(i);
-                     if (scanResult != null) {
-                        dynamic runtimeValue = Memory.read(
-                           processInfo.id,
-                           scanResult.address,
-                           scanResult.valueType
-                        );
-                        scanResult.memoryValue = runtimeValue;
+            try {
+               // Scan results
+               if (currentScanStatus != Memory.ScanStatus.Scanning) {
+                  listViewResults.Invoke(new Action(() =>
+                  {
+                     for (Int32 i = listViewResults.TopItemIndex; i < listViewResults.TopItemIndex + 20; i++) {
+                        ScanResult scanResult = (ScanResult)listViewResults.GetModelObject(i);
+                        if (scanResult != null) {
+                           dynamic runtimeValue = Memory.ActiveProcess.read(
+                              scanResult.address,
+                              scanResult.valueType
+                           );
+                           scanResult.memoryValue = runtimeValue;
+                        }
+                        Thread.Sleep(1);
                      }
-                  }
-               }));
-            }
-            // Saved results
-            dataGridSavedResults.Invoke(new Action(() =>
-            {
-               foreach (DataGridViewRow row in dataGridSavedResults.Rows) {
-                  if (!((CheatInformation)row.Tag).isValueFrozen) {
-                     var runtimeValue = Memory.read(
-                        processInfo.id,
-                        (UInt64)row.Cells[SavedResultsColumnIndex.iAddress].Value,
-                        (Type)row.Cells[SavedResultsColumnIndex.iValueType].Value
-                     );
-                     dataGridSavedResults.Rows[row.Index].Cells[SavedResultsColumnIndex.iValue].Value = runtimeValue;
-                  }
+                  }));
                }
-            }));
-            System.Threading.Thread.Sleep(1000);
+               Thread.Sleep(1000);
+            } catch (Exception ex) {
+               Console.WriteLine("Fail silently, bgWorkerResultsUpdater:\r\n" + ex.ToString());
+            }
          }
       }
       #endregion
@@ -912,20 +809,18 @@ namespace PlayEngine.Forms {
                e.Cancel = true;
                break;
             }
-            dataGridSavedResults.Invoke(new Action(() =>
-            {
-               foreach (DataGridViewRow row in dataGridSavedResults.Rows) {
-                  if (((CheatInformation)row.Tag).isValueFrozen) {
-                     Memory.write(
-                        processInfo.id,
-                        (UInt64)row.Cells[SavedResultsColumnIndex.iAddress].Value,
-                        row.Cells[SavedResultsColumnIndex.iValue].Value,
-                        (Type)row.Cells[SavedResultsColumnIndex.iValueType].Value
-                     );
+            try {
+               if (listViewSavedResults.Items.Count > 0) {
+                  foreach (CheatInformation cheatInformation in listViewSavedResults.Objects) {
+                     if (cheatInformation.isFrozen)
+                        Memory.ActiveProcess.write(cheatInformation.address, cheatInformation.frozenValue, cheatInformation.valueType);
+                     Thread.Sleep(1);
                   }
                }
-            }));
-            System.Threading.Thread.Sleep(250);
+               Thread.Sleep(250);
+            } catch (Exception ex) {
+               Console.WriteLine("Fail silently, bgWorkerValueFreezer:\r\n" + ex.ToString());
+            }
          }
       }
       #endregion

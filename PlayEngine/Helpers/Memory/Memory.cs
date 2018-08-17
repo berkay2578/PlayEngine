@@ -42,8 +42,36 @@ namespace PlayEngine.Helpers {
       }
       public static ScanStatus currentScanStatus;
 
+      public class ActiveProcess {
+         public static librpc.ProcessInfo info = null;
+
+         public static Byte[] readByteArray(UInt64 address, Int32 size) {
+            return Memory.readByteArray(info.id, address, size);
+         }
+         public static String readString(UInt64 address) {
+            return Memory.readString(info.id, address);
+         }
+         public static dynamic read(UInt64 address, Type valueType) {
+            return Memory.read(info.id, address, valueType);
+         }
+
+         public static void writeByteArray(UInt64 address, Byte[] bytes) {
+            Memory.writeByteArray(info.id, address, bytes);
+         }
+         public static void writeString(UInt64 address, String str) {
+            Memory.writeString(info.id, address, str);
+         }
+         public static void write(UInt64 address, Object value, Type valueType) {
+            Memory.write(info.id, address, value, valueType);
+         }
+
+         public static void setActiveProcess(librpc.ProcessInfo processInfo) {
+            info = processInfo;
+         }
+      }
+
       public class Sections {
-         public static List<librpc.MemorySection> getMemorySections(librpc.ProcessInfo processInfo, librpc.VM_PROT protection = librpc.VM_PROT.R) {
+         public static List<librpc.MemorySection> getMemorySections(librpc.ProcessInfo processInfo, librpc.VM_PROT protection = librpc.VM_PROT.RO) {
             var listMemoryEntries = new List<librpc.MemorySection>();
             foreach (var memorySection in processInfo.listProcessMemorySections)
                if ((memorySection.protection & protection) == protection)
@@ -51,7 +79,7 @@ namespace PlayEngine.Helpers {
 
             return listMemoryEntries;
          }
-         public static librpc.MemorySection findMemorySectionByName(librpc.ProcessInfo processInfo, String sectionName, librpc.VM_PROT protection = librpc.VM_PROT.R) {
+         public static librpc.MemorySection findMemorySectionByName(librpc.ProcessInfo processInfo, String sectionName, librpc.VM_PROT protection = librpc.VM_PROT.RO) {
             librpc.MemorySection result = null;
             foreach (var memorySection in processInfo.listProcessMemorySections) {
                if (memorySection.name == sectionName &&
@@ -64,7 +92,7 @@ namespace PlayEngine.Helpers {
             return result;
          }
       }
-      public class ActiveProcess {
+      public class CUSAInfo {
          public static String getId() {
             librpc.ProcessInfo processInfo = Memory.ps4RPC.GetProcessInfo("SceCdlgApp");
             if (processInfo == null)
@@ -191,7 +219,7 @@ namespace PlayEngine.Helpers {
                index += bufBoyerMoore[searchBuffer[index + indexPatternEnd]];
             }
          } else {
-            if (compareType == CompareTypeExactValue.mSelf) {
+            if (compareType.GetType() == typeof(CompareTypeExactValue)) {
                var patternMatchScanResults = scan(searchStartAddress, searchBuffer, dotNetExtensions.getBytes(value, valueType), typeof(Byte[]), null);
                foreach (Tuple<UInt64, dynamic> tuple in patternMatchScanResults)
                   listResults.Add(new Tuple<UInt64, dynamic>(tuple.Item1, value));

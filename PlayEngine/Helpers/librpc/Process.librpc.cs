@@ -23,10 +23,10 @@ namespace librpc {
 
    public enum VM_PROT {
       NONE = 0x00,
-      R = 0x01,
-      W = 0x02,
+      RO = 0x01,
+      WO = 0x02,
       RW = 0x03,
-      X = 0x04,
+      XO = 0x04,
       RX = 0x05,
       WX = 0x06,
       RWX = 0x07
@@ -38,6 +38,7 @@ namespace librpc {
       public UInt64 offset;
       public VM_PROT protection;
 
+      public Int32 index;
       public Int32 length
       {
          get {
@@ -45,7 +46,7 @@ namespace librpc {
          }
       }
       public override String ToString() {
-         return $"{name}(0x{offset:X}-{length / 1024}KB)[{protection.ToString()}]";
+         return $"{name} (0x{offset:X}-{length / 1024}KB)[{protection.ToString()}]";
       }
    }
 

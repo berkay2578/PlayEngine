@@ -585,7 +585,8 @@ namespace librpc {
                start = BitConverter.ToUInt64(data, offset + 32),
                end = BitConverter.ToUInt64(data, offset + 40),
                offset = BitConverter.ToUInt64(data, offset + 48),
-               protection = (VM_PROT)BitConverter.ToUInt32(data, offset + 56)
+               protection = (VM_PROT)BitConverter.ToUInt32(data, offset + 56),
+               index = i
             };
          }
 

@@ -689,7 +689,7 @@ namespace PlayEngine.Forms {
             scanSizeStr = getSizeStr(totalMemoryRange);
 
             subUpdateProgress = Convert.ToInt32((++dummyCounter / (Double)listFilteredProcessMemorySections.Count) * 100);
-            mainUpdateProgress = Convert.ToInt32(subUpdateProgress * 0.45f);
+            mainUpdateProgress = Convert.ToInt32(subUpdateProgress * 0.30f);
             fnUpdateProgress($"Finding scan address range... %{subUpdateProgress}", mainUpdateProgress);
          }
          #endregion
@@ -704,7 +704,7 @@ namespace PlayEngine.Forms {
             {
                if (eventArgs.Action == NotifyCollectionChangedAction.Add) {
                   foreach (Tuple<librpc.MemorySection, Byte[]> scanTuple in eventArgs.NewItems) {
-                     mainUpdateProgress = 45 + Convert.ToInt32((processedMemoryRange / (Double)totalMemoryRange) * 45);
+                     mainUpdateProgress = 30 + Convert.ToInt32((processedMemoryRange / (Double)totalMemoryRange) * 30);
                      fnUpdateProgress($"Scanning... {getSizeStr(processedMemoryRange)}/{scanSizeStr} - part {++dummyCounter}/{listScanAddressRange.Count}", mainUpdateProgress);
 
                      var results = Memory.scan(scanTuple.Item1.start, scanTuple.Item2, scanValues[0], scanValueType, currentScanCompareType, new dynamic[2] { scanValues[0], scanValues[1] });
@@ -730,17 +730,15 @@ namespace PlayEngine.Forms {
                }
             }).Start();
          });
-         new Thread(() =>
-         {
-            foreach (var scanTuple in listScanAddressRange) {
-               Byte[] scanSearchBuffer = Memory.ActiveProcess.readByteArray(scanTuple.Item1.start, scanTuple.Item2);
-               if (scanSearchBuffer != null)
-                  listReadBuffers.Add(new Tuple<librpc.MemorySection, Byte[]>(scanTuple.Item1, scanSearchBuffer));
-               if (bgWorkerScanner.CancellationPending || shouldEscape)
-                  break;
-               Thread.Sleep(10);
-            }
-         }).Start();
+         // no use creating multiple threads to read, jkpatch does exclusive r/w (courtesy of the PS4 SDK)
+         foreach (var scanTuple in listScanAddressRange) {
+            Byte[] scanSearchBuffer = Memory.ActiveProcess.readByteArray(scanTuple.Item1.start, scanTuple.Item2);
+            if (scanSearchBuffer != null)
+               listReadBuffers.Add(new Tuple<librpc.MemorySection, Byte[]>(scanTuple.Item1, scanSearchBuffer));
+            if (bgWorkerScanner.CancellationPending || shouldEscape)
+               break;
+            Thread.Sleep(10);
+         }
 
          while (!shouldEscape)
             Thread.Sleep(100);
@@ -792,17 +790,56 @@ namespace PlayEngine.Forms {
                      for (Int32 i = listViewResults.TopItemIndex; i < listViewResults.TopItemIndex + 20; i++) {
                         ScanResult scanResult = (ScanResult)listViewResults.GetModelObject(i);
                         if (scanResult != null) {
-                           dynamic runtimeValue = Memory.ActiveProcess.read(
-                              scanResult.address,
-                              scanResult.valueType
-                           );
+                           dynamic runtimeValue = Memory.ActiveProcess.read(scanResult.address, scanResult.valueType);
                            scanResult.memoryValue = runtimeValue;
                         }
                         Thread.Sleep(1);
                      }
                   }));
                }
-               Thread.Sleep(1000);
+               Thread.Sleep(500);
+               if (listViewResults.GetItemCount() > 0) {
+                  foreach (CheatInformation cheatInformation in listViewSavedResults.Objects) {
+                     dynamic runtimeValue = Memory.ActiveProcess.read(cheatInformation.address, cheatInformation.valueType);
+                     if (cheatInformation.value != runtimeValue) {
+                        try {
+                           Memory.ActiveProcess.write(cheatInformation.address, cheatInformation.value, cheatInformation.valueType);
+                        } catch (OverflowException) {
+                           switch (Type.GetTypeCode(cheatInformation.valueType)) {
+                              case TypeCode.SByte:
+                                 cheatInformation.valueType = typeof(Byte);
+                                 break;
+                              case TypeCode.Byte:
+                                 cheatInformation.valueType = typeof(SByte);
+                                 break;
+                              case TypeCode.Int16:
+                                 cheatInformation.valueType = typeof(UInt16);
+                                 break;
+                              case TypeCode.UInt16:
+                                 cheatInformation.valueType = typeof(Int16);
+                                 break;
+                              case TypeCode.Int32:
+                                 cheatInformation.valueType = typeof(UInt32);
+                                 break;
+                              case TypeCode.UInt32:
+                                 cheatInformation.valueType = typeof(Int32);
+                                 break;
+                              case TypeCode.Int64:
+                                 cheatInformation.valueType = typeof(UInt64);
+                                 break;
+                              case TypeCode.UInt64:
+                                 cheatInformation.valueType = typeof(Int64);
+                                 break;
+                           }
+                           Memory.ActiveProcess.write(cheatInformation.address, cheatInformation.value, cheatInformation.valueType);
+                        }
+                     } else {
+                        cheatInformation.value = runtimeValue;
+                     }
+                     Thread.Sleep(1);
+                  }
+               }
+               Thread.Sleep(500);
             } catch (Exception ex) {
                Console.WriteLine("Fail silently, bgWorkerResultsUpdater:\r\n" + ex.ToString());
             }
@@ -817,7 +854,7 @@ namespace PlayEngine.Forms {
                break;
             }
             try {
-               if (listViewSavedResults.Items.Count > 0) {
+               if (listViewSavedResults.GetItemCount() > 0) {
                   foreach (CheatInformation cheatInformation in listViewSavedResults.Objects) {
                      if (cheatInformation.isFrozen)
                         Memory.ActiveProcess.write(cheatInformation.address, cheatInformation.frozenValue, cheatInformation.valueType);

@@ -80,40 +80,8 @@ namespace PlayEngine.Helpers.CheatManager {
       private dynamic _value;
       public dynamic value
       {
-         get { return Memory.ActiveProcess.read(address, valueType); }
+         get { return _value; }
          set {
-            try {
-               Memory.ActiveProcess.write(address, value, valueType);
-            } catch (OverflowException) {
-               switch (Type.GetTypeCode(valueType)) {
-                  case TypeCode.SByte:
-                     valueType = typeof(Byte);
-                     break;
-                  case TypeCode.Byte:
-                     valueType = typeof(SByte);
-                     break;
-                  case TypeCode.Int16:
-                     valueType = typeof(UInt16);
-                     break;
-                  case TypeCode.UInt16:
-                     valueType = typeof(Int16);
-                     break;
-                  case TypeCode.Int32:
-                     valueType = typeof(UInt32);
-                     break;
-                  case TypeCode.UInt32:
-                     valueType = typeof(Int32);
-                     break;
-                  case TypeCode.Int64:
-                     valueType = typeof(UInt64);
-                     break;
-                  case TypeCode.UInt64:
-                     valueType = typeof(Int64);
-                     break;
-               }
-               Memory.ActiveProcess.write(address, value, valueType);
-            }
-
             frozenValue = value;
             setField(ref _value, value, "value");
          }

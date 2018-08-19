@@ -91,5 +91,13 @@ namespace PlayEngine.Helpers {
 
          return null;
       }
+
+      public static String getNullTerminatedString(Byte[] data, Int32 offset) {
+         Int32 length = Array.IndexOf<Byte>(data, 0x00, offset) - offset;
+         if (length < 0)
+            length = data.Length - offset;
+
+         return Encoding.ASCII.GetString(data, offset, length);
+      }
    }
 }

@@ -60,7 +60,7 @@ namespace PlayEngine.Forms.ChildForms {
             String payloadDir = Path.Combine(Application.StartupPath, "Payloads\\" + (String)cmbBoxPayload.SelectedItem);
             using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)) {
                try {
-                  IAsyncResult result = socket.BeginConnect(txtBoxIPAddress.Text, librpc.PS4RPC.RPC_PORT, null, null);
+                  IAsyncResult result = socket.BeginConnect(txtBoxIPAddress.Text, 2578, null, null);
                   result.AsyncWaitHandle.WaitOne(1000);
                   socket.EndConnect(result);
                   payloadAlreadyInjected = true;

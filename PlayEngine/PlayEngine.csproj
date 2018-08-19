@@ -106,6 +106,14 @@
     <Compile Include="Helpers\CheatManager\CheatTable\Objects\ICheatEntry.cs" />
     <Compile Include="Helpers\CheatManager\CheatTable\Objects\ComplexCheatEntry.cs" />
     <Compile Include="Helpers\CheatManager\CheatTable\Objects\SimpleCheatEntry.cs" />
+    <Compile Include="Helpers\librpc\Packets\ProcessWritePacket.cs" />
+    <Compile Include="Helpers\librpc\Packets\ProcessReadResponsePacket.cs" />
+    <Compile Include="Helpers\librpc\Packets\ProcessReadPacket.cs" />
+    <Compile Include="Helpers\librpc\Packets\ProcessInfoResponsePacket.cs" />
+    <Compile Include="Helpers\librpc\Packets\ProcessListPacket.cs" />
+    <Compile Include="Helpers\librpc\Packets\ProcessInfoPacket.cs" />
+    <Compile Include="Helpers\librpc\Packets\ResultPacket.cs" />
+    <Compile Include="Helpers\librpc\Packets\IPacket.cs" />
     <Compile Include="Helpers\librpc\Process.librpc.cs" />
     <Compile Include="Helpers\librpc\PS4RPC.librpc.cs" />
     <Compile Include="Helpers\Memory\Memory.cs" />

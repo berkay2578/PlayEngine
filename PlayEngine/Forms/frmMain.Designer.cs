@@ -307,7 +307,7 @@
          this.splitContainerScanner.Panel2.Padding = new System.Windows.Forms.Padding(0, 0, 1, 0);
          this.splitContainerScanner.Panel2MinSize = 100;
          this.splitContainerScanner.Size = new System.Drawing.Size(497, 280);
-         this.splitContainerScanner.SplitterDistance = 238;
+         this.splitContainerScanner.SplitterDistance = 241;
          this.splitContainerScanner.SplitterWidth = 1;
          this.splitContainerScanner.TabIndex = 15;
          // 
@@ -331,7 +331,7 @@
          this.listViewResults.Name = "listViewResults";
          this.listViewResults.ShowGroups = false;
          this.listViewResults.ShowItemToolTips = true;
-         this.listViewResults.Size = new System.Drawing.Size(238, 280);
+         this.listViewResults.Size = new System.Drawing.Size(241, 280);
          this.listViewResults.TabIndex = 0;
          this.listViewResults.TabStop = false;
          this.listViewResults.UseCellFormatEvents = true;
@@ -372,10 +372,11 @@
          // 
          // btnScanUndo
          // 
+         this.btnScanUndo.Dock = System.Windows.Forms.DockStyle.Right;
          this.btnScanUndo.Enabled = false;
-         this.btnScanUndo.Location = new System.Drawing.Point(182, 3);
+         this.btnScanUndo.Location = new System.Drawing.Point(174, 0);
          this.btnScanUndo.Name = "btnScanUndo";
-         this.btnScanUndo.Size = new System.Drawing.Size(78, 23);
+         this.btnScanUndo.Size = new System.Drawing.Size(80, 26);
          this.btnScanUndo.TabIndex = 40;
          this.btnScanUndo.Text = "Undo Scan";
          this.btnScanUndo.UseVisualStyleBackColor = true;
@@ -392,10 +393,10 @@
          this.panelScanControls.Controls.Add(this.txtBoxScanValue);
          this.panelScanControls.Controls.Add(this.chkBoxIsHexValue);
          this.panelScanControls.Dock = System.Windows.Forms.DockStyle.Bottom;
-         this.panelScanControls.Location = new System.Drawing.Point(0, 32);
+         this.panelScanControls.Location = new System.Drawing.Point(0, 26);
          this.panelScanControls.Name = "panelScanControls";
          this.panelScanControls.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
-         this.panelScanControls.Size = new System.Drawing.Size(257, 248);
+         this.panelScanControls.Size = new System.Drawing.Size(254, 254);
          this.panelScanControls.TabIndex = 39;
          // 
          // panelSectionSearchOptions
@@ -410,9 +411,9 @@
          this.panelSectionSearchOptions.Controls.Add(this.txtBoxSectionsFilterInclude);
          this.panelSectionSearchOptions.Controls.Add(this.label2);
          this.panelSectionSearchOptions.Dock = System.Windows.Forms.DockStyle.Bottom;
-         this.panelSectionSearchOptions.Location = new System.Drawing.Point(0, 118);
+         this.panelSectionSearchOptions.Location = new System.Drawing.Point(0, 124);
          this.panelSectionSearchOptions.Name = "panelSectionSearchOptions";
-         this.panelSectionSearchOptions.Size = new System.Drawing.Size(254, 130);
+         this.panelSectionSearchOptions.Size = new System.Drawing.Size(251, 130);
          this.panelSectionSearchOptions.TabIndex = 58;
          // 
          // numUpDownSectionMaxLength
@@ -432,7 +433,7 @@
             0,
             0});
          this.numUpDownSectionMaxLength.Name = "numUpDownSectionMaxLength";
-         this.numUpDownSectionMaxLength.Size = new System.Drawing.Size(59, 23);
+         this.numUpDownSectionMaxLength.Size = new System.Drawing.Size(56, 23);
          this.numUpDownSectionMaxLength.TabIndex = 64;
          this.numUpDownSectionMaxLength.Value = new decimal(new int[] {
             51200,
@@ -470,7 +471,7 @@
          this.cmbBoxSectionsFilterProtection.Location = new System.Drawing.Point(191, 74);
          this.cmbBoxSectionsFilterProtection.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.cmbBoxSectionsFilterProtection.Name = "cmbBoxSectionsFilterProtection";
-         this.cmbBoxSectionsFilterProtection.Size = new System.Drawing.Size(59, 23);
+         this.cmbBoxSectionsFilterProtection.Size = new System.Drawing.Size(56, 23);
          this.cmbBoxSectionsFilterProtection.TabIndex = 61;
          // 
          // label3
@@ -490,7 +491,7 @@
          this.txtBoxSectionsFilterExclude.Location = new System.Drawing.Point(152, 49);
          this.txtBoxSectionsFilterExclude.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.txtBoxSectionsFilterExclude.Name = "txtBoxSectionsFilterExclude";
-         this.txtBoxSectionsFilterExclude.Size = new System.Drawing.Size(98, 23);
+         this.txtBoxSectionsFilterExclude.Size = new System.Drawing.Size(95, 23);
          this.txtBoxSectionsFilterExclude.TabIndex = 57;
          this.txtBoxSectionsFilterExclude.Text = "Sce";
          // 
@@ -511,7 +512,7 @@
          this.txtBoxSectionsFilterInclude.Location = new System.Drawing.Point(152, 24);
          this.txtBoxSectionsFilterInclude.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.txtBoxSectionsFilterInclude.Name = "txtBoxSectionsFilterInclude";
-         this.txtBoxSectionsFilterInclude.Size = new System.Drawing.Size(98, 23);
+         this.txtBoxSectionsFilterInclude.Size = new System.Drawing.Size(95, 23);
          this.txtBoxSectionsFilterInclude.TabIndex = 56;
          // 
          // label2
@@ -550,7 +551,7 @@
          this.txtBoxScanSecondValue.Location = new System.Drawing.Point(72, 35);
          this.txtBoxScanSecondValue.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.txtBoxScanSecondValue.Name = "txtBoxScanSecondValue";
-         this.txtBoxScanSecondValue.Size = new System.Drawing.Size(179, 23);
+         this.txtBoxScanSecondValue.Size = new System.Drawing.Size(176, 23);
          this.txtBoxScanSecondValue.TabIndex = 46;
          this.txtBoxScanSecondValue.Text = "0";
          this.txtBoxScanSecondValue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
@@ -565,7 +566,7 @@
          this.cmbBoxScanCompareType.Location = new System.Drawing.Point(72, 60);
          this.cmbBoxScanCompareType.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.cmbBoxScanCompareType.Name = "cmbBoxScanCompareType";
-         this.cmbBoxScanCompareType.Size = new System.Drawing.Size(179, 23);
+         this.cmbBoxScanCompareType.Size = new System.Drawing.Size(176, 23);
          this.cmbBoxScanCompareType.TabIndex = 47;
          this.cmbBoxScanCompareType.SelectedIndexChanged += new System.EventHandler(this.cmbBoxScanCompareType_SelectedIndexChanged);
          // 
@@ -580,7 +581,7 @@
          this.cmbBoxScanValueType.Location = new System.Drawing.Point(72, 85);
          this.cmbBoxScanValueType.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.cmbBoxScanValueType.Name = "cmbBoxScanValueType";
-         this.cmbBoxScanValueType.Size = new System.Drawing.Size(179, 23);
+         this.cmbBoxScanValueType.Size = new System.Drawing.Size(176, 23);
          this.cmbBoxScanValueType.TabIndex = 48;
          this.cmbBoxScanValueType.SelectedIndexChanged += new System.EventHandler(this.cmbBoxScanValueType_SelectedIndexChanged);
          // 
@@ -592,7 +593,7 @@
          this.txtBoxScanValue.Location = new System.Drawing.Point(72, 10);
          this.txtBoxScanValue.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
          this.txtBoxScanValue.Name = "txtBoxScanValue";
-         this.txtBoxScanValue.Size = new System.Drawing.Size(179, 23);
+         this.txtBoxScanValue.Size = new System.Drawing.Size(176, 23);
          this.txtBoxScanValue.TabIndex = 45;
          this.txtBoxScanValue.Text = "0";
          this.txtBoxScanValue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.uiKeyDownHandler);
@@ -609,7 +610,7 @@
          // 
          // btnScanNext
          // 
-         this.btnScanNext.Location = new System.Drawing.Point(86, 3);
+         this.btnScanNext.Location = new System.Drawing.Point(86, 2);
          this.btnScanNext.Name = "btnScanNext";
          this.btnScanNext.Size = new System.Drawing.Size(82, 23);
          this.btnScanNext.TabIndex = 27;
@@ -619,7 +620,7 @@
          // 
          // btnScan
          // 
-         this.btnScan.Location = new System.Drawing.Point(5, 3);
+         this.btnScan.Location = new System.Drawing.Point(3, 2);
          this.btnScan.Name = "btnScan";
          this.btnScan.Size = new System.Drawing.Size(82, 23);
          this.btnScan.TabIndex = 26;

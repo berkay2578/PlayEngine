@@ -32,8 +32,8 @@ using PlayEngine.Helpers;
 namespace PlayEngine {
    internal static class Program {
       private static void onExit(Object sender, EventArgs e) {
-         if (Memory.ps4RPC != null && Memory.ps4RPC.IsConnected)
-            Memory.ps4RPC.Disconnect();
+         if (Memory.ps4RPC != null && Memory.ps4RPC.isConnected)
+            Memory.ps4RPC.disconnect();
       }
 
       [STAThread]

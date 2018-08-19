@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace librpc {
    public class Process {
       public String name;
-      public Int32 id;
+      public UInt32 id;
 
       /// <summary>
       /// Initializes Process class
@@ -15,13 +15,13 @@ namespace librpc {
       /// <param name="name">Process name</param>
       /// <param name="pid">Process ID</param>
       /// <returns></returns>
-      public Process(String name, Int32 pid) {
+      public Process(String name, UInt32 pid) {
          this.name = name;
          this.id = pid;
       }
    }
 
-   public enum VM_PROT {
+   public enum VM_PROT : UInt32 {
       NONE = 0x00,
       RO = 0x01,
       WO = 0x02,
@@ -39,10 +39,10 @@ namespace librpc {
       public VM_PROT protection;
 
       public Int32 index;
-      public Int32 length
+      public UInt32 length
       {
          get {
-            return (Int32)(end - start);
+            return (UInt32)(end - start);
          }
       }
       public override String ToString() {
@@ -51,18 +51,18 @@ namespace librpc {
    }
 
    public class ProcessInfo {
-      public Int32 id;
+      public UInt32 id;
       public List<MemorySection> listProcessMemorySections = new List<MemorySection>();
 
       /// <summary>
       /// Initializes ProcessInfo class with memory entries and process ID
       /// </summary>
       /// <param name="pid">Process ID</param>
-      /// <param name="memorySections">Process memory sections</param>
+      /// <param name="sections">Process memory sections</param>
       /// <returns></returns>
-      public ProcessInfo(Int32 pid, MemorySection[] entries) {
+      public ProcessInfo(UInt32 pid, IEnumerable<MemorySection> sections) {
          this.id = pid;
-         this.listProcessMemorySections.AddRange(entries);
+         this.listProcessMemorySections.AddRange(sections);
       }
    }
 }

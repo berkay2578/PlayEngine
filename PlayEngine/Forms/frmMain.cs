@@ -208,7 +208,7 @@ namespace PlayEngine.Forms {
          // Check for existing jkpatch
          using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)) {
             try {
-               IAsyncResult result = socket.BeginConnect(Settings.mInstance.ps4.IPAddress, librpc.PS4RPC.RPC_PORT, null, null);
+               IAsyncResult result = socket.BeginConnect(Settings.mInstance.ps4.IPAddress, 2578, null, null);
                result.AsyncWaitHandle.WaitOne(1000);
                if (socket.Connected)
                   uiToolStrip_PayloadManager_chkPayloadActive.Checked = Memory.initPS4RPC(Settings.mInstance.ps4.IPAddress);
@@ -420,7 +420,7 @@ namespace PlayEngine.Forms {
       private void btnRefreshProcessList_OnClick() {
          try {
             uiToolStrip_ProcessManager_cmbBoxActiveProcess.Items.Clear();
-            foreach (librpc.Process process in Memory.ps4RPC.GetProcessList()) {
+            foreach (librpc.Process process in Memory.ps4RPC.getProcessList()) {
                uiToolStrip_ProcessManager_cmbBoxActiveProcess.Items.Add(process.name);
                if (process.name == "eboot.bin")
                   uiToolStrip_ProcessManager_cmbBoxActiveProcess.SelectedItem = "eboot.bin";
@@ -659,12 +659,12 @@ namespace PlayEngine.Forms {
          UInt64 processedMemoryRange = 0, totalMemoryRange = 0;
          String scanSizeStr = getSizeStr(0);
 
-         var listScanAddressRange = new List<Tuple<librpc.MemorySection, Int32>>();
+         var listScanAddressRange = new List<Tuple<librpc.MemorySection, UInt32>>();
          Int32 lastAddedSectionIndex = -1;
-         Action<librpc.MemorySection, Int32> fnAddSection = (librpc.MemorySection memorySection, Int32 length) =>
+         Action<librpc.MemorySection, UInt32> fnAddSection = (librpc.MemorySection memorySection, UInt32 length) =>
          {
             if (length > 0) {
-               listScanAddressRange.Add(new Tuple<librpc.MemorySection, Int32>(memorySection, length));
+               listScanAddressRange.Add(new Tuple<librpc.MemorySection, UInt32>(memorySection, length));
                lastAddedSectionIndex++;
             }
          };
@@ -678,7 +678,7 @@ namespace PlayEngine.Forms {
                var lastAddedSectionEnd = lastAddedSection.Item1.start + (UInt64)lastAddedSection.Item2;
                if (lastAddedSectionEnd == section.start) {
                   if (lastAddedSection.Item2 < 100 * 1024)
-                     listScanAddressRange[lastAddedSectionIndex] = new Tuple<librpc.MemorySection, Int32>(lastAddedSection.Item1, lastAddedSection.Item2 + section.length);
+                     listScanAddressRange[lastAddedSectionIndex] = new Tuple<librpc.MemorySection, UInt32>(lastAddedSection.Item1, lastAddedSection.Item2 + section.length);
                   else
                      fnAddSection(section, section.length);
                } else {
@@ -694,7 +694,6 @@ namespace PlayEngine.Forms {
          }
          #endregion
          #region Scan
-         dummyCounter = 0;
          Boolean shouldEscape = false;
 
          ObservableCollection<Tuple<librpc.MemorySection, Byte[]>> listReadBuffers = new ObservableCollection<Tuple<librpc.MemorySection, Byte[]>>();
@@ -704,8 +703,8 @@ namespace PlayEngine.Forms {
             {
                if (eventArgs.Action == NotifyCollectionChangedAction.Add) {
                   foreach (Tuple<librpc.MemorySection, Byte[]> scanTuple in eventArgs.NewItems) {
-                     mainUpdateProgress = 30 + Convert.ToInt32((processedMemoryRange / (Double)totalMemoryRange) * 30);
-                     fnUpdateProgress($"Scanning... {getSizeStr(processedMemoryRange)}/{scanSizeStr} - part {++dummyCounter}/{listScanAddressRange.Count}", mainUpdateProgress);
+                     mainUpdateProgress = 30 + Convert.ToInt32((processedMemoryRange / (Double)totalMemoryRange) * 60);
+                     fnUpdateProgress($"Scanning... {getSizeStr(processedMemoryRange)}/{scanSizeStr}", mainUpdateProgress);
 
                      var results = Memory.scan(scanTuple.Item1.start, scanTuple.Item2, scanValues[0], scanValueType, currentScanCompareType, new dynamic[2] { scanValues[0], scanValues[1] });
                      foreach (var resultTuple in results) {
@@ -730,11 +729,13 @@ namespace PlayEngine.Forms {
                }
             }).Start();
          });
-         // no use creating multiple threads to read, jkpatch does exclusive r/w (courtesy of the PS4 SDK)
          foreach (var scanTuple in listScanAddressRange) {
-            Byte[] scanSearchBuffer = Memory.ActiveProcess.readByteArray(scanTuple.Item1.start, scanTuple.Item2);
-            if (scanSearchBuffer != null)
-               listReadBuffers.Add(new Tuple<librpc.MemorySection, Byte[]>(scanTuple.Item1, scanSearchBuffer));
+            new Thread(() =>
+            {
+               Byte[] scanSearchBuffer = Memory.ActiveProcess.readByteArray(scanTuple.Item1.start, scanTuple.Item2);
+               if (scanSearchBuffer != null)
+                  listReadBuffers.Add(new Tuple<librpc.MemorySection, Byte[]>(scanTuple.Item1, scanSearchBuffer));
+            }).Start();
             if (bgWorkerScanner.CancellationPending || shouldEscape)
                break;
             Thread.Sleep(10);

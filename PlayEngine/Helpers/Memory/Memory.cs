@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
+
 using PlayEngine.Helpers.MemoryClasses.ScanCompareTypes;
 
 namespace PlayEngine.Helpers {
@@ -45,7 +45,7 @@ namespace PlayEngine.Helpers {
       public class ActiveProcess {
          public static librpc.ProcessInfo info = null;
 
-         public static Byte[] readByteArray(UInt64 address, Int32 size) {
+         public static Byte[] readByteArray(UInt64 address, UInt32 size) {
             return Memory.readByteArray(info.id, address, size);
          }
          public static String readString(UInt64 address) {
@@ -94,7 +94,7 @@ namespace PlayEngine.Helpers {
       }
       public class CUSAInfo {
          public static String getId() {
-            librpc.ProcessInfo processInfo = Memory.ps4RPC.GetProcessInfo("SceCdlgApp");
+            librpc.ProcessInfo processInfo = Memory.getProcessInfoFromName("SceCdlgApp");
             if (processInfo == null)
                return String.Empty;
             librpc.MemorySection memorySection = Sections.findMemorySectionByName(processInfo, "libSceCdlgUtilServer.sprx", librpc.VM_PROT.RW);
@@ -104,7 +104,7 @@ namespace PlayEngine.Helpers {
             return Memory.readString(processInfo.id, memorySection.start + 0xA0);
          }
          public static String getVersionStr() {
-            librpc.ProcessInfo processInfo = Memory.ps4RPC.GetProcessInfo("SceCdlgApp");
+            librpc.ProcessInfo processInfo = Memory.getProcessInfoFromName("SceCdlgApp");
             if (processInfo == null)
                return String.Empty;
             librpc.MemorySection memorySection = Sections.findMemorySectionByName(processInfo, "libSceCdlgUtilServer.sprx", librpc.VM_PROT.RW);
@@ -115,81 +115,64 @@ namespace PlayEngine.Helpers {
          }
       }
 
-      private static Mutex mutex = new Mutex();
       public static librpc.PS4RPC ps4RPC = null;
       public static Boolean initPS4RPC(String ipAddress) {
          try {
-            mutex.WaitOne();
-            if (ps4RPC != null && ps4RPC.IsConnected)
-               ps4RPC.Disconnect();
+            if (ps4RPC != null && ps4RPC.isConnected)
+               ps4RPC.disconnect();
             ps4RPC = new librpc.PS4RPC(ipAddress);
-            ps4RPC.Connect();
-         } catch {
-         } finally {
-            mutex.ReleaseMutex();
-         }
-         return ps4RPC != null && ps4RPC.IsConnected;
+            ps4RPC.connect();
+         } catch { }
+         return ps4RPC != null && ps4RPC.isConnected;
       }
       public static librpc.ProcessInfo getProcessInfoFromName(String processName) {
-         return Memory.ps4RPC.GetProcessInfo(Memory.ps4RPC.GetProcessList().Where(proc => proc.name == processName).First().id);
+         return Memory.ps4RPC.getProcessInfo(Memory.ps4RPC.getProcessList().Where(proc => proc.name == processName).First().id);
       }
-
-      public static Byte[] readByteArray(Int32 procId, UInt64 address, Int32 size) {
+      
+      public static Byte[] readByteArray(UInt32 procId, UInt64 address, UInt32 size) {
          Byte[] returnBuf = null;
          try {
-            mutex.WaitOne();
-            returnBuf = ps4RPC.ReadMemory(procId, address, size);
+            returnBuf = ps4RPC.readMemory(procId, address, size);
          } catch (Exception ex) {
             Console.WriteLine("Error during ReadByteArray:\r\nProcessId: {0}, Address: {1}, Size: {2}\r\n{3}",
                 procId, address.ToString("X"), size, ex.ToString());
-         } finally {
-            mutex.ReleaseMutex();
          }
          return returnBuf;
       }
-      public static String readString(Int32 procId, UInt64 address) {
+      public static String readString(UInt32 procId, UInt64 address) {
          String returnStr = String.Empty;
          try {
-            mutex.WaitOne();
-            returnStr = ps4RPC.ReadString(procId, address);
+            returnStr = ps4RPC.readString(procId, address);
          } catch (Exception ex) {
             Console.WriteLine("Error during ReadString:\r\nProcessId: {0}, Address: {1}\r\n{2}",
                 procId, address.ToString("X"), ex.ToString());
-         } finally {
-            mutex.ReleaseMutex();
          }
          return returnStr;
       }
-      public static dynamic read(Int32 procId, UInt64 address, Type valueType) {
+      public static dynamic read(UInt32 procId, UInt64 address, Type valueType) {
          if (valueType == typeof(String))
             return readString(procId, address);
-         Byte[] readBuffer = readByteArray(procId, address, valueType == typeof(Boolean) ? 1 : Marshal.SizeOf(valueType));
+         Byte[] readBuffer = readByteArray(procId, address, (UInt32)(valueType == typeof(Boolean) ? 1 : Marshal.SizeOf(valueType)));
          return readBuffer == null ? -1 : readBuffer.getObject(valueType);
       }
 
-      public static void writeByteArray(Int32 procId, UInt64 address, Byte[] bytes) {
+      public static void writeByteArray(UInt32 procId, UInt64 address, Byte[] bytes) {
          try {
-            mutex.WaitOne();
-            ps4RPC.WriteMemory(procId, address, bytes);
+            ps4RPC.writeMemory(procId, address, bytes);
          } catch (Exception ex) {
             Console.WriteLine("Error during WriteByteArray:\r\nProcessId: {0}, Address: {1}, bytes.Length: {2}\r\n{3}",
                    procId, address.ToString("X"), bytes.Length, ex.ToString());
-         } finally {
-            mutex.ReleaseMutex();
          }
       }
-      public static void writeString(Int32 procId, UInt64 address, String str) {
+      public static void writeString(UInt32 procId, UInt64 address, String str) {
          try {
-            mutex.WaitOne();
-            ps4RPC.WriteString(procId, address, str);
+            ps4RPC.writeString(procId, address, str);
          } catch (Exception ex) {
             Console.WriteLine("Error during WriteString:\r\nProcessId: {0}, Address: {1}, String: {2}\r\n{3}",
                 procId, address.ToString("X"), str, ex.ToString());
-         } finally {
-            mutex.ReleaseMutex();
          }
       }
-      public static void write(Int32 procId, UInt64 address, Object value, Type valueType) {
+      public static void write(UInt32 procId, UInt64 address, Object value, Type valueType) {
          if (valueType == typeof(String))
             writeString(procId, address, (String)value);
          else

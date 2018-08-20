@@ -47,15 +47,6 @@ namespace librpc {
       /// <summary>
       /// Initializes PS4RPC class
       /// </summary>
-      /// <param name="addr">PlayStation 4 address</param>
-      public PS4RPC(IPAddress addr) {
-         endPoint = new IPEndPoint(addr, 2578);
-         sock = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true, ReceiveTimeout = 5 * 1000, SendTimeout = 5 * 1000 };
-      }
-
-      /// <summary>
-      /// Initializes PS4RPC class
-      /// </summary>
       /// <param name="ip">PlayStation 4 ip address</param>
       public PS4RPC(String ip) {
          IPAddress addr;
@@ -67,12 +58,6 @@ namespace librpc {
 
          endPoint = new IPEndPoint(addr, 2578);
          sock = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true, ReceiveTimeout = 10 * 1000, SendTimeout = 10 * 1000 };
-      }
-
-      private static Byte[] SubArray(Byte[] data, Int32 offset, Int32 length) {
-         Byte[] bytes = new Byte[length];
-         Buffer.BlockCopy(data, offset, bytes, 0, length);
-         return bytes;
       }
 
       private List<KeyValuePair<Byte, Byte[]>> savedPackets = new List<KeyValuePair<Byte, Byte[]>>();
@@ -87,7 +72,7 @@ namespace librpc {
             else if (_dataType == RPC_PACKET.RPC_PROCESS_READ)
                return (T)(Object)Packets.ProcessReadResponsePacket.deserialize(_bufPacket);
             else
-               throw new Exception($"rpc error -- RPC_RESULT: {_bufPacket[0]}");
+               throw new Exception($"rpc error -- RPC_RESULT: {((RPC_RESULT)_bufPacket[0]).ToString()}");
          });
          foreach (var item in savedPackets) {
             if (item.Key == packetId) {
@@ -172,6 +157,7 @@ namespace librpc {
             length = _length
          };
          sendPacket(packet);
+         receivePacket<Packets.ResultPacket>(packet.id);
          return receivePacket<Packets.ProcessReadResponsePacket>(packet.id).data;
       }
 
@@ -197,6 +183,7 @@ namespace librpc {
             data = _data
          };
          sendPacket(packet);
+         receivePacket<Packets.ResultPacket>(packet.id);
       }
 
       /// <summary>
@@ -214,6 +201,7 @@ namespace librpc {
             dataLength = 0
          };
          sendPacket(packet);
+         receivePacket<Packets.ResultPacket>(packet.id);
 
          List<Process> result = new List<Process>();
          var processes = receivePacket<Packets.ProcessListPacket>(packet.id).listProcesses;
@@ -240,6 +228,7 @@ namespace librpc {
             processId = _processId
          };
          sendPacket(packet);
+         receivePacket<Packets.ResultPacket>(packet.id);
 
          var responsePacket = receivePacket<Packets.ProcessInfoResponsePacket>(packet.id);
          return new ProcessInfo(_processId, responsePacket.listMemorySections);
